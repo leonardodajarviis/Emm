@@ -1,0 +1,36 @@
+using Emm.Domain.Abstractions;
+
+namespace Emm.Domain.Entities.Organization;
+
+public class Location : AggregateRoot, IAuditableEntity
+{
+    public long Id { get; private set; }
+    public string Code { get; private set; } = null!;
+    public string Name { get; private set; } = null!;
+    public string? Description { get; private set; }
+    public long OrganizationUnitId { get; private set; }
+    public bool IsActive { get; private set; }
+    public DateTime CreatedAt { get; private set; }
+    public DateTime UpdatedAt { get; private set; }
+
+    public Location(string code, string name, long organizationUnitId, string? description = null, bool isActive = true)
+    {
+        Code = code;
+        Name = name;
+        OrganizationUnitId = organizationUnitId;
+        Description = description;
+        IsActive = isActive;
+        CreatedAt = DateTime.UtcNow;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void Update(string name, string? description, bool isActive)
+    {
+        Name = name;
+        Description = description;
+        IsActive = isActive;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    private Location() { } // EF Core constructor
+}

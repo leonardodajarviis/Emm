@@ -1,0 +1,68 @@
+namespace Emm.Domain.Entities.Operations;
+
+/// <summary>
+/// Giá trị đọc của tham số thiết bị trong ca vận hành
+/// </summary>
+public class ShiftLogParameterReading
+{
+    public long Id { get; private set; }
+    public Guid? ShiftLogCheckpointLinkedId {get; private set;}
+    public long ShiftLogId { get; private set; }
+    public long AssetId { get; private set; }
+    public string AssetCode { get; private set; } = null!;
+    public string AssetName { get; private set; } = null!;
+    public long ParameterId { get; private set; }
+    public string ParameterName { get; private set; } = null!;
+    public string ParameterCode { get; private set; } = null!;
+    public decimal Value { get; private set; }
+    public string? StringValue { get; private set; }
+    public string Unit { get; private set; } = null!;
+    public DateTime ReadingTime { get; private set; }
+    public string? Notes { get; private set; }
+
+    public ShiftLogParameterReading(
+        long operationTaskId,
+        long assetId,
+        string assetCode,
+        string assetName,
+        long parameterId,
+        string parameterName,
+        string parameterCode,
+        decimal value,
+        string unit,
+        Guid? shiftLogCheckpointLinkedId = null,
+        string? stringValue = null,
+        string? notes = null)
+    {
+        ShiftLogId = operationTaskId;
+        AssetId = assetId;
+        AssetCode = assetCode;
+        AssetName = assetName;
+        ParameterId = parameterId;
+        ParameterName = parameterName;
+        ParameterCode = parameterCode;
+        Value = value;
+        StringValue = stringValue;
+        Unit = unit;
+        ReadingTime = DateTime.UtcNow;
+        Notes = notes;
+        ShiftLogCheckpointLinkedId = shiftLogCheckpointLinkedId;
+    }
+
+    public void UpdateValue(decimal value)
+    {
+        Value = value;
+    }
+
+    public void SetWarning(string reason)
+    {
+        Notes = reason;
+    }
+
+    public void SetCritical(string reason)
+    {
+        Notes = reason;
+    }
+
+    private ShiftLogParameterReading() { } // EF Core constructor
+}

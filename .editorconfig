@@ -1,0 +1,244 @@
+# EditorConfig is awesome: https://EditorConfig.org
+
+# File cấu hình cấp cao nhất - áp dụng cho toàn bộ project
+root = true
+
+# Tất cả các file
+[*]
+charset = utf-8                     # Mã hóa ký tự UTF-8
+end_of_line = crlf                  # Kết thúc dòng theo Windows (CRLF)
+insert_final_newline = true         # Thêm dòng trống ở cuối file
+trim_trailing_whitespace = true     # Xóa khoảng trắng thừa ở cuối dòng
+
+# File code C# và VB.NET
+[*.{cs,csx,vb,vbx}]
+indent_style = space                # Sử dụng space thay vì tab
+indent_size = 4                     # Mỗi mức indent = 4 space
+
+# File project XML
+[*.{csproj,vbproj,vcxproj,vcxproj.filters,proj,projitems,shproj}]
+indent_style = space                # Sử dụng space
+indent_size = 2                     # Mỗi mức indent = 2 space (XML thường ngắn hơn)
+
+# File cấu hình XML
+[*.{props,targets,ruleset,config,nuspec,resx,vsixmanifest,vsct}]
+indent_style = space                # Sử dụng space
+indent_size = 2                     # Mỗi mức indent = 2 space
+
+# File JSON
+[*.{json,json5,webmanifest}]
+indent_style = space                # Sử dụng space
+indent_size = 2                     # Mỗi mức indent = 2 space
+
+# File YAML
+[*.{yml,yaml}]
+indent_style = space                # Sử dụng space (YAML yêu cầu space)
+indent_size = 2                     # Mỗi mức indent = 2 space
+
+# File Markdown
+[*.{md,mdx}]
+trim_trailing_whitespace = false    # Không xóa khoảng trắng cuối dòng (Markdown cần)
+
+# File Web
+[*.{htm,html,js,ts,tsx,css,sass,scss,less,svg,vue}]
+indent_style = space                # Sử dụng space
+indent_size = 2                     # Mỗi mức indent = 2 space
+
+# File Batch Windows
+[*.{cmd,bat}]
+end_of_line = crlf                  # Kết thúc dòng CRLF (Windows)
+
+# File Bash Unix/Linux
+[*.sh]
+end_of_line = lf                    # Kết thúc dòng LF (Unix/Linux)
+
+# File C# - Quy tắc định dạng code
+[*.cs]
+
+# Preferences về xuống dòng mới
+csharp_new_line_before_open_brace = all                           # Đặt { ở dòng mới cho tất cả
+csharp_new_line_before_else = true                                # Đặt else ở dòng mới
+csharp_new_line_before_catch = true                               # Đặt catch ở dòng mới
+csharp_new_line_before_finally = true                             # Đặt finally ở dòng mới
+csharp_new_line_before_members_in_object_initializers = true      # Xuống dòng trong object initializer
+csharp_new_line_before_members_in_anonymous_types = true          # Xuống dòng trong anonymous type
+csharp_new_line_between_query_expression_clauses = true           # Xuống dòng giữa các mệnh đề LINQ
+
+# Preferences về thụt lề
+csharp_indent_case_contents = true                                # Thụt lề nội dung case trong switch
+csharp_indent_switch_labels = true                                # Thụt lề nhãn case/default
+csharp_indent_labels = flush_left                                 # Đặt label ở cột đầu tiên
+csharp_indent_block_contents = true                               # Thụt lề nội dung block
+csharp_indent_braces = false                                      # Không thụt lề dấu ngoặc nhọn
+
+# Preferences về khoảng trắng
+csharp_space_after_cast = false                                   # Không có space sau (cast)
+csharp_space_after_keywords_in_control_flow_statements = true     # Space sau if, for, while, etc.
+csharp_space_between_method_call_parameter_list_parentheses = false         # Không space trong ( )
+csharp_space_between_method_declaration_parameter_list_parentheses = false  # Không space trong ( )
+csharp_space_between_method_declaration_empty_parameter_list_parentheses = false # Không space trong ()
+csharp_space_between_method_call_name_and_opening_parenthesis = false       # Không space trước (
+csharp_space_after_comma = true                                   # Space sau dấu phẩy
+csharp_space_after_dot = false                                    # Không space sau dấu chấm
+csharp_space_after_semicolon_in_for_statement = true              # Space sau ; trong for
+csharp_space_around_binary_operators = before_and_after           # Space xung quanh toán tử +, -, etc.
+csharp_space_around_declaration_statements = false                # Không space xung quanh =
+csharp_space_before_open_square_brackets = false                  # Không space trước [
+csharp_space_between_empty_square_brackets = false                # Không space trong []
+csharp_space_between_method_call_empty_parameter_list_parentheses = false   # Không space trong ()
+csharp_space_between_square_brackets = false                      # Không space trong [index]
+
+# Preferences về xuống dòng
+csharp_preserve_single_line_statements = true                     # Giữ nguyên statement trên 1 dòng
+csharp_preserve_single_line_blocks = true                         # Giữ nguyên block trên 1 dòng
+
+# Quy tắc code style - áp dụng cho C# và VB.NET
+[*.{cs,vb}]
+
+# Tổ chức using statements
+dotnet_separate_import_directive_groups = false                   # Không tách nhóm using
+dotnet_sort_system_directives_first = true                        # Sắp xếp System.* đầu tiên
+file_header_template = unset                                      # Không yêu cầu header template
+
+# Preferences về this. và Me.
+dotnet_style_qualification_for_field = false:suggestion           # Không dùng this.field
+dotnet_style_qualification_for_property = false:suggestion        # Không dùng this.Property
+dotnet_style_qualification_for_method = false:suggestion          # Không dùng this.Method()
+dotnet_style_qualification_for_event = false:suggestion           # Không dùng this.Event
+
+# Language keywords vs BCL types preferences
+dotnet_style_predefined_type_for_locals_parameters_members = true:suggestion  # Dùng int thay vì Int32
+dotnet_style_predefined_type_for_member_access = true:suggestion              # Dùng int.MaxValue thay vì Int32.MaxValue
+
+# Preferences về dấu ngoặc đơn
+dotnet_style_parentheses_in_arithmetic_binary_operators = always_for_clarity:silent    # Dấu () cho phép toán
+dotnet_style_parentheses_in_relational_binary_operators = always_for_clarity:silent    # Dấu () cho so sánh
+dotnet_style_parentheses_in_other_binary_operators = always_for_clarity:silent         # Dấu () cho toán tử khác
+dotnet_style_parentheses_in_other_operators = never_if_unnecessary:silent              # Bỏ () không cần thiết
+
+# Modifier preferences
+dotnet_style_require_accessibility_modifiers = for_non_interface_members:suggestion    # Yêu cầu public/private
+dotnet_style_readonly_field = true:suggestion                                          # Khuyến khích readonly
+
+# Expression-level preferences
+dotnet_style_object_initializer = true:suggestion                                      # Dùng object initializer
+dotnet_style_collection_initializer = true:suggestion                                  # Dùng collection initializer
+dotnet_style_explicit_tuple_names = true:suggestion                                    # Đặt tên rõ ràng cho tuple
+dotnet_style_null_propagation = true:suggestion                                        # Dùng ?. operator
+dotnet_style_coalesce_expression = true:suggestion                                     # Dùng ?? operator
+dotnet_style_prefer_is_null_check_over_reference_equality_method = true:suggestion     # Dùng is null thay vì ==
+dotnet_style_prefer_inferred_tuple_names = true:suggestion                             # Suy luận tên tuple
+dotnet_style_prefer_inferred_anonymous_type_member_names = true:suggestion             # Suy luận tên anonymous
+dotnet_style_prefer_auto_properties = true:silent                                     # Ưu tiên auto property
+dotnet_style_prefer_conditional_expression_over_assignment = true:silent              # Dùng ?: cho assignment
+dotnet_style_prefer_conditional_expression_over_return = true:silent                  # Dùng ?: cho return
+
+# Pattern matching preferences
+dotnet_style_prefer_simplified_boolean_expressions = true:suggestion                  # Đơn giản hóa bool expression
+dotnet_style_prefer_compound_assignment = true:suggestion                             # Dùng += thay vì = x + y
+dotnet_style_prefer_simplified_interpolation = true:suggestion                        # Đơn giản hóa string interpolation
+
+# Field preferences
+dotnet_style_prefer_foreach_explicit_cast_in_source = when_strongly_typed:error             # Cast rõ ràng trong foreach
+
+# Parameter preferences
+dotnet_code_quality_unused_parameters = all:warning                                # Cảnh báo parameter không dùng
+
+# Suppression preferences
+dotnet_remove_unnecessary_suppression_exclusions = none                               # Xóa suppression không cần
+
+# C# preferences - Quy tắc riêng cho C#
+[*.cs]
+
+# var preferences - Sử dụng từ khóa var
+# csharp_style_var_for_built_in_types = false:suggestion                    # Không dùng var cho int, string
+# csharp_style_var_when_type_is_apparent = true:suggestion                  # Dùng var khi type rõ ràng
+# csharp_style_var_elsewhere = false:suggestion                             # Không dùng var ở chỗ khác
+
+# Expression-bodied members - Sử dụng => syntax
+csharp_style_expression_bodied_methods = false:silent                     # Không dùng => cho method
+csharp_style_expression_bodied_constructors = false:silent                # Không dùng => cho constructor
+csharp_style_expression_bodied_operators = false:silent                   # Không dùng => cho operator
+csharp_style_expression_bodied_properties = true:silent                   # Dùng => cho property
+csharp_style_expression_bodied_indexers = true:silent                     # Dùng => cho indexer
+csharp_style_expression_bodied_accessors = true:silent                    # Dùng => cho get/set
+
+# Pattern matching preferences - Sử dụng pattern matching
+csharp_style_pattern_matching_over_is_with_cast_check = true:suggestion   # Dùng is pattern thay vì is + cast
+csharp_style_pattern_matching_over_as_with_null_check = true:suggestion   # Dùng is pattern thay vì as + null check
+
+# Null-checking preferences - Kiểm tra null
+csharp_style_throw_expression = true:suggestion                           # Dùng throw expression
+csharp_style_conditional_delegate_call = true:suggestion                  # Dùng ?.Invoke()
+
+# Modifier preferences - Thứ tự modifier
+csharp_preferred_modifier_order = public,private,protected,internal,static,extern,new,virtual,abstract,sealed,override,readonly,unsafe,volatile,async:suggestion
+
+# Expression preferences - Các biểu thức khác
+csharp_prefer_braces = true:silent                                        # Luôn dùng dấu {}
+csharp_style_deconstructed_variable_declaration = true:suggestion         # Dùng deconstruction
+csharp_prefer_simple_using_statement = true:suggestion                    # Dùng using statement đơn giản
+csharp_style_prefer_switch_expression = true:suggestion                   # Ưu tiên switch expression
+csharp_style_pattern_local_over_anonymous_function = true:suggestion      # Dùng local function
+csharp_style_prefer_index_operator = true:suggestion                      # Dùng [^1] thay vì [length-1]
+csharp_style_prefer_range_operator = true:suggestion                      # Dùng [..] range operator
+csharp_style_implicit_object_creation_when_type_is_apparent = true:suggestion  # Dùng new() khi type rõ ràng
+
+# Naming conventions - Quy tắc đặt tên
+[*.{cs,vb}]
+
+# Pascal case cho hầu hết identifiers
+dotnet_naming_rule.types_should_be_pascal_case.severity = error      # Class, struct nên PascalCase
+dotnet_naming_rule.types_should_be_pascal_case.symbols = types
+dotnet_naming_rule.types_should_be_pascal_case.style = pascal_case
+
+dotnet_naming_rule.members_should_be_pascal_case.severity = error    # Method, property nên PascalCase
+dotnet_naming_rule.members_should_be_pascal_case.symbols = members
+dotnet_naming_rule.members_should_be_pascal_case.style = pascal_case
+
+# Interface names nên có prefix I
+dotnet_naming_rule.interfaces_should_be_prefixed_with_i.severity = error   # Interface phải bắt đầu với I
+dotnet_naming_rule.interfaces_should_be_prefixed_with_i.symbols = interfaces
+dotnet_naming_rule.interfaces_should_be_prefixed_with_i.style = prefix_interface_with_i
+
+# Private fields nên có prefix underscore
+dotnet_naming_rule.private_fields_should_be_prefixed_with_underscore.severity = error  # Private field bắt đầu với _
+dotnet_naming_rule.private_fields_should_be_prefixed_with_underscore.symbols = private_fields
+dotnet_naming_rule.private_fields_should_be_prefixed_with_underscore.style = prefix_underscore
+
+# Constants nên là pascal case
+dotnet_naming_rule.constants_should_be_pascal_case.severity = suggestion   # Constant dùng PascalCase
+dotnet_naming_rule.constants_should_be_pascal_case.symbols = constants
+dotnet_naming_rule.constants_should_be_pascal_case.style = pascal_case
+
+# Symbol specifications - Định nghĩa các symbol
+dotnet_naming_symbols.interfaces.applicable_kinds = interface             # Interface
+dotnet_naming_symbols.interfaces.applicable_accessibilities = public, internal, private, protected, protected_internal, private_protected
+
+dotnet_naming_symbols.types.applicable_kinds = class, struct, interface, enum    # Class, struct, interface, enum
+dotnet_naming_symbols.types.applicable_accessibilities = public, internal, private, protected, protected_internal, private_protected
+
+dotnet_naming_symbols.members.applicable_kinds = property, method, field, event, delegate    # Property, method, field, event, delegate
+dotnet_naming_symbols.members.applicable_accessibilities = public, internal, private, protected, protected_internal, private_protected
+
+dotnet_naming_symbols.private_fields.applicable_kinds = field             # Private field
+dotnet_naming_symbols.private_fields.applicable_accessibilities = private
+
+dotnet_naming_symbols.constants.applicable_kinds = field, local           # Constant field và local
+dotnet_naming_symbols.constants.required_modifiers = const
+
+# Naming styles - Định nghĩa style đặt tên
+dotnet_naming_style.pascal_case.capitalization = pascal_case              # PascalCase: MyClass, MyMethod
+
+dotnet_naming_style.prefix_interface_with_i.capitalization = pascal_case  # Interface: IMyInterface
+dotnet_naming_style.prefix_interface_with_i.required_prefix = I
+
+dotnet_naming_style.prefix_underscore.capitalization = camel_case         # Private field: _myField
+dotnet_naming_style.prefix_underscore.required_prefix = _
+
+
+#########################3
+dotnet_diagnostic.CA1305.severity = none
+dotnet_diagnostic.CA1711.severity = none
+# dotnet_diagnostic.CA1062.severity = warning
+

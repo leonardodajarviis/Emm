@@ -1,0 +1,73 @@
+using Emm.Domain.Entities;
+using Emm.Domain.Entities.AssetCatalog;
+using Emm.Domain.Entities.Maintenance;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+namespace Emm.Infrastructure.Data.EntityConfigurations;
+
+public class IncidentReportConfiguration : IEntityTypeConfiguration<IncidentReport>
+{
+    public void Configure(EntityTypeBuilder<IncidentReport> builder)
+    {
+        builder.ToTable("IncidentReports");
+
+        builder.HasKey(x => x.Id);
+        builder.Property(x => x.Id).ValueGeneratedOnAdd();
+
+        builder.Property(x => x.Code)
+            .IsRequired()
+            .HasMaxLength(50);
+
+        builder.Property(x => x.Title)
+            .IsRequired()
+            .HasMaxLength(200);
+
+        builder.Property(x => x.Description)
+            .IsRequired();
+
+        builder.Property(x => x.ResolutionNotes)
+            .IsRequired(false);
+
+        builder.Property(x => x.ReportedAt)
+            .IsRequired();
+
+        builder.Property(x => x.ResolvedAt)
+            .IsRequired(false);
+
+        builder.Property(x => x.Priority)
+            .IsRequired();
+
+        builder.Property(x => x.Status)
+            .IsRequired();
+
+        builder.Property(x => x.CreatedById)
+            .IsRequired();
+
+        builder.Property(x => x.CreatedAt)
+            .IsRequired()
+            .HasDefaultValueSql("GETUTCDATE()");
+
+        builder.Property(x => x.UpdatedAt)
+            .IsRequired()
+            .HasDefaultValueSql("GETUTCDATE()");
+
+        builder.HasIndex(x => x.Code)
+            .IsUnique();
+
+        builder.HasOne<Asset>()
+            .WithMany()
+            .HasForeignKey(x => x.AssetId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        builder.HasOne<User>()
+            .WithMany()
+            .HasForeignKey(x => x.CreatedById)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        builder.HasOne<User>()
+            .WithMany()
+            .HasForeignKey(x => x.UpdatedById)
+            .OnDelete(DeleteBehavior.NoAction);
+    }
+}

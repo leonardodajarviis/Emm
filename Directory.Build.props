@@ -1,0 +1,18 @@
+<Project>
+
+  <!-- Áp dụng cho TẤT CẢ project trong solution -->
+  <PropertyGroup>
+    <!-- Code style & null-safety -->
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+
+    <!-- Analyzers -->
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+
+    <!-- Ngôn ngữ: dùng bản ổn định -->
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+</Project>
