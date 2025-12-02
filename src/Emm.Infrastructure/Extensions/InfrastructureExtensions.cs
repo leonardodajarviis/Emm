@@ -22,13 +22,14 @@ public static class InfrastructureExtensions
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        // Register Interceptor - phải đăng ký trước DbContext
+        // Register Interceptors - must be registered before DbContext
         services.AddSingleton<AuditableEntityInterceptor>();
+        services.AddSingleton<DomainEventInterceptor>();
 
         services.AddDbContext<XDbContext>(options =>
         {
             options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
-            // options.UseLoggerFactory(NullLoggerFactory.Instance);   // 👈 im lặng
+            // options.UseLoggerFactory(NullLoggerFactory.Instance);   // Disable logging
             // options.EnableSensitiveDataLogging(false);
             // options.EnableDetailedErrors(false);
         });
@@ -46,6 +47,8 @@ public static class InfrastructureExtensions
         services.AddScoped<IUserSessionRepository, UserSessionRepository>();
         services.AddScoped<IOperationShiftRepository, OperationShiftRepository>();
         services.AddScoped<IShiftLogRepository, ShiftLogRepository>();
+        services.AddScoped<IAssetRepository, AssetRepository>();
+        services.AddScoped<ICodeGenerator, SequenceCodeGenerator>();
 
         // Authorization repositories
         services.AddScoped<IPermissionRepository, PermissionRepository>();
@@ -72,7 +75,7 @@ public static class InfrastructureExtensions
         services.AddSingleton<IAuthenticationSettings, AuthenticationSettings>();
 
         // Register Outbox
-        services.AddScoped<IOutbox, OutBox>();
+        services.AddScoped<IOutbox, Outbox>();
 
         // Register File Storage
         services.Configure<LocalFileStorageOptions>(configuration.GetSection(LocalFileStorageOptions.SectionName));
@@ -80,7 +83,8 @@ public static class InfrastructureExtensions
 
         // Register Security
         services.AddScoped<ISecurityService, Security.SecurityService>();
-        // Register all Policies automatically
+
+        // Note: Register all Policies automatically if needed
         // services.Scan(scan => scan
         //     .FromAssemblies(typeof(Application.Abstractions.Security.IResourcePolicy<>).Assembly)
         //     .AddClasses(classes => classes.AssignableTo(typeof(Application.Abstractions.Security.IResourcePolicy<>)))

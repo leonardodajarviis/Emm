@@ -123,6 +123,16 @@ public class Asset : AggregateRoot, IAuditableEntity
         }
     }
 
+    public void Operate()
+    {
+        Status = AssetStatus.Operating;
+    }
+
+    public void Idle()
+    {
+        Status = AssetStatus.Idle;
+    }
+
     public void UpdateParameterCurrentValue(long parameterId, decimal newValue)
     {
         if (parameterId <= 0)
@@ -176,6 +186,7 @@ public class Asset : AggregateRoot, IAuditableEntity
         if (foreignKeyId <= 0)
             throw new DomainException($"{fieldName} must be greater than zero");
     }
+
 }
 
 public enum AssetStatus

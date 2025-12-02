@@ -10,4 +10,5 @@ public class UpdateShiftLogCommand : IRequest<Result>
     public IEnumerable<ParameterReadingRequest>? Readings { get; set; }
     public IEnumerable<CheckpointRequest>? Checkpoints { get; set; }
     public IEnumerable<LogEventRequest>? Events { get; set; }
+    public IEnumerable<ShiftLogItemRequest>? Items { get; set; }
 }

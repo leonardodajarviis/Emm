@@ -19,6 +19,7 @@ public class ShiftLogParameterReading
     public string Unit { get; private set; } = null!;
     public DateTime ReadingTime { get; private set; }
     public string? Notes { get; private set; }
+    public bool IsLooked { get; private set; }
 
     public ShiftLogParameterReading(
         long operationTaskId,
@@ -47,6 +48,11 @@ public class ShiftLogParameterReading
         ReadingTime = DateTime.UtcNow;
         Notes = notes;
         ShiftLogCheckpointLinkedId = shiftLogCheckpointLinkedId;
+    }
+
+    public void Locked()
+    {
+        IsLooked = true;
     }
 
     public void UpdateValue(decimal value)

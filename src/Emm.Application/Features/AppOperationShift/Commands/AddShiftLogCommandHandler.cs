@@ -1,5 +1,6 @@
 using Emm.Application.Common.ErrorCodes;
 using Emm.Domain.Entities.AssetCatalog;
+using Emm.Domain.Entities.Inventory;
 using Emm.Domain.Entities.Operations;
 using Emm.Domain.Repositories;
 
@@ -112,6 +113,38 @@ public class AddShiftLogCommandHandler : IRequestHandler<AddShiftLogCommand, Res
                 newShiftLog.RecordEvent(
                     eventType: history.EventType,
                     startTime: history.StartTime);
+            }
+        }
+
+        var itemIds = request.Items?.Select(i => i.ItemId).Distinct().ToArray() ?? [];
+        var itemDict = _qq.Query<Item>()
+            .Where(i => itemIds.Contains(i.Id))
+            .ToDictionary(i => i.Id, i => i);
+
+        // Add items if provided
+        if (request.Items != null && request.Items.Any())
+        {
+            foreach (var item in request.Items)
+            {
+                var asset = assetDict.GetValueOrDefault(item.AssetId);
+                if (asset == null)
+                {
+                    return Result<object>.Failure(ErrorType.Validation, $"Asset with ID {item.AssetId} is not associated with the operation shift");
+                }
+                var itemInfo = itemDict.GetValueOrDefault(item.ItemId);
+                if (itemInfo == null)
+                {
+                    return Result<object>.Failure(ErrorType.Validation, $"Item with ID {item.ItemId} does not exist");
+                }
+
+                newShiftLog.AddItem(
+                    itemId: item.ItemId,
+                    itemName: itemInfo.Name,
+                    quantity: item.Quantity,
+                    assetId: item.AssetId,
+                    assetCode: asset.AssetCode,
+                    assetName: asset.AssetName,
+                    unitOfMeasureId: itemInfo.UnitOfMeasureId);
             }
         }
 

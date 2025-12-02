@@ -76,6 +76,7 @@ public record OperationTaskResponse
     public string? Description { get; set; }
     public IReadOnlyCollection<OperationShfitTaskCheckpointResponse> Checkpoints { get; set; } = [];
     public IReadOnlyCollection<OperationShiftParameterReadingResponse> Readings { get; set; } = [];
+    public IReadOnlyCollection<OperationShiftItemResponse> Items { get; set; } = [];
     public DateTime? StartTime { get; set; }
     public DateTime? EndTime { get; set; }
     public string? Notes { get; set; }
@@ -111,4 +112,18 @@ public class OperationShfitTaskCheckpointResponse
     public long? ItemId { get; set; }
     public string? ItemCode { get; set; }
     public string? ItemName { get; set; }
+}
+
+public class OperationShiftItemResponse
+{
+    public long Id { get; set; }
+    public long ShiftLogId { get; set; }
+    public long ItemId { get; set; }
+    public string ItemName { get; set; } = null!;
+    public decimal Quantity { get; set; }
+    public long? AssetId { get; set; }
+    public string? AssetCode { get; set; }
+    public string? AssetName { get; set; }
+    public long? UnitOfMeasureId { get; set; }
+    public string? UnitOfMeasureName { get; set; }
 }

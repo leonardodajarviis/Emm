@@ -67,5 +67,13 @@ public class ShiftLogConfiguration : IEntityTypeConfiguration<ShiftLog>
 
         builder.Navigation(x => x.Events)
             .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+        builder.HasMany(x => x.Items)
+            .WithOne()
+            .HasForeignKey(x => x.ShiftLogId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Navigation(x => x.Items)
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }

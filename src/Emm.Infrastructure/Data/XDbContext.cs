@@ -8,12 +8,15 @@ namespace Emm.Infrastructure.Data;
 public class XDbContext : DbContext
 {
     private readonly AuditableEntityInterceptor _auditableInterceptor;
+    private readonly DomainEventInterceptor _domainEventInterceptor;
 
     public XDbContext(
         DbContextOptions<XDbContext> options,
-        AuditableEntityInterceptor auditableInterceptor) : base(options)
+        AuditableEntityInterceptor auditableInterceptor,
+        DomainEventInterceptor domainEventInterceptor) : base(options)
     {
         _auditableInterceptor = auditableInterceptor;
+        _domainEventInterceptor = domainEventInterceptor;
     }
 
     public DbSet<OutboxMessage> OutboxMessages { get; set; }
@@ -22,7 +25,7 @@ public class XDbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.AddInterceptors(_auditableInterceptor);
+        optionsBuilder.AddInterceptors(_auditableInterceptor, _domainEventInterceptor);
         base.OnConfiguring(optionsBuilder);
     }
 

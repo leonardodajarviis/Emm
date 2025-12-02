@@ -15,7 +15,7 @@ public class OperationShift : AggregateRoot, IAuditableEntity
     public string? Description { get; private set; }
     public long OrganizationUnitId { get; private set; }
     public long PrimaryUserId { get; private set; }
-    public bool IsCheckpointLogEnabled {get; private set;}
+    public bool IsCheckpointLogEnabled { get; private set; }
     public DateTime ScheduledStartTime { get; private set; }
     public DateTime ScheduledEndTime { get; private set; }
     public DateTime? ActualStartTime { get; private set; }
@@ -108,8 +108,10 @@ public class OperationShift : AggregateRoot, IAuditableEntity
         Status = OperationShiftStatus.InProgress;
         Notes = notes;
 
+        var assetIds = _assets.Select(a => a.AssetId).ToList();
+
         // Raise domain event
-        Raise(new OperationShiftStartedEvent(Id, actualStartTime, PrimaryUserId));
+        Raise(new OperationShiftStartedEvent(Id, actualStartTime, PrimaryUserId, assetIds));
     }
 
     public void CompleteShift(DateTime actualEndTime, string? notes = null)
@@ -130,8 +132,10 @@ public class OperationShift : AggregateRoot, IAuditableEntity
         if (!string.IsNullOrEmpty(notes))
             Notes = notes;
 
+        var assetIds = _assets.Select(a => a.AssetId).ToList();
+
         // Raise domain event
-        Raise(new OperationShiftCompletedEvent(Id, actualEndTime, PrimaryUserId, notes));
+        Raise(new OperationShiftCompletedEvent(Id, actualEndTime, PrimaryUserId, assetIds, notes));
     }
 
     public void CancelShift(string reason)
@@ -321,7 +325,6 @@ public class OperationShift : AggregateRoot, IAuditableEntity
         string reason)
     {
         DomainGuard.AgainstNullOrEmpty(reason, "RescheduleReason");
-
         DomainGuard.AgainstInvalidState(
             Status != OperationShiftStatus.Scheduled,
             nameof(OperationShift),
@@ -379,14 +382,14 @@ public class OperationShift : AggregateRoot, IAuditableEntity
 
     private static void ValidateCode(string code)
     {
-        DomainGuard.AgainstNullOrEmpty(code, "Code");
-        DomainGuard.AgainstTooLong(code, 50, "Code");
+        DomainGuard.AgainstNullOrEmpty(code, nameof(Code));
+        DomainGuard.AgainstTooLong(code, 50, nameof(Code));
     }
 
     private static void ValidateName(string name)
     {
-        DomainGuard.AgainstNullOrEmpty(name, "Name");
-        DomainGuard.AgainstTooLong(name, 200, "Name");
+        DomainGuard.AgainstNullOrEmpty(name, nameof(Name));
+        DomainGuard.AgainstTooLong(name, 200, nameof(Name));
     }
 
     private static void ValidateScheduleTimes(DateTime startTime, DateTime endTime)
@@ -402,14 +405,6 @@ public class OperationShift : AggregateRoot, IAuditableEntity
             "ShiftDurationExceeds24Hours",
             "Shift duration cannot exceed 24 hours");
     }
-
-    private static void ValidateIds(long primaryEmployeeId, long organizationUnitId, long locationId)
-    {
-        DomainGuard.AgainstNegativeOrZero(primaryEmployeeId, nameof(primaryEmployeeId));
-        DomainGuard.AgainstNegativeOrZero(organizationUnitId, nameof(organizationUnitId));
-        DomainGuard.AgainstNegativeOrZero(locationId, nameof(locationId));
-    }
-
     #endregion
 
     private OperationShift()
@@ -426,24 +421,4 @@ public enum OperationShiftStatus
     Cancelled = 3,
     Overdue = 4,
     Paused = 5
-}
-
-/// <summary>
-/// Specification for creating parameter readings
-/// </summary>
-public sealed record ParameterReadingSpec
-{
-    public long? Id { get; init; }
-    public long AssetId { get; init; }
-    public string AssetCode { get; init; } = null!;
-    public string AssetName { get; init; } = null!;
-    public long ParameterId { get; init; }
-    public string ParameterName { get; init; } = null!;
-    public string ParameterCode { get; init; } = null!;
-    public decimal Value { get; init; }
-    public string Unit { get; init; } = null!;
-    public string ReadBy { get; init; } = null!;
-    public string? StringValue { get; init; }
-    public string? Notes { get; init; }
-    public Guid? TaskCheckpointLinkedId { get; init; }
 }

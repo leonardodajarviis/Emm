@@ -1,20 +1,38 @@
+using Emm.Application.Abstractions;
+using Emm.Domain.Abstractions;
 using Emm.Domain.Entities.AssetCatalog;
 using Emm.Infrastructure.Data;
 using Emm.Infrastructure.Data.Interceptors;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Emm.Infrastructure.Tests.Interceptors;
 
 public class AuditableEntityInterceptorTests
 {
+    private class TestOutbox : IOutbox
+    {
+        public void Enqueue(IDomainEvent @event) { }
+        public void EnqueueRange(IEnumerable<IDomainEvent> events) { }
+        public Task PublishImmediateAsync(IDomainEvent @event, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task PublishImmediateRangeAsync(IEnumerable<IDomainEvent> events, CancellationToken cancellationToken = default) => Task.CompletedTask;
+    }
+
     private XDbContext CreateInMemoryDbContext()
     {
         var options = new DbContextOptionsBuilder<XDbContext>()
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
             .Options;
 
-        var interceptor = new AuditableEntityInterceptor();
-        return new XDbContext(options, interceptor);
+        // Create a service provider with scope factory for the interceptor
+        var services = new ServiceCollection();
+        services.AddScoped<IOutbox, TestOutbox>();
+        var serviceProvider = services.BuildServiceProvider();
+
+        var auditableInterceptor = new AuditableEntityInterceptor();
+        var domainEventInterceptor = new DomainEventInterceptor(serviceProvider.GetRequiredService<IServiceScopeFactory>());
+
+        return new XDbContext(options, auditableInterceptor, domainEventInterceptor);
     }
 
     [Fact]

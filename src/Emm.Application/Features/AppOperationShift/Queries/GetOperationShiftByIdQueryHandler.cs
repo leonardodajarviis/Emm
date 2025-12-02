@@ -106,6 +106,20 @@ public class GetOperationShiftByIdQueryHandler : IRequestHandler<GetOperationShi
                     ReadingTime = r.ReadingTime,
                     StringValue = r.StringValue,
                     Unit = r.Unit
+                }).ToList(),
+
+                Items = t.Items.Select(i => new OperationShiftItemResponse
+                {
+                    Id = i.Id,
+                    ShiftLogId = i.ShiftLogId,
+                    ItemId = i.ItemId,
+                    ItemName = i.ItemName,
+                    Quantity = i.Quantity,
+                    AssetId = i.AssetId,
+                    AssetCode = i.AssetCode,
+                    AssetName = i.AssetName,
+                    UnitOfMeasureId = i.UnitOfMeasureId,
+                    UnitOfMeasureName = i.UnitOfMeasureName
                 }).ToList()
             })
             .ToListAsync(cancellationToken);

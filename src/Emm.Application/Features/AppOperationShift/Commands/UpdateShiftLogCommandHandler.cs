@@ -1,5 +1,6 @@
 using Emm.Application.Common.ErrorCodes;
 using Emm.Domain.Entities.AssetCatalog;
+using Emm.Domain.Entities.Inventory;
 
 namespace Emm.Application.Features.AppOperationShift.Commands;
 
@@ -194,6 +195,58 @@ public class UpdateShiftLogCommandHandler : IRequestHandler<UpdateShiftLogComman
                     shiftLog.RecordEvent(
                         eventType: history.EventType,
                         startTime: history.StartTime);
+                }
+            }
+        }
+
+        // Smart update for items: add new, update existing, remove missing
+        var itemIds = request.Items?.Select(i => i.ItemId).Distinct().ToArray() ?? [];
+        var itemDict = _qq.Query<Item>()
+            .Where(i => itemIds.Contains(i.Id))
+            .ToDictionary(i => i.Id, i => i);
+
+        if (request.Items != null)
+        {
+            var requestItemIds = request.Items
+                .Where(i => i.Id.HasValue)
+                .Select(i => i.Id!.Value)
+                .ToHashSet();
+
+            // Remove items not in request
+            var itemsToRemove = shiftLog.Items
+                .Where(i => !requestItemIds.Contains(i.Id))
+                .Select(i => i.Id)
+                .ToList();
+
+            foreach (var itemId in itemsToRemove)
+            {
+                shiftLog.RemoveItem(itemId);
+            }
+
+            // Add new items (items without Id)
+            foreach (var item in request.Items)
+            {
+                if (!item.Id.HasValue)
+                {
+                    var asset = assetDict.GetValueOrDefault(item.AssetId);
+                    if (asset == null)
+                    {
+                        return Result.Failure(ErrorType.Validation, $"Asset with ID {item.AssetId} is not associated with the operation shift");
+                    }
+                    var itemInfo = itemDict.GetValueOrDefault(item.ItemId);
+                    if (itemInfo == null)
+                    {
+                        return Result.Failure(ErrorType.Validation, $"Item with ID {item.ItemId} does not exist");
+                    }
+
+                    shiftLog.AddItem(
+                        itemId: item.ItemId,
+                        itemName: itemInfo.Name,
+                        quantity: item.Quantity,
+                        assetId: item.AssetId,
+                        assetCode: asset.AssetCode,
+                        assetName: asset.AssetName,
+                        unitOfMeasureId: itemInfo.UnitOfMeasureId);
                 }
             }
         }

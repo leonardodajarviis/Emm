@@ -1,5 +1,4 @@
 using Emm.Domain.Abstractions;
-using Emm.Domain.Entities.Organization;
 using Emm.Domain.Events.Operations;
 using Emm.Domain.Exceptions;
 
@@ -27,6 +26,9 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
     private readonly List<ShiftLogEvent> _events;
     public IReadOnlyCollection<ShiftLogEvent> Events => _events;
 
+    private readonly List<ShiftLogItem> _items;
+    public IReadOnlyCollection<ShiftLogItem> Items => _items;
+
     public ShiftLog(
         long operationShiftId,
         string name,
@@ -47,15 +49,13 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
         _readings = [];
         _checkpoints = [];
         _events = [];
+        _items = [];
 
         OperationShiftId = operationShiftId;
         Name = name;
         Description = description;
         StartTime = startTime;
         EndTime = endTime;
-
-        // Raise domain event
-        Raise(new OperationShiftTaskCreatedEvent(operationShiftId, name));
     }
 
     public void UpdateStartTime(DateTime startTime)
@@ -71,6 +71,23 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
 
         EndTime = endTime;
         UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void LockReading(long readingId)
+    {
+        var reading = _readings.FirstOrDefault(r => r.Id == readingId);
+        if (reading == null)
+            throw new DomainException($"Reading with ID {readingId} not found");
+
+        reading.Locked();
+    }
+
+    public void LockAllReadings()
+    {
+        foreach (var reading in _readings)
+        {
+            reading.Locked();
+        }
     }
 
     public void AddReading(
@@ -132,6 +149,12 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
             throw new DomainException($"Reading with ID {readingId} not found");
 
         _readings.Remove(reading);
+    }
+
+    public void UpdateReadingValue(long readingId, decimal newValue)
+    {
+        var reading = _readings.FirstOrDefault(r => r.Id == readingId) ?? throw new DomainException($"Reading with ID {readingId} not found");
+        reading.UpdateValue(newValue);
     }
 
     public void AddCheckpoint(Guid linkedId, string name, long locationId, string locationName, bool isWithAttachedMaterial = false, long? itemId = null, string? itemCode = null, string? itemName = null)
@@ -262,10 +285,84 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
         _events.Remove(statusHistory);
     }
 
+    /// <summary>
+    /// Thêm item vào shift log
+    /// </summary>
+    public void AddItem(
+        long itemId,
+        string itemName,
+        decimal quantity,
+        long? assetId = null,
+        string? assetCode = null,
+        string? assetName = null,
+        long? unitOfMeasureId = null,
+        string? unitOfMeasureName = null)
+    {
+        if (itemId <= 0)
+            throw new DomainException("Invalid item ID");
+
+        if (string.IsNullOrWhiteSpace(itemName))
+            throw new DomainException("Item name is required");
+
+        if (quantity <= 0)
+            throw new DomainException("Quantity must be greater than zero");
+
+        var item = new ShiftLogItem(
+            Id, itemId, itemName, quantity,
+            assetId, assetCode, assetName,
+            unitOfMeasureId, unitOfMeasureName);
+
+        _items.Add(item);
+    }
+
+    /// <summary>
+    /// Thêm nhiều items cùng lúc
+    /// </summary>
+    public void AddItems(IEnumerable<(long itemId, string itemName, decimal quantity, long? assetId, string? assetCode, string? assetName, long? unitOfMeasureId, string? unitOfMeasureName)> items)
+    {
+        foreach (var (itemId, itemName, quantity, assetId, assetCode, assetName, unitOfMeasureId, unitOfMeasureName) in items)
+        {
+            AddItem(itemId, itemName, quantity, assetId, assetCode, assetName, unitOfMeasureId, unitOfMeasureName);
+        }
+    }
+
+    /// <summary>
+    /// Lấy item theo ID
+    /// </summary>
+    public ShiftLogItem GetItem(long itemId)
+    {
+        var item = _items.FirstOrDefault(i => i.Id == itemId);
+        if (item == null)
+            throw new DomainException($"Item with ID {itemId} not found");
+
+        return item;
+    }
+
+    /// <summary>
+    /// Xóa item theo ID
+    /// </summary>
+    public void RemoveItem(long itemId)
+    {
+        var item = _items.FirstOrDefault(i => i.Id == itemId);
+        if (item == null)
+            throw new DomainException($"Item with ID {itemId} not found");
+
+        _items.Remove(item);
+    }
+
+    /// <summary>
+    /// Xóa tất cả items
+    /// </summary>
+    public void ClearItems()
+    {
+        _items.Clear();
+    }
+
     private ShiftLog()
     {
         _readings = [];
         _checkpoints = [];
         _events = [];
+        _items = [];
     } // EF Core constructor
 }

@@ -7,17 +7,20 @@ namespace Emm.Application.Features.AppOperationShift.Commands;
 public class CompleteShiftCommandHandler : IRequestHandler<CompleteShiftCommand, Result<object>>
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IRepository<OperationShift, long> _repository;
+    private readonly IOperationShiftRepository _repository;
+    private readonly IShiftLogRepository _shiftLogRepository;
     private readonly IUserContextService _userContextService;
 
     public CompleteShiftCommandHandler(
         IUnitOfWork unitOfWork,
-        IRepository<OperationShift, long> repository,
-        IUserContextService userContextService)
+        IOperationShiftRepository repository,
+        IUserContextService userContextService,
+        IShiftLogRepository shiftLogRepository)
     {
         _unitOfWork = unitOfWork;
         _repository = repository;
         _userContextService = userContextService;
+        _shiftLogRepository = shiftLogRepository;
     }
 
     public async Task<Result<object>> Handle(CompleteShiftCommand request, CancellationToken cancellationToken)
@@ -26,6 +29,13 @@ public class CompleteShiftCommandHandler : IRequestHandler<CompleteShiftCommand,
         if (shift == null)
         {
             return Result<object>.NotFound("Operation shift not found", ShiftErrorCodes.NotFound);
+        }
+
+        var shiftLogs = await _shiftLogRepository.GetByShiftIdAsync(request.ShiftId, cancellationToken);
+
+        foreach (var log in shiftLogs)
+        {
+            log.LockAllReadings();
         }
 
         shift.CompleteShift(request.ActualEndTime, request.Notes);

@@ -9,28 +9,34 @@ namespace Emm.Application.Features.AppOperationShift.Commands;
 public class CreateOperationShiftCommandHandler : IRequestHandler<CreateOperationShiftCommand, Result<object>>
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IRepository<OperationShift, long> _repository;
+    private readonly IOperationShiftRepository _repository;
     private readonly IQueryContext _qq;
     private readonly IUserContextService _userContextService;
+    private readonly IOutbox _outbox;
+    private readonly ICodeGenerator _codeGenerator;
 
     public CreateOperationShiftCommandHandler(
         IUnitOfWork unitOfWork,
-        IRepository<OperationShift,
-        long> repository,
+        IOperationShiftRepository repository,
         IQueryContext queryContext,
-        IUserContextService userContextService)
+        ICodeGenerator codeGenerator,
+        IUserContextService userContextService,
+
+        IOutbox outbox)
     {
         _unitOfWork = unitOfWork;
         _repository = repository;
         _qq = queryContext;
         _userContextService = userContextService;
+        _outbox = outbox;
+        _codeGenerator = codeGenerator;
     }
 
     public async Task<Result<object>> Handle(CreateOperationShiftCommand request, CancellationToken cancellationToken)
     {
         return await _unitOfWork.ExecuteInTransactionAsync(async () =>
         {
-            var code = await _unitOfWork.GenerateNextCodeAsync("NKVH", "OperationShifts", 6, cancellationToken);
+            var code = await _codeGenerator.GenerateNextCodeAsync("NKVH", "OperationShifts", 6, cancellationToken);
 
             var organizationUnitId = _userContextService.GetCurrentOrganizationUnitId();
             if (organizationUnitId == null)
@@ -71,7 +77,7 @@ public class CreateOperationShiftCommandHandler : IRequestHandler<CreateOperatio
                     assetName: asset.DisplayName
                 );
             }
-
+            operationShift.StartShift(DateTime.UtcNow);
             await _repository.AddAsync(operationShift, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 

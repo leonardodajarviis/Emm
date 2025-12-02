@@ -11,6 +11,7 @@ public class AddShiftLogCommand : IRequest<Result<object>>
     public IEnumerable<ParameterReadingRequest>? Readings { get; set; }
     public IEnumerable<CheckpointRequest>? Checkpoints { get; set; }
     public IEnumerable<LogEventRequest>? Events { get; set; }
+    public IEnumerable<ShiftLogItemRequest>? Items { get; set; }
 }
 public sealed record ParameterReadingRequest
 {
@@ -44,4 +45,16 @@ public sealed record LogEventRequest
     public ShiftLogEventType EventType { get; init; }
     public DateTime StartTime { get; init; }
     public DateTime? EndTime { get; init; }
+}
+
+/// <summary>
+/// Specification for creating shift log items
+/// </summary>
+public sealed record ShiftLogItemRequest
+{
+    public long? Id { get; init; }
+    public long ItemId { get; init; }
+    public string ItemName { get; init; } = null!;
+    public decimal Quantity { get; init; }
+    public long AssetId { get; init; }
 }

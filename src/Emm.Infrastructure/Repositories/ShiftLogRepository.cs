@@ -20,7 +20,7 @@ public class ShiftLogRepository : GenericRepository<ShiftLog, long>, IShiftLogRe
             .FirstOrDefaultAsync(task => task.Id == id, cancellationToken: cancellationToken);
     }
 
-    public async Task<IEnumerable<ShiftLog>> GetTasksByShiftIdAsync(long shiftId, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<ShiftLog>> GetByShiftIdAsync(long shiftId, CancellationToken cancellationToken = default)
     {
         return await DbSet
             .Include(t => t.Readings)

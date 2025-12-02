@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Emm.Domain.Abstractions;
+
 namespace Emm.Infrastructure.Messaging;
 
 public interface IEventSerializer
@@ -8,21 +9,20 @@ public interface IEventSerializer
     IDomainEvent Deserialize(string type, string payload);
 }
 
-
 public sealed class SystemTextJsonEventSerializer : IEventSerializer
 {
-    private static readonly JsonSerializerOptions JsonOpts = new()
+    private static readonly JsonSerializerOptions _jsonOpts = new()
     {
         WriteIndented = false
-        // Gợi ý: dùng JsonPolymorphism/JsonDerivedType cho các event cụ thể
+        // Note: Consider using JsonPolymorphism/JsonDerivedType for polymorphic event serialization
     };
 
     public string Serialize(IDomainEvent e)
-        => JsonSerializer.Serialize(e, e.GetType(), JsonOpts);
+        => JsonSerializer.Serialize(e, e.GetType(), _jsonOpts);
 
     public IDomainEvent Deserialize(string type, string payload)
     {
         var t = Type.GetType(type, throwOnError: true)!;
-        return (IDomainEvent)JsonSerializer.Deserialize(payload, t, JsonOpts)!;
+        return (IDomainEvent)JsonSerializer.Deserialize(payload, t, _jsonOpts)!;
     }
 }

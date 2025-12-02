@@ -1,11 +1,12 @@
 using Emm.Infrastructure.Data;
-using Emm.Infrastructure.Messaging;
 using LazyNet.Symphony.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+
+namespace Emm.Infrastructure.Messaging;
 
 public sealed class OutboxProcessorOptions
 {
@@ -41,7 +42,7 @@ public sealed class OutboxProcessor : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        // _log.LogInformation("OutboxProcessor started with LockId={LockId}", _lockId);
+        _log.LogInformation("OutboxProcessor started with LockId={LockId}", _lockId);
 
         while (!stoppingToken.IsCancellationRequested)
         {
@@ -53,11 +54,11 @@ public sealed class OutboxProcessor : BackgroundService
             }
             catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
             {
-                // app shutting down
+                // Application is shutting down
             }
             catch (Exception ex)
             {
-                _log.LogError(ex, "Outbox loop crashed");
+                _log.LogError(ex, "Outbox processing loop encountered an error");
                 await Task.Delay(TimeSpan.FromSeconds(2), stoppingToken);
             }
         }
@@ -74,13 +75,15 @@ public sealed class OutboxProcessor : BackgroundService
 
         var now = DateTime.UtcNow;
 
-        // 1) Claim batch (đặt lock để tránh đụng nhau)
+        // 1) Claim batch: acquire lock on unprocessed messages
         var candidates = await db.OutboxMessages
             .Where(m => m.ProcessedAt == null &&
                         (m.LockedUntil == null || m.LockedUntil < now))
             .OrderBy(m => m.CreatedAt)
             .Take(_opt.BatchSize)
             .ToListAsync(ct);
+
+        if (candidates.Count == 0) return 0;
 
         foreach (var m in candidates)
         {
@@ -94,55 +97,70 @@ public sealed class OutboxProcessor : BackgroundService
         }
         catch (DbUpdateConcurrencyException)
         {
-            // bị tranh chấp lock — fine, lát nữa lọc lại của mình.
+            // Lock contention occurred - another processor claimed some messages
+            // Re-query to get only the messages we successfully locked
+            db.ChangeTracker.Clear();
+
+            var mine = await db.OutboxMessages
+                .Where(m => m.ProcessedAt == null && m.LockId == _lockId)
+                .OrderBy(m => m.CreatedAt)
+                .ToListAsync(ct);
+
+            candidates = mine;
         }
 
-        // 2) Lấy hàng mình đã lock
-        var mine = await db.OutboxMessages
-            .Where(m => m.ProcessedAt == null && m.LockId == _lockId)
-            .OrderBy(m => m.CreatedAt)
-            .ToListAsync(ct);
+        if (candidates.Count == 0) return 0;
 
-        if (mine.Count == 0) return 0;
-
+        // 2) Process each locked message
         int ok = 0;
-        foreach (var msg in mine)
+        foreach (var msg in candidates)
         {
             try
             {
-                // 3) Deserialize → Publish
+                // Validate message type before deserialization
+                if (string.IsNullOrWhiteSpace(msg.Type) || string.IsNullOrWhiteSpace(msg.Payload))
+                {
+                    throw new InvalidOperationException($"Invalid message data: Type={msg.Type}, PayloadLength={msg.Payload?.Length ?? 0}");
+                }
+
+                // 3) Deserialize and publish event
                 var evt = serializer.Deserialize(msg.Type, msg.Payload);
 
-                // Nếu bạn dùng MediatR, IEvent nên : INotification
-                // và publish như dưới:
+                if (evt == null)
+                {
+                    throw new InvalidOperationException($"Deserialization returned null for type {msg.Type}");
+                }
+
                 await mediator.Publish((object)evt, ct);
 
-                // 4) Đánh dấu done
+                // 4) Mark as processed
                 msg.ProcessedAt = DateTime.UtcNow;
                 msg.Error = null;
                 ok++;
             }
             catch (Exception ex)
             {
-                // 5) Retry / DLQ
+                // 5) Handle retry logic and dead-letter queue
                 msg.Attempt += 1;
                 msg.Error = ex.ToString();
 
                 if (msg.Attempt >= _opt.MaxAttempts)
                 {
-                    // dead-letter: mark processed để không đụng nữa (hoặc chuyển bảng khác tuỳ bạn)
+                    // Move to dead-letter: mark as processed to stop retrying
                     msg.ProcessedAt = DateTime.UtcNow;
                     _log.LogError(ex, "Outbox message {Id} moved to dead-letter after {Attempt} attempts", msg.Id, msg.Attempt);
                 }
                 else
                 {
-                    // gia hạn để lần sau xử lý lại (backoff)
+                    // Schedule retry with exponential backoff
                     msg.LockedUntil = DateTime.UtcNow + _opt.GetBackoff(msg.Attempt);
+                    _log.LogWarning(ex, "Outbox message {Id} failed attempt {Attempt}, will retry after {RetryAfter}",
+                        msg.Id, msg.Attempt, msg.LockedUntil);
                 }
             }
             finally
             {
-                // thả lock (đã xử lý hoặc đã gia hạn)
+                // Release lock (either processed or rescheduled)
                 msg.LockId = null;
             }
         }
