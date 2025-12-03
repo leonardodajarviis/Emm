@@ -1,5 +1,4 @@
 using Emm.Domain.Abstractions;
-using Emm.Domain.DomainEvents.AssetCategoryEvents;
 using Emm.Domain.Exceptions;
 
 namespace Emm.Domain.Entities.AssetCatalog;
@@ -28,15 +27,6 @@ public class AssetCategory : AggregateRoot, IAuditableEntity
         Name = name;
         Description = description;
         IsActive = isActive;
-
-        // Raise domain event
-        Raise(new AssetCategoryCreatedEvent(
-            AssetCategoryId: Id,
-            Code: Code,
-            Name: Name,
-            Description: Description,
-            IsActive: IsActive,
-            OccurredOn: DateTime.UtcNow));
     }
 
     public void Update(string name, string? description, bool isActive)
@@ -47,14 +37,6 @@ public class AssetCategory : AggregateRoot, IAuditableEntity
         Name = name;
         Description = description;
         IsActive = isActive;
-
-        // Raise domain event
-        Raise(new AssetCategoryUpdatedEvent(
-            AssetCategoryId: Id,
-            Name: Name,
-            Description: Description,
-            IsActive: IsActive,
-            OccurredOn: DateTime.UtcNow));
     }
 
     private AssetCategory() { } // EF Core constructor

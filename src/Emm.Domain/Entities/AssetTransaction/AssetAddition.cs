@@ -1,5 +1,5 @@
 using Emm.Domain.Abstractions;
-using Emm.Domain.DomainEvents.AssetAdditionEvents;
+using Emm.Domain.Events.AssetAddition;
 
 namespace Emm.Domain.Entities.AssetTransaction;
 

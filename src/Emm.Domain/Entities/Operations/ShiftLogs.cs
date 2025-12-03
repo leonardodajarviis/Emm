@@ -9,6 +9,7 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
     public DateTime CreatedAt { get; private set; }
     public DateTime UpdatedAt { get; private set; }
     public long Id { get; private set; }
+    public int LogOrder { get; private set; }
     public long OperationShiftId { get; private set; }
     public string Name { get; private set; } = null!;
     public string Description { get; private set; } = null!;
@@ -17,6 +18,13 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
     public string? Notes { get; private set; }
 
     // Collections - using backing field pattern for EF Core
+    /// <summary>
+    /// Danh sách asset liên kết với ShiftLog này
+    /// Có thể là 0 (shift-level log), 1 (single asset), hoặc nhiều asset (group)
+    /// </summary>
+    private readonly List<ShiftLogAsset> _assets;
+    public IReadOnlyCollection<ShiftLogAsset> Assets => _assets;
+
     private readonly List<ShiftLogParameterReading> _readings;
     public IReadOnlyCollection<ShiftLogParameterReading> Readings => _readings;
 
@@ -46,6 +54,7 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
             throw new DomainException("Task description is required");
 
 
+        _assets = [];
         _readings = [];
         _checkpoints = [];
         _events = [];
@@ -72,6 +81,110 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
         EndTime = endTime;
         UpdatedAt = DateTime.UtcNow;
     }
+
+    #region Asset Management
+
+    /// <summary>
+    /// Thêm asset vào ShiftLog - hỗ trợ ghi log cho nhiều asset cùng lúc
+    /// </summary>
+    public void AddAsset(
+        long assetId,
+        string assetCode,
+        string assetName,
+        bool isPrimary = false)
+    {
+        if (assetId <= 0)
+            throw new DomainException("Invalid asset ID");
+
+        if (string.IsNullOrWhiteSpace(assetCode))
+            throw new DomainException("Asset code is required");
+
+        if (string.IsNullOrWhiteSpace(assetName))
+            throw new DomainException("Asset name is required");
+
+        // Kiểm tra trùng lặp
+        if (_assets.Any(a => a.AssetId == assetId))
+            throw new DomainException($"Asset {assetCode} already added to this shift log");
+
+        // Nếu đánh dấu là primary, bỏ primary của asset khác
+        if (isPrimary)
+        {
+            foreach (var asset in _assets.Where(a => a.IsPrimary))
+            {
+                asset.UnmarkAsPrimary();
+            }
+        }
+
+        var shiftLogAsset = new ShiftLogAsset(Id, assetId, assetCode, assetName, isPrimary);
+        _assets.Add(shiftLogAsset);
+    }
+
+    /// <summary>
+    /// Thêm nhiều assets cùng lúc - cho trường hợp log nhóm thiết bị
+    /// </summary>
+    public void AddAssets(IEnumerable<(long assetId, string assetCode, string assetName, bool isPrimary)> assets)
+    {
+        foreach (var (assetId, assetCode, assetName, isPrimary) in assets)
+        {
+            AddAsset(assetId, assetCode, assetName, isPrimary);
+        }
+    }
+
+    /// <summary>
+    /// Xóa asset khỏi ShiftLog
+    /// </summary>
+    public void RemoveAsset(long assetId)
+    {
+        var asset = _assets.FirstOrDefault(a => a.AssetId == assetId);
+        if (asset == null)
+            throw new DomainException($"Asset with ID {assetId} not found in this shift log");
+
+        _assets.Remove(asset);
+    }
+
+    /// <summary>
+    /// Đánh dấu asset là primary trong nhóm
+    /// </summary>
+    public void MarkAssetAsPrimary(long assetId)
+    {
+        var asset = _assets.FirstOrDefault(a => a.AssetId == assetId);
+        if (asset == null)
+            throw new DomainException($"Asset with ID {assetId} not found in this shift log");
+
+        // Bỏ primary của các asset khác
+        foreach (var a in _assets.Where(a => a.IsPrimary && a.AssetId != assetId))
+        {
+            a.UnmarkAsPrimary();
+        }
+
+        asset.MarkAsPrimary();
+    }
+
+    /// <summary>
+    /// Lấy danh sách asset IDs trong ShiftLog này
+    /// </summary>
+    public IEnumerable<long> GetAssetIds()
+    {
+        return _assets.Select(a => a.AssetId);
+    }
+
+    /// <summary>
+    /// Kiểm tra xem ShiftLog có chứa asset này không
+    /// </summary>
+    public bool HasAsset(long assetId)
+    {
+        return _assets.Any(a => a.AssetId == assetId);
+    }
+
+    /// <summary>
+    /// Lấy primary asset (nếu có)
+    /// </summary>
+    public ShiftLogAsset? GetPrimaryAsset()
+    {
+        return _assets.FirstOrDefault(a => a.IsPrimary);
+    }
+
+    #endregion
 
     public void LockReading(long readingId)
     {
@@ -360,6 +473,7 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
 
     private ShiftLog()
     {
+        _assets = [];
         _readings = [];
         _checkpoints = [];
         _events = [];

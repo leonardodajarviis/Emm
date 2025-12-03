@@ -67,7 +67,7 @@ public class GetOperationShiftByIdQueryHandler : IRequestHandler<GetOperationShi
         // Query tasks separately (they are now a separate aggregate)
         var shiftLog = await _queryContext.Query<ShiftLog>()
             .Where(t => t.OperationShiftId == request.Id)
-            .Select(t => new OperationTaskResponse
+            .Select(t => new ShiftLogResponse
             {
                 Id = t.Id,
                 OperationShiftId = t.OperationShiftId,
@@ -77,7 +77,7 @@ public class GetOperationShiftByIdQueryHandler : IRequestHandler<GetOperationShi
                 EndTime = t.EndTime,
                 Notes = t.Notes,
 
-                Checkpoints = t.Checkpoints.Select(c => new OperationShfitTaskCheckpointResponse
+                Checkpoints = t.Checkpoints.Select(c => new ShiftLogCheckpointResponse
                 {
                     Id = c.Id,
                     OperationTaskId = c.ShiftLogId,
@@ -90,7 +90,7 @@ public class GetOperationShiftByIdQueryHandler : IRequestHandler<GetOperationShi
                     ItemName = c.ItemName
                 }).ToList(),
 
-                Readings = t.Readings.Select(r => new OperationShiftParameterReadingResponse
+                Readings = t.Readings.Select(r => new ShiftLogParameterReadingResponse
                 {
                     Id = r.Id,
                     AssetId = r.AssetId,
@@ -108,7 +108,7 @@ public class GetOperationShiftByIdQueryHandler : IRequestHandler<GetOperationShi
                     Unit = r.Unit
                 }).ToList(),
 
-                Items = t.Items.Select(i => new OperationShiftItemResponse
+                Items = t.Items.Select(i => new ShiftLogItemResponse
                 {
                     Id = i.Id,
                     ShiftLogId = i.ShiftLogId,

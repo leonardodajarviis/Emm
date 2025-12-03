@@ -1,5 +1,5 @@
-using Emm.Domain.DomainEvents.AssetAdditionEvents;
 using Emm.Domain.Entities.AssetCatalog;
+using Emm.Domain.Events.AssetAddition;
 using Microsoft.EntityFrameworkCore;
 
 namespace Emm.Application.Features.AppAsset.EventHandlers;

@@ -1,9 +1,14 @@
+using System.Text.Json.Serialization;
+
 namespace Emm.Application.Features.AppOperationShift.Commands;
 
-public class UpdateShiftLogCommand : IRequest<Result>
+public record UpdateShiftLogCommand : IRequest<Result>
 {
     public long OperationShiftId { get; set; }
+
+    [JsonIgnore]
     public long ShiftLogId { get; set; }
+
     public string? Name { get; set; }
     public DateTime? EndTime { get; set; }
     public DateTime StartTime { get; set; }

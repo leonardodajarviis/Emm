@@ -69,6 +69,14 @@ public class OperationShiftConfiguration : IEntityTypeConfiguration<OperationShi
         builder.Navigation(x => x.Assets)
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
+        builder.HasMany(x => x.AssetGroups)
+            .WithOne()
+            .HasForeignKey(x => x.OperationShiftId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Navigation(x => x.AssetGroups)
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
+
         // Indexes
         builder.HasIndex(x => x.Code)
             .IsUnique();

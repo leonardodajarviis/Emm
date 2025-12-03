@@ -44,6 +44,14 @@ public class ShiftLogConfiguration : IEntityTypeConfiguration<ShiftLog>
         builder.HasIndex(x => x.OperationShiftId);
 
         // Collections - using backing field pattern
+        builder.HasMany(x => x.Assets)
+            .WithOne()
+            .HasForeignKey(x => x.ShiftLogId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Navigation(x => x.Assets)
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
+
         builder.HasMany(x => x.Readings)
             .WithOne()
             .HasForeignKey(x => x.ShiftLogId)

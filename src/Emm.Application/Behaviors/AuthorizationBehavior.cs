@@ -36,7 +36,7 @@ public class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavior<TReq
         if (userId == null)
         {
             _logger.LogWarning("Authorization check failed: User is not authenticated");
-            return CreateUnauthorizedResult();
+            return AuthorizationBehavior<TRequest, TResponse>.CreateUnauthorizedResult();
         }
 
         // 1. Check IRequirePermission
@@ -103,7 +103,7 @@ public class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavior<TReq
         return await next();
     }
 
-    private TResponse CreateUnauthorizedResult()
+    private static TResponse CreateUnauthorizedResult()
     {
         // Check if TResponse is Result or Result<T>
         if (typeof(TResponse) == typeof(Result))

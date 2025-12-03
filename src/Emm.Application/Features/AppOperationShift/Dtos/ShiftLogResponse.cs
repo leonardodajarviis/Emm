@@ -42,7 +42,8 @@ public record OperationShiftResponse
 
     // Related data
     public List<OperationShiftAssetResponse> Assets { get; set; } = [];
-    public List<OperationTaskResponse> ShiftLogs { get; set; } = [];
+    public List<OperationShiftAssetGroupResponse> AssetGroups { get; set; } = [];
+    public List<ShiftLogResponse> ShiftLogs { get; set; } = [];
 }
 
 public record OperationShiftAssetParameterResponse
@@ -62,27 +63,39 @@ public record OperationShiftAssetResponse
     public required string AssetCode { get; set; }
     public required string AssetName { get; set; }
     public required bool IsPrimary { get; set; }
+    public long? AssetGroupId { get; set; }
     public IEnumerable<OperationShiftAssetParameterResponse> Parameters { get; set; } = [];
     public DateTime? StartedAt { get; set; }
     public DateTime? CompletedAt { get; set; }
     public string? Notes { get; set; }
 }
 
-public record OperationTaskResponse
+public record OperationShiftAssetGroupResponse
+{
+    public required long Id { get; set; }
+    public required long OperationShiftId { get; set; }
+    public required string GroupName { get; set; }
+    public string? Description { get; set; }
+    public required GroupRole Role { get; set; }
+    public required int DisplayOrder { get; set; }
+    public required DateTime CreatedAt { get; set; }
+}
+
+public record ShiftLogResponse
 {
     public required long Id { get; set; }
     public required long OperationShiftId { get; set; }
     public required string Name { get; set; }
     public string? Description { get; set; }
-    public IReadOnlyCollection<OperationShfitTaskCheckpointResponse> Checkpoints { get; set; } = [];
-    public IReadOnlyCollection<OperationShiftParameterReadingResponse> Readings { get; set; } = [];
-    public IReadOnlyCollection<OperationShiftItemResponse> Items { get; set; } = [];
+    public IReadOnlyCollection<ShiftLogCheckpointResponse> Checkpoints { get; set; } = [];
+    public IReadOnlyCollection<ShiftLogParameterReadingResponse> Readings { get; set; } = [];
+    public IReadOnlyCollection<ShiftLogItemResponse> Items { get; set; } = [];
     public DateTime? StartTime { get; set; }
     public DateTime? EndTime { get; set; }
     public string? Notes { get; set; }
 }
 
-public record OperationShiftParameterReadingResponse
+public record ShiftLogParameterReadingResponse
 {
     public long Id { get; set; }
     public long OperationTaskId { get; set; }
@@ -101,7 +114,7 @@ public record OperationShiftParameterReadingResponse
     public string? Notes { get; set; }
 }
 
-public class OperationShfitTaskCheckpointResponse
+public class ShiftLogCheckpointResponse
 {
     public long Id { get; set; }
     public long OperationTaskId { get; set; }
@@ -114,7 +127,7 @@ public class OperationShfitTaskCheckpointResponse
     public string? ItemName { get; set; }
 }
 
-public class OperationShiftItemResponse
+public class ShiftLogItemResponse
 {
     public long Id { get; set; }
     public long ShiftLogId { get; set; }

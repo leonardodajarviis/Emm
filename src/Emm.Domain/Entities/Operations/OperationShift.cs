@@ -29,6 +29,9 @@ public class OperationShift : AggregateRoot, IAuditableEntity
     private readonly List<OperationShiftAsset> _assets;
     public IReadOnlyCollection<OperationShiftAsset> Assets => _assets;
 
+    private readonly List<OperationShiftAssetGroup> _assetGroups;
+    public IReadOnlyCollection<OperationShiftAssetGroup> AssetGroups => _assetGroups;
+
     public OperationShift(
         string code,
         string name,
@@ -44,6 +47,7 @@ public class OperationShift : AggregateRoot, IAuditableEntity
         ValidateScheduleTimes(scheduledStartTime, scheduledEndTime);
 
         _assets = [];
+        _assetGroups = [];
 
         Code = code;
         Name = name;
@@ -71,6 +75,7 @@ public class OperationShift : AggregateRoot, IAuditableEntity
         ValidateScheduleTimes(scheduledStartTime, scheduledEndTime);
 
         _assets = [];
+        _assetGroups = [];
 
         Code = code;
         Name = name;
@@ -160,7 +165,8 @@ public class OperationShift : AggregateRoot, IAuditableEntity
         long assetId,
         string assetCode,
         string assetName,
-        bool isPrimary = false)
+        bool isPrimary = false,
+        long? assetGroupId = null)
     {
         DomainGuard.AgainstNegativeOrZero(assetId, nameof(assetId));
         DomainGuard.AgainstNullOrEmpty(assetCode, nameof(assetCode));
@@ -179,8 +185,18 @@ public class OperationShift : AggregateRoot, IAuditableEntity
             "OnlyOnePrimaryAssetAllowed",
             "Only one primary asset is allowed per shift");
 
+        // Validate asset group exists if specified
+        if (assetGroupId.HasValue)
+        {
+            var group = _assetGroups.FirstOrDefault(g => g.Id == assetGroupId.Value);
+            DomainGuard.AgainstNotFound(
+                group,
+                "OperationShiftAssetGroup",
+                assetGroupId.Value);
+        }
+
         var asset = new OperationShiftAsset(
-            Id, assetId, assetCode, assetName, isPrimary);
+            Id, assetId, assetCode, assetName, isPrimary, assetGroupId);
 
         _assets.Add(asset);
 
@@ -378,6 +394,109 @@ public class OperationShift : AggregateRoot, IAuditableEntity
             Id, newScheduledStartTime, newScheduledEndTime, reason));
     }
 
+    #region Asset Group Management
+
+    public long CreateAssetGroup(
+        Guid linkedId,
+        string groupName,
+        GroupRole role = GroupRole.Secondary,
+        int displayOrder = 0,
+        string? description = null)
+    {
+        // Validate LinkedId is unique
+        DomainGuard.AgainstDuplicate(
+            _assetGroups.Any(g => g.LinkedId == linkedId),
+            "OperationShiftAssetGroup",
+            nameof(linkedId),
+            linkedId);
+
+        var group = new OperationShiftAssetGroup(
+            Id, linkedId, groupName, role, displayOrder, description);
+
+        _assetGroups.Add(group);
+
+        return group.Id;
+    }
+
+    public void UpdateAssetGroup(
+        long assetGroupId,
+        string groupName,
+        GroupRole role,
+        int displayOrder,
+        string? description = null)
+    {
+        var group = _assetGroups.FirstOrDefault(g => g.Id == assetGroupId);
+        DomainGuard.AgainstNotFound(group, "OperationShiftAssetGroup", assetGroupId);
+
+        group!.Update(groupName, role, displayOrder, description);
+    }
+
+    public void RemoveAssetGroup(long assetGroupId)
+    {
+        var group = _assetGroups.FirstOrDefault(g => g.Id == assetGroupId);
+        DomainGuard.AgainstNotFound(group, "OperationShiftAssetGroup", assetGroupId);
+
+        // Check if any assets are still assigned to this group
+        DomainGuard.AgainstBusinessRule(
+            _assets.Any(a => a.AssetGroupId == assetGroupId),
+            "CannotRemoveGroupWithAssets",
+            $"Cannot remove asset group {assetGroupId} because it still has assets assigned to it");
+
+        _assetGroups.Remove(group!);
+    }
+
+    public void AssignAssetToGroup(long assetId, long? assetGroupId)
+    {
+        var asset = _assets.FirstOrDefault(a => a.AssetId == assetId);
+        DomainGuard.AgainstNotFound(asset, "OperationShiftAsset", assetId);
+
+        // Validate asset group exists if specified
+        if (assetGroupId.HasValue)
+        {
+            var group = _assetGroups.FirstOrDefault(g => g.Id == assetGroupId.Value);
+            DomainGuard.AgainstNotFound(group, "OperationShiftAssetGroup", assetGroupId.Value);
+        }
+
+        asset!.AssignToGroup(assetGroupId);
+    }
+
+    public IEnumerable<OperationShiftAsset> GetAssetsByGroup(long assetGroupId)
+    {
+        return _assets.Where(a => a.AssetGroupId == assetGroupId);
+    }
+
+    public IEnumerable<OperationShiftAsset> GetUngroupedAssets()
+    {
+        return _assets.Where(a => !a.AssetGroupId.HasValue);
+    }
+
+    /// <summary>
+    /// Lấy Group ID từ LinkedId (UUID)
+    /// Dùng trong trường hợp client gửi LinkedId để reference group
+    /// </summary>
+    public long? GetGroupIdByLinkedId(Guid linkedId)
+    {
+        return _assetGroups.FirstOrDefault(g => g.LinkedId == linkedId)?.Id;
+    }
+
+    /// <summary>
+    /// Validate tất cả LinkedId trong request phải tồn tại trong danh sách groups
+    /// </summary>
+    public void ValidateGroupLinkedIds(IEnumerable<Guid> linkedIds)
+    {
+        var existingLinkedIds = _assetGroups.Select(g => g.LinkedId).ToHashSet();
+        var invalidLinkedIds = linkedIds.Where(id => !existingLinkedIds.Contains(id)).ToList();
+
+        if (invalidLinkedIds.Count > 0)
+        {
+            throw new DomainException(
+                $"Invalid group LinkedIds: {string.Join(", ", invalidLinkedIds)}. " +
+                "These LinkedIds do not exist in the asset groups.");
+        }
+    }
+
+    #endregion
+
     #region Validation Methods
 
     private static void ValidateCode(string code)
@@ -410,6 +529,7 @@ public class OperationShift : AggregateRoot, IAuditableEntity
     private OperationShift()
     {
         _assets = [];
+        _assetGroups = [];
     } // EF Core constructor
 }
 

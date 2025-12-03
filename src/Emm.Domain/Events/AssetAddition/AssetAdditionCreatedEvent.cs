@@ -1,6 +1,6 @@
 using Emm.Domain.Abstractions;
 
-namespace Emm.Domain.DomainEvents.AssetAdditionEvents;
+namespace Emm.Domain.Events.AssetAddition;
 
 public record AssetAdditionCreatedEvent : IDomainEvent
 {
