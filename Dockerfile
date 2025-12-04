@@ -37,7 +37,7 @@ USER $APP_UID
 COPY --from=build /app/publish .
 
 # Cấu hình biến môi trường (có thể override khi chạy container)
-ENV ASPNETCORE_URLS=http://+:8080
+ENV ASPNETCORE_URLS=http://+:2310
 ENV ASPNETCORE_ENVIRONMENT=Production
 
 # Entry point

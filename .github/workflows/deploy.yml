@@ -1,68 +1,69 @@
-name: Build and Deploy to VPS
+name: Deploy ASP.NET to VPS
 
 on:
   push:
-    branches: [ "main" ]
-  workflow_dispatch: # Cho phép chạy thủ công từ tab Actions
-
-env:
-  IMAGE_NAME: emm-backend
-  CONTAINER_NAME: emm-backend
-  PORT: 8080 # Cổng bên trong container (như đã định nghĩa trong Dockerfile)
+    branches: ["main"] # Chạy khi có code đẩy vào nhánh main
 
 jobs:
-  build-and-push:
+  build-and-deploy:
     runs-on: ubuntu-latest
+
     steps:
+      # 1. Lấy code về
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
+      # 2. Đăng nhập Docker Hub
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and push Docker image
+      # 3. Build và đẩy Image lên Docker Hub
+      - name: Build and Push Docker Image
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:latest
-          # Cache giúp build nhanh hơn các lần sau
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          tags: ${{ secrets.DOCKER_USERNAME }}/aspnet-emm-app:latest
 
-  deploy:
-    needs: build-and-push
-    runs-on: ubuntu-latest
-    steps:
-      - name: Deploy to VPS via SSH
-        uses: appleboy/ssh-action@v1.0.3
+      # 4. SSH vào VPS để chạy container mới
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          # port: 22 # Mặc định là 22, bỏ comment nếu dùng port khác
           script: |
-            # 1. Pull image mới nhất về
-            docker pull ${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:latest
-            
-            # 2. Dừng và xóa container cũ (nếu tồn tại)
-            docker stop ${{ env.CONTAINER_NAME }} || true
-            docker rm ${{ env.CONTAINER_NAME }} || true
-            
-            # 3. Chạy container mới
-            # Map port 80 của VPS vào port 8080 của container
-            docker run -d \
-              --name ${{ env.CONTAINER_NAME }} \
-              -p 80:${{ env.PORT }} \
-              --restart unless-stopped \
-              ${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:latest
-            
-            # 4. Dọn dẹp các image cũ không dùng đến để tiết kiệm ổ cứng VPS
+            # Dừng và xóa container cũ (nếu có)
+            docker stop aspnet-emm-app-container || true
+            docker rm aspnet-emm-app-container || true
+
+            # Pull image mới nhất về
+            docker pull ${{ secrets.DOCKER_USERNAME }}/aspnet-emm-app:latest
+
+            # Xóa image cũ để tiết kiệm dung lượng (chỉ giữ lại image mới nhất)
             docker image prune -f
+
+            # Chạy container mới (Map port 2310 của VPS vào port 2310 của Container)
+            docker run -d \
+              --name aspnet-emm-app-container \
+              --restart always \
+              -p 2310:2310 \
+              -e ASPNETCORE_ENVIRONMENT=Production \
+              -e ConnectionStrings__DefaultConnection="${{ secrets.DB_CONNECTION_STRING }}" \
+              -e Jwt__AccessKey="${{ secrets.JWT_ACCESS_KEY }}" \
+              -e Jwt__RefreshKey="${{ secrets.JWT_REFRESH_KEY }}" \
+              -e StmpEmail__Username="${{ secrets.SMTP_USERNAME }}" \
+              -e StmpEmail__Password="${{ secrets.SMTP_PASSWORD }}" \
+              ${{ secrets.DOCKER_USERNAME }}/aspnet-emm-app:latest
+
+            # Kiểm tra container có chạy thành công không
+            sleep 5
+            if ! docker ps | grep -q aspnet-emm-app-container; then
+              echo "❌ Container failed to start!"
+              docker logs aspnet-emm-app-container
+              exit 1
+            fi
+            echo "✅ Deployment successful!"

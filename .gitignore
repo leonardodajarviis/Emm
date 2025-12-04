@@ -401,12 +401,12 @@ FodyWeavers.xsd
 *.sln.iml
 .idea/
 
-# Sensitive configuration files - Ignore all appsettings except example
+# Sensitive configuration files - Ignore all appsettings except example and Production
 appsettings.json
 appsettings.Development.json
-appsettings.Production.json
 appsettings.*.json
 !appsettings.example.json
+!appsettings.Production.json
 
 # Environment files
 .env
