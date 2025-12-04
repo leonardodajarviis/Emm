@@ -52,13 +52,23 @@ public class AddShiftLogCommandHandler : IRequestHandler<AddShiftLogCommand, Res
             .Distinct()
             .ToDictionary(a => a.AssetId, a => a);
 
+        // Validate AssetId and GroupId
+        if (request.AssetId.HasValue && request.GroupId.HasValue)
+        {
+            return Result<object>.Validation(
+                "Cannot set both AssetId and GroupId. Choose either single asset or group.",
+                ValidationErrorCodes.FieldRequired);
+        }
+
         // Create new task aggregate
         var newShiftLog = new ShiftLog(
             request.OperationShiftId,
             request.Name,
             "noDescription",
             request.StartTime,
-            request.EndTime);
+            request.EndTime,
+            request.AssetId,
+            request.GroupId);
 
         // Add readings if provided
         if (request.Readings != null && request.Readings.Any())

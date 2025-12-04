@@ -34,6 +34,11 @@ public class ShiftLogConfiguration : IEntityTypeConfiguration<ShiftLog>
         builder.Property(x => x.Notes)
             .HasMaxLength(1000);
 
+        // Asset and Group references
+        builder.Property(x => x.AssetId);
+
+        builder.Property(x => x.GroupId);
+
         builder.Property(x => x.CreatedAt)
             .IsRequired();
 
@@ -43,14 +48,11 @@ public class ShiftLogConfiguration : IEntityTypeConfiguration<ShiftLog>
         // Foreign key reference to OperationShift (separate aggregate)
         builder.HasIndex(x => x.OperationShiftId);
 
-        // Collections - using backing field pattern
-        builder.HasMany(x => x.Assets)
-            .WithOne()
-            .HasForeignKey(x => x.ShiftLogId)
-            .OnDelete(DeleteBehavior.Cascade);
+        // Indexes for AssetId and GroupId
+        builder.HasIndex(x => x.AssetId);
+        builder.HasIndex(x => x.GroupId);
 
-        builder.Navigation(x => x.Assets)
-            .UsePropertyAccessMode(PropertyAccessMode.Field);
+        // Collections - using backing field pattern
 
         builder.HasMany(x => x.Readings)
             .WithOne()

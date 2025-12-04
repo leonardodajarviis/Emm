@@ -17,13 +17,17 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
     public DateTime? EndTime { get; private set; }
     public string? Notes { get; private set; }
 
-    // Collections - using backing field pattern for EF Core
     /// <summary>
-    /// Danh sách asset liên kết với ShiftLog này
-    /// Có thể là 0 (shift-level log), 1 (single asset), hoặc nhiều asset (group)
+    /// Asset ID cho trường hợp ghi log cho 1 asset cụ thể
+    /// Null nếu là shift-level log hoặc ghi log theo group
     /// </summary>
-    private readonly List<ShiftLogAsset> _assets;
-    public IReadOnlyCollection<ShiftLogAsset> Assets => _assets;
+    public long? AssetId { get; private set; }
+
+    /// <summary>
+    /// Group ID cho trường hợp ghi log cho nhiều assets theo group
+    /// Null nếu là shift-level log hoặc ghi log cho 1 asset cụ thể
+    /// </summary>
+    public long? GroupId { get; private set; }
 
     private readonly List<ShiftLogParameterReading> _readings;
     public IReadOnlyCollection<ShiftLogParameterReading> Readings => _readings;
@@ -42,7 +46,9 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
         string name,
         string description,
         DateTime startTime,
-        DateTime? endTime = null)
+        DateTime? endTime = null,
+        long? assetId = null,
+        long? groupId = null)
     {
         if (operationShiftId <= 0)
             throw new DomainException("Invalid operation shift ID");
@@ -53,8 +59,10 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
         if (string.IsNullOrWhiteSpace(description))
             throw new DomainException("Task description is required");
 
+        // Validation: Không được set cả AssetId và GroupId cùng lúc
+        if (assetId.HasValue && groupId.HasValue)
+            throw new DomainException("Cannot set both AssetId and GroupId. Choose either single asset or group.");
 
-        _assets = [];
         _readings = [];
         _checkpoints = [];
         _events = [];
@@ -65,6 +73,8 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
         Description = description;
         StartTime = startTime;
         EndTime = endTime;
+        AssetId = assetId;
+        GroupId = groupId;
     }
 
     public void UpdateStartTime(DateTime startTime)
@@ -82,106 +92,70 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
         UpdatedAt = DateTime.UtcNow;
     }
 
-    #region Asset Management
+    #region Asset and Group Management
 
     /// <summary>
-    /// Thêm asset vào ShiftLog - hỗ trợ ghi log cho nhiều asset cùng lúc
+    /// Gán ShiftLog cho một asset cụ thể
     /// </summary>
-    public void AddAsset(
-        long assetId,
-        string assetCode,
-        string assetName,
-        bool isPrimary = false)
+    public void AssignToAsset(long assetId)
     {
         if (assetId <= 0)
             throw new DomainException("Invalid asset ID");
 
-        if (string.IsNullOrWhiteSpace(assetCode))
-            throw new DomainException("Asset code is required");
+        if (GroupId.HasValue)
+            throw new DomainException("Cannot assign to asset when already assigned to a group");
 
-        if (string.IsNullOrWhiteSpace(assetName))
-            throw new DomainException("Asset name is required");
-
-        // Kiểm tra trùng lặp
-        if (_assets.Any(a => a.AssetId == assetId))
-            throw new DomainException($"Asset {assetCode} already added to this shift log");
-
-        // Nếu đánh dấu là primary, bỏ primary của asset khác
-        if (isPrimary)
-        {
-            foreach (var asset in _assets.Where(a => a.IsPrimary))
-            {
-                asset.UnmarkAsPrimary();
-            }
-        }
-
-        var shiftLogAsset = new ShiftLogAsset(Id, assetId, assetCode, assetName, isPrimary);
-        _assets.Add(shiftLogAsset);
+        AssetId = assetId;
+        UpdatedAt = DateTime.UtcNow;
     }
 
     /// <summary>
-    /// Thêm nhiều assets cùng lúc - cho trường hợp log nhóm thiết bị
+    /// Gán ShiftLog cho một group (nhiều assets)
     /// </summary>
-    public void AddAssets(IEnumerable<(long assetId, string assetCode, string assetName, bool isPrimary)> assets)
+    public void AssignToGroup(long groupId)
     {
-        foreach (var (assetId, assetCode, assetName, isPrimary) in assets)
-        {
-            AddAsset(assetId, assetCode, assetName, isPrimary);
-        }
+        if (groupId <= 0)
+            throw new DomainException("Invalid group ID");
+
+        if (AssetId.HasValue)
+            throw new DomainException("Cannot assign to group when already assigned to an asset");
+
+        GroupId = groupId;
+        UpdatedAt = DateTime.UtcNow;
     }
 
     /// <summary>
-    /// Xóa asset khỏi ShiftLog
+    /// Bỏ gán asset/group (chuyển về shift-level log)
     /// </summary>
-    public void RemoveAsset(long assetId)
+    public void UnassignAssetOrGroup()
     {
-        var asset = _assets.FirstOrDefault(a => a.AssetId == assetId);
-        if (asset == null)
-            throw new DomainException($"Asset with ID {assetId} not found in this shift log");
-
-        _assets.Remove(asset);
+        AssetId = null;
+        GroupId = null;
+        UpdatedAt = DateTime.UtcNow;
     }
 
     /// <summary>
-    /// Đánh dấu asset là primary trong nhóm
+    /// Kiểm tra xem ShiftLog có gắn với asset/group không
     /// </summary>
-    public void MarkAssetAsPrimary(long assetId)
+    public bool IsAssigned()
     {
-        var asset = _assets.FirstOrDefault(a => a.AssetId == assetId);
-        if (asset == null)
-            throw new DomainException($"Asset with ID {assetId} not found in this shift log");
-
-        // Bỏ primary của các asset khác
-        foreach (var a in _assets.Where(a => a.IsPrimary && a.AssetId != assetId))
-        {
-            a.UnmarkAsPrimary();
-        }
-
-        asset.MarkAsPrimary();
+        return AssetId.HasValue || GroupId.HasValue;
     }
 
     /// <summary>
-    /// Lấy danh sách asset IDs trong ShiftLog này
+    /// Kiểm tra xem ShiftLog có gắn với một asset cụ thể không
     /// </summary>
-    public IEnumerable<long> GetAssetIds()
+    public bool IsAssignedToAsset()
     {
-        return _assets.Select(a => a.AssetId);
+        return AssetId.HasValue;
     }
 
     /// <summary>
-    /// Kiểm tra xem ShiftLog có chứa asset này không
+    /// Kiểm tra xem ShiftLog có gắn với group không
     /// </summary>
-    public bool HasAsset(long assetId)
+    public bool IsAssignedToGroup()
     {
-        return _assets.Any(a => a.AssetId == assetId);
-    }
-
-    /// <summary>
-    /// Lấy primary asset (nếu có)
-    /// </summary>
-    public ShiftLogAsset? GetPrimaryAsset()
-    {
-        return _assets.FirstOrDefault(a => a.IsPrimary);
+        return GroupId.HasValue;
     }
 
     #endregion
@@ -473,7 +447,6 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
 
     private ShiftLog()
     {
-        _assets = [];
         _readings = [];
         _checkpoints = [];
         _events = [];

@@ -28,7 +28,7 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/aspnet-emm-app:latest
 
-      # 4. SSH vào VPS để chạy container mới
+      # 4. SSH vào VPS để chạy container mới với zero-downtime deployment
       - name: Deploy to VPS
         uses: appleboy/ssh-action@master
         with:
@@ -36,19 +36,32 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            # Dừng và xóa container cũ (nếu có)
-            docker stop aspnet-emm-app-container || true
-            docker rm aspnet-emm-app-container || true
+            set -e  # Exit immediately if any command fails
 
-            # Pull image mới nhất về
-            docker pull ${{ secrets.DOCKER_USERNAME }}/aspnet-emm-app:latest
+            echo "🔄 Starting deployment..."
 
-            # Xóa image cũ để tiết kiệm dung lượng (chỉ giữ lại image mới nhất)
-            docker image prune -f
+            # Pull image mới nhất về trước
+            echo "📥 Pulling latest image..."
+            if ! docker pull ${{ secrets.DOCKER_USERNAME }}/aspnet-emm-app:latest; then
+              echo "❌ Failed to pull Docker image"
+              exit 1
+            fi
 
-            # Chạy container mới (Map port 2310 của VPS vào port 2310 của Container)
+            # Backup tên container cũ để rollback nếu cần
+            OLD_CONTAINER="aspnet-emm-app-container"
+            NEW_CONTAINER="aspnet-emm-app-container-new"
+            BACKUP_CONTAINER="aspnet-emm-app-container-backup"
+
+            # Nếu có container cũ đang chạy, rename nó thành backup
+            if docker ps -a --format '{{.Names}}' | grep -q "^${OLD_CONTAINER}$"; then
+              echo "📦 Backing up old container..."
+              docker rename ${OLD_CONTAINER} ${BACKUP_CONTAINER} 2>/dev/null || true
+            fi
+
+            # Chạy container mới với tên tạm
+            echo "🚀 Starting new container..."
             docker run -d \
-              --name aspnet-emm-app-container \
+              --name ${NEW_CONTAINER} \
               --restart always \
               -p 2310:2310 \
               -e ASPNETCORE_ENVIRONMENT=Production \
@@ -59,11 +72,54 @@ jobs:
               -e StmpEmail__Password="${{ secrets.SMTP_PASSWORD }}" \
               ${{ secrets.DOCKER_USERNAME }}/aspnet-emm-app:latest
 
-            # Kiểm tra container có chạy thành công không
+            # Đợi container khởi động
+            echo "⏳ Waiting for container to start..."
             sleep 5
-            if ! docker ps | grep -q aspnet-emm-app-container; then
-              echo "❌ Container failed to start!"
-              docker logs aspnet-emm-app-container
+
+            # Kiểm tra container có chạy không
+            if ! docker ps | grep -q ${NEW_CONTAINER}; then
+              echo "❌ New container failed to start!"
+              echo "📋 Container logs:"
+              docker logs ${NEW_CONTAINER}
+
+              # Rollback: Xóa container mới và khôi phục container cũ
+              echo "🔄 Rolling back to previous version..."
+              docker rm -f ${NEW_CONTAINER} 2>/dev/null || true
+
+              if docker ps -a --format '{{.Names}}' | grep -q "^${BACKUP_CONTAINER}$"; then
+                docker rename ${BACKUP_CONTAINER} ${OLD_CONTAINER}
+                docker start ${OLD_CONTAINER}
+                echo "✅ Rolled back to previous version successfully"
+              fi
+
               exit 1
             fi
+
+            # Health check: Kiểm tra API có respond không (optional - cần health endpoint)
+            echo "🏥 Performing health check..."
+            sleep 3
+            if ! curl -f http://localhost:2310/health 2>/dev/null; then
+              echo "⚠️  Warning: Health check failed, but container is running"
+              echo "📋 Recent logs:"
+              docker logs --tail 50 ${NEW_CONTAINER}
+              # Không exit để cho phép deploy tiếp nếu chỉ health endpoint chưa có
+            fi
+
+            # Deployment thành công - dọn dẹp
+            echo "🧹 Cleaning up..."
+
+            # Rename container mới thành tên chính thức
+            docker rename ${NEW_CONTAINER} ${OLD_CONTAINER}
+
+            # Dừng và xóa container backup cũ
+            if docker ps -a --format '{{.Names}}' | grep -q "^${BACKUP_CONTAINER}$"; then
+              docker stop ${BACKUP_CONTAINER} 2>/dev/null || true
+              docker rm ${BACKUP_CONTAINER} 2>/dev/null || true
+            fi
+
+            # Xóa các image không dùng để tiết kiệm dung lượng
+            docker image prune -af --filter "until=24h"
+
             echo "✅ Deployment successful!"
+            echo "📊 Container status:"
+            docker ps --filter "name=${OLD_CONTAINER}" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"

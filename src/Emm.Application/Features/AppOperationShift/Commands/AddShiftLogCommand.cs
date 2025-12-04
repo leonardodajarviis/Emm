@@ -8,6 +8,17 @@ public class AddShiftLogCommand : IRequest<Result<object>>
     public string Name { get; set; } = null!;
     public DateTime StartTime { get; set; }
     public DateTime? EndTime { get; set; }
+
+    /// <summary>
+    /// Asset ID cho trường hợp ghi log cho 1 asset cụ thể
+    /// </summary>
+    public long? AssetId { get; set; }
+
+    /// <summary>
+    /// Group ID cho trường hợp ghi log cho nhiều assets theo group
+    /// </summary>
+    public long? GroupId { get; set; }
+
     public IEnumerable<ParameterReadingRequest>? Readings { get; set; }
     public IEnumerable<CheckpointRequest>? Checkpoints { get; set; }
     public IEnumerable<LogEventRequest>? Events { get; set; }
