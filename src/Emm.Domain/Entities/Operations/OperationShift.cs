@@ -121,12 +121,6 @@ public class OperationShift : AggregateRoot, IAuditableEntity
 
     public void CompleteShift(DateTime actualEndTime, string? notes = null)
     {
-        DomainGuard.AgainstInvalidState(
-            Status != OperationShiftStatus.InProgress,
-            nameof(OperationShift),
-            Status.ToString(),
-            $"Cannot complete shift in {Status} status. Shift must be in InProgress status.");
-
         DomainGuard.AgainstBusinessRule(
             ActualStartTime.HasValue && actualEndTime < ActualStartTime.Value,
             "ShiftEndTimeBeforeStartTime",

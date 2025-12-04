@@ -5,6 +5,4 @@ namespace Emm.Application.Features.AppOperationShift.Commands;
 public class CompleteShiftCommand : IRequest<Result<object>>
 {
     public long ShiftId { get; set; }
-    public DateTime ActualEndTime { get; set; }
-    public string? Notes { get; set; }
 }

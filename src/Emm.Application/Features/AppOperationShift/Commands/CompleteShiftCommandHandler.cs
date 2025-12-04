@@ -38,7 +38,7 @@ public class CompleteShiftCommandHandler : IRequestHandler<CompleteShiftCommand,
             log.LockAllReadings();
         }
 
-        shift.CompleteShift(request.ActualEndTime, request.Notes);
+        shift.CompleteShift(DateTime.UtcNow, "noProplem");
 
         // Add log with current user info
         var currentUser = _userContextService.GetCurrentUsername() ?? "System";

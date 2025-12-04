@@ -6,11 +6,12 @@ using Emm.Presentation.Extensions;
 using LazyNet.Symphony.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Org.BouncyCastle.Ocsp;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Emm.Presentation.Controllers;
 
-// [Authorize]
 [ApiController]
+[Authorize]
 [Route("api/operation-shifts")]
 public class OperationShiftController : ControllerBase
 {
@@ -71,13 +72,11 @@ public class OperationShiftController : ControllerBase
 
     // Business operations endpoints
     [HttpPost("{id:long}/complete")]
-    public async Task<IActionResult> Complete([FromRoute] long id, [FromBody] CompleteShiftRequest request)
+    public async Task<IActionResult> Complete([FromRoute] long id)
     {
         var command = new CompleteShiftCommand
         {
             ShiftId = id,
-            ActualEndTime = request.ActualEndTime,
-            Notes = request.Notes
         };
         var result = await _mediator.Send(command);
         return result.ToActionResult();

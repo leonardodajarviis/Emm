@@ -25,9 +25,6 @@ public class OperationShiftAssetGroup
         int displayOrder = 0,
         string? description = null)
     {
-        if (operationShiftId <= 0)
-            throw new DomainException("OperationShiftId must be greater than zero");
-
         if (linkedId == Guid.Empty)
             throw new DomainException("LinkedId cannot be empty");
 
