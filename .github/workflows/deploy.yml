@@ -2,25 +2,22 @@ name: Deploy ASP.NET to VPS
 
 on:
   push:
-    branches: ["main"] # Chạy khi có code đẩy vào nhánh main
+    branches: ["main"]
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Lấy code về
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2. Đăng nhập Docker Hub
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # 3. Build và đẩy Image lên Docker Hub
       - name: Build and Push Docker Image
         uses: docker/build-push-action@v5
         with:
@@ -28,7 +25,6 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/aspnet-emm-app:latest
 
-      # 4. SSH vào VPS để chạy container mới
       - name: Deploy to VPS
         uses: appleboy/ssh-action@master
         with:
@@ -36,19 +32,30 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            # Dừng và xóa container cũ (nếu có)
-            docker stop aspnet-emm-app-container || true
-            docker rm aspnet-emm-app-container || true
+            set -e # Dừng ngay nếu có lỗi
 
-            # Pull image mới nhất về
-            docker pull ${{ secrets.DOCKER_USERNAME }}/aspnet-emm-app:latest
+            # --- CẤU HÌNH ---
+            CONTAINER_NAME="aspnet-emm-app-container"
+            IMAGE_NAME="${{ secrets.DOCKER_USERNAME }}/aspnet-emm-app:latest"
 
-            # Xóa image cũ để tiết kiệm dung lượng (chỉ giữ lại image mới nhất)
-            docker image prune -f
+            echo "🚀 Bắt đầu Deploy..."
 
-            # Chạy container mới (Map port 2310 của VPS vào port 2310 của Container)
+            # 1. Pull image mới nhất về
+            echo "📥 Đang kéo Image mới nhất..."
+            docker pull $IMAGE_NAME
+
+            # 2. Stop và Remove container cũ (Khắc phục lỗi port allocated)
+            # Dùng '|| true' để không báo lỗi nếu container chưa tồn tại (lần đầu deploy)
+            echo "🛑 Đang dừng container cũ..."
+            docker stop $CONTAINER_NAME || true
+
+            echo "🗑️ Đang xóa container cũ..."
+            docker rm $CONTAINER_NAME || true
+
+            # 3. Chạy container mới
+            echo "🔥 Đang khởi chạy container mới..."
             docker run -d \
-              --name aspnet-emm-app-container \
+              --name $CONTAINER_NAME \
               --restart always \
               -p 2310:2310 \
               -e ASPNETCORE_ENVIRONMENT=Production \
@@ -57,13 +64,22 @@ jobs:
               -e Jwt__RefreshKey="${{ secrets.JWT_REFRESH_KEY }}" \
               -e StmpEmail__Username="${{ secrets.SMTP_USERNAME }}" \
               -e StmpEmail__Password="${{ secrets.SMTP_PASSWORD }}" \
-              ${{ secrets.DOCKER_USERNAME }}/aspnet-emm-app:latest
+              $IMAGE_NAME
 
-            # Kiểm tra container có chạy thành công không
+            # 4. Kiểm tra xem container có sống không
+            echo "⏳ Đang kiểm tra trạng thái..."
             sleep 5
-            if ! docker ps | grep -q aspnet-emm-app-container; then
-              echo "❌ Container failed to start!"
-              docker logs aspnet-emm-app-container
+            if [ "$(docker ps -q -f name=$CONTAINER_NAME)" ]; then
+              echo "✅ Container đang chạy ổn định!"
+              docker ps -f name=$CONTAINER_NAME
+            else
+              echo "❌ Container không chạy! Kiểm tra logs:"
+              docker logs $CONTAINER_NAME
               exit 1
             fi
-            echo "✅ Deployment successful!"
+
+            # 5. Dọn dẹp rác (Image cũ) để không đầy ổ cứng VPS
+            echo "🧹 Dọn dẹp hệ thống..."
+            docker image prune -af --filter "until=24h"
+
+            echo "🎉 Deploy hoàn tất!"
