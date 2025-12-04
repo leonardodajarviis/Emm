@@ -31,6 +31,13 @@ public class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavior<TReq
         PipelineNext<TResponse> next,
         CancellationToken cancellationToken = default)
     {
+        // Skip authorization for public requests (Login, Register, etc.)
+        if (request is IPublicRequest)
+        {
+            _logger.LogDebug("Skipping authorization for public request: {RequestType}", typeof(TRequest).Name);
+            return await next();
+        }
+
         // Get current user ID
         var userId = _userContextService.GetCurrentUserId();
         if (userId == null)

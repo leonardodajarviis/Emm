@@ -2,7 +2,6 @@ using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using LazyNet.Symphony.Extensions;
 using Emm.Application.Behaviors;
-using Emm.Application.Common;
 
 namespace Emm.Application.Extensions;
 
