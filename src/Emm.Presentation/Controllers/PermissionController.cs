@@ -1,6 +1,5 @@
 using Emm.Domain.Entities.Authorization;
 using Emm.Domain.Repositories;
-using Emm.Presentation.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Emm.Presentation.Controllers;
@@ -21,7 +20,6 @@ public class PermissionController : ControllerBase
     }
 
     [HttpGet]
-    [RequirePermission("Permission.View")]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
     {
         var permissions = await _permissionRepository.GetAllAsync(cancellationToken);
@@ -29,7 +27,6 @@ public class PermissionController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    [RequirePermission("Permission.View")]
     public async Task<IActionResult> GetById(long id, CancellationToken cancellationToken)
     {
         var permission = await _permissionRepository.GetByIdAsync(id, cancellationToken);
@@ -40,7 +37,6 @@ public class PermissionController : ControllerBase
     }
 
     [HttpGet("resource/{resource}")]
-    [RequirePermission("Permission.View")]
     public async Task<IActionResult> GetByResource(string resource, CancellationToken cancellationToken)
     {
         var permissions = await _permissionRepository.GetByResourceAsync(resource, cancellationToken);
@@ -48,7 +44,6 @@ public class PermissionController : ControllerBase
     }
 
     [HttpPost]
-    [RequirePermission("Permission.Create")]
     public async Task<IActionResult> Create([FromBody] CreatePermissionRequest request, CancellationToken cancellationToken)
     {
         var exists = await _permissionRepository.ExistsAsync($"{request.Resource}.{request.Action}", cancellationToken);
@@ -69,7 +64,6 @@ public class PermissionController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    [RequirePermission("Permission.Update")]
     public async Task<IActionResult> Update(long id, [FromBody] UpdatePermissionRequest request, CancellationToken cancellationToken)
     {
         var permission = await _permissionRepository.GetByIdAsync(id, cancellationToken);
@@ -84,7 +78,6 @@ public class PermissionController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    [RequirePermission("Permission.Delete")]
     public async Task<IActionResult> Delete(long id, CancellationToken cancellationToken)
     {
         var permission = await _permissionRepository.GetByIdAsync(id, cancellationToken);

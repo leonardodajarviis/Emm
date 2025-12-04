@@ -1,6 +1,5 @@
 using Emm.Domain.Entities.Authorization;
 using Emm.Domain.Repositories;
-using Emm.Presentation.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Emm.Presentation.Controllers;
@@ -27,7 +26,6 @@ public class RoleController : ControllerBase
     }
 
     [HttpGet]
-    [RequirePermission("Role.View")]
     public async Task<IActionResult> GetAll([FromQuery] bool includeInactive = false, CancellationToken cancellationToken = default)
     {
         var roles = await _roleRepository.GetAllAsync(includeInactive, cancellationToken);
@@ -35,7 +33,6 @@ public class RoleController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    [RequirePermission("Role.View")]
     public async Task<IActionResult> GetById(long id, CancellationToken cancellationToken)
     {
         var role = await _roleRepository.GetByIdWithPermissionsAsync(id, cancellationToken);
@@ -62,7 +59,6 @@ public class RoleController : ControllerBase
     }
 
     [HttpPost]
-    [RequirePermission("Role.Create")]
     public async Task<IActionResult> Create([FromBody] CreateRoleRequest request, CancellationToken cancellationToken)
     {
         var exists = await _roleRepository.ExistsAsync(request.Code, cancellationToken);
@@ -78,7 +74,6 @@ public class RoleController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    [RequirePermission("Role.Update")]
     public async Task<IActionResult> Update(long id, [FromBody] UpdateRoleRequest request, CancellationToken cancellationToken)
     {
         var role = await _roleRepository.GetByIdAsync(id, cancellationToken);
@@ -93,7 +88,6 @@ public class RoleController : ControllerBase
     }
 
     [HttpPost("{id}/permissions")]
-    [RequirePermission("Role.Update")]
     public async Task<IActionResult> AddPermission(long id, [FromBody] AddPermissionToRoleRequest request, CancellationToken cancellationToken)
     {
         var role = await _roleRepository.GetByIdWithPermissionsAsync(id, cancellationToken);
@@ -112,7 +106,6 @@ public class RoleController : ControllerBase
     }
 
     [HttpDelete("{id}/permissions/{permissionId}")]
-    [RequirePermission("Role.Update")]
     public async Task<IActionResult> RemovePermission(long id, long permissionId, CancellationToken cancellationToken)
     {
         var role = await _roleRepository.GetByIdWithPermissionsAsync(id, cancellationToken);
@@ -127,7 +120,6 @@ public class RoleController : ControllerBase
     }
 
     [HttpPost("{id}/activate")]
-    [RequirePermission("Role.Update")]
     public async Task<IActionResult> Activate(long id, CancellationToken cancellationToken)
     {
         var role = await _roleRepository.GetByIdAsync(id, cancellationToken);
@@ -142,7 +134,6 @@ public class RoleController : ControllerBase
     }
 
     [HttpPost("{id}/deactivate")]
-    [RequirePermission("Role.Update")]
     public async Task<IActionResult> Deactivate(long id, CancellationToken cancellationToken)
     {
         var role = await _roleRepository.GetByIdAsync(id, cancellationToken);
@@ -157,7 +148,6 @@ public class RoleController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    [RequirePermission("Role.Delete")]
     public async Task<IActionResult> Delete(long id, CancellationToken cancellationToken)
     {
         var role = await _roleRepository.GetByIdAsync(id, cancellationToken);
@@ -174,7 +164,6 @@ public class RoleController : ControllerBase
     }
 
     [HttpPost("users/{userId}/roles")]
-    [RequirePermission("User.AssignRole")]
     public async Task<IActionResult> AssignRoleToUser(long userId, [FromBody] AssignRoleRequest request, CancellationToken cancellationToken)
     {
         var role = await _roleRepository.GetByIdAsync(request.RoleId, cancellationToken);
@@ -196,7 +185,6 @@ public class RoleController : ControllerBase
     }
 
     [HttpDelete("users/{userId}/roles/{roleId}")]
-    [RequirePermission("User.AssignRole")]
     public async Task<IActionResult> RemoveRoleFromUser(long userId, long roleId, CancellationToken cancellationToken)
     {
         var userRole = await _userRoleRepository.GetAsync(userId, roleId, cancellationToken);

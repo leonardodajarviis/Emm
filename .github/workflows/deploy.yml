@@ -1,0 +1,68 @@
+name: Build and Deploy to VPS
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch: # Cho phép chạy thủ công từ tab Actions
+
+env:
+  IMAGE_NAME: emm-backend
+  CONTAINER_NAME: emm-backend
+  PORT: 8080 # Cổng bên trong container (như đã định nghĩa trong Dockerfile)
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:latest
+          # Cache giúp build nhanh hơn các lần sau
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to VPS via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          # port: 22 # Mặc định là 22, bỏ comment nếu dùng port khác
+          script: |
+            # 1. Pull image mới nhất về
+            docker pull ${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:latest
+            
+            # 2. Dừng và xóa container cũ (nếu tồn tại)
+            docker stop ${{ env.CONTAINER_NAME }} || true
+            docker rm ${{ env.CONTAINER_NAME }} || true
+            
+            # 3. Chạy container mới
+            # Map port 80 của VPS vào port 8080 của container
+            docker run -d \
+              --name ${{ env.CONTAINER_NAME }} \
+              -p 80:${{ env.PORT }} \
+              --restart unless-stopped \
+              ${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:latest
+            
+            # 4. Dọn dẹp các image cũ không dùng đến để tiết kiệm ổ cứng VPS
+            docker image prune -f

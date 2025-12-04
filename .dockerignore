@@ -1,0 +1,13 @@
+**/.dockerignore
+**/.env
+**/.git
+**/.gitignore
+**/.vscode
+**/bin
+**/obj
+**/TestResults
+Dockerfile
+docker-compose.yml
+error-codes.json
+LICENSE
+README.md

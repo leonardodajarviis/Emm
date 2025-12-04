@@ -1,7 +1,6 @@
 using Emm.Application.Abstractions;
 using Emm.Domain.Entities.Authorization;
 using Emm.Domain.Repositories;
-using Emm.Presentation.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Emm.Presentation.Controllers;
@@ -28,7 +27,6 @@ public class UserPermissionController : ControllerBase
     }
 
     [HttpGet("users/{userId}")]
-    [RequirePermission("User.ViewPermissions")]
     public async Task<IActionResult> GetUserPermissions(long userId, CancellationToken cancellationToken)
     {
         var permissions = await _authorizationService.GetUserPermissionsAsync(userId, cancellationToken);
@@ -42,7 +40,6 @@ public class UserPermissionController : ControllerBase
     }
 
     [HttpPost("users/{userId}/permissions")]
-    [RequirePermission("User.AssignPermission")]
     public async Task<IActionResult> GrantPermission(
         long userId,
         [FromBody] GrantPermissionRequest request,
@@ -80,7 +77,6 @@ public class UserPermissionController : ControllerBase
     }
 
     [HttpDelete("users/{userId}/permissions/{permissionId}")]
-    [RequirePermission("User.AssignPermission")]
     public async Task<IActionResult> RevokePermission(long userId, long permissionId, CancellationToken cancellationToken)
     {
         var userPermission = await _userPermissionRepository.GetAsync(userId, permissionId, cancellationToken);
@@ -94,7 +90,6 @@ public class UserPermissionController : ControllerBase
     }
 
     [HttpPost("check")]
-    [RequirePermission("Permission.Check")]
     public async Task<IActionResult> CheckPermission([FromBody] CheckPermissionRequest request, CancellationToken cancellationToken)
     {
         var hasPermission = await _authorizationService.HasPermissionAsync(request.UserId, request.PermissionCode, cancellationToken);
