@@ -2,9 +2,6 @@
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
-# Copy file solution
-COPY ["Emm.sln", "./"]
-
 # Copy các file csproj theo đúng cấu trúc thư mục
 COPY ["src/Emm.Shared/Emm.Shared.csproj", "src/Emm.Shared/"]
 COPY ["src/Emm.Domain/Emm.Domain.csproj", "src/Emm.Domain/"]
@@ -12,11 +9,8 @@ COPY ["src/Emm.Application/Emm.Application.csproj", "src/Emm.Application/"]
 COPY ["src/Emm.Infrastructure/Emm.Infrastructure.csproj", "src/Emm.Infrastructure/"]
 COPY ["src/Emm.Presentation/Emm.Presentation.csproj", "src/Emm.Presentation/"]
 
-# Copy tools (nếu cần)
-COPY ["tools/Emm.Tools.ErrorCodeGenerator/Emm.Tools.ErrorCodeGenerator.csproj", "tools/Emm.Tools.ErrorCodeGenerator/"]
-
-# Restore các package dependencies
-RUN dotnet restore "Emm.sln"
+# Restore các package dependencies cho Presentation project
+RUN dotnet restore "src/Emm.Presentation/Emm.Presentation.csproj"
 
 # Copy toàn bộ source code còn lại
 COPY . .
