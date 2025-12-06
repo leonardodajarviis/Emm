@@ -13,7 +13,7 @@ public class OperationShiftAsset
     public string AssetCode { get; private set; } = null!;
     public string AssetName { get; private set; } = null!;
     public bool IsPrimary { get; private set; }
-    public long? AssetGroupId { get; private set; }
+    public long? AssetBoxId { get; private set; }
     public AssetStatus Status { get; private set; }
     public DateTime? StartedAt { get; private set; }
     public DateTime? CompletedAt { get; private set; }
@@ -25,20 +25,20 @@ public class OperationShiftAsset
         string assetCode,
         string assetName,
         bool isPrimary = false,
-        long? assetGroupId = null)
+        long? assetBoxId = null)
     {
         OperationShiftId = operationShiftId;
         AssetId = assetId;
         AssetCode = assetCode;
         AssetName = assetName;
         IsPrimary = isPrimary;
-        AssetGroupId = assetGroupId;
+        AssetBoxId = assetBoxId;
         Status = AssetStatus.Scheduled;
     }
 
-    public void AssignToGroup(long? assetGroupId)
+    public void AssignToGroup(long? assetBoxId)
     {
-        AssetGroupId = assetGroupId;
+        AssetBoxId = assetBoxId;
     }
 
     public void StartOperation(string? notes = null)

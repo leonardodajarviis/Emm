@@ -27,7 +27,7 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
     /// Group ID cho trường hợp ghi log cho nhiều assets theo group
     /// Null nếu là shift-level log hoặc ghi log cho 1 asset cụ thể
     /// </summary>
-    public long? GroupId { get; private set; }
+    public long? BoxId { get; private set; }
 
     private readonly List<ShiftLogParameterReading> _readings;
     public IReadOnlyCollection<ShiftLogParameterReading> Readings => _readings;
@@ -48,7 +48,7 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
         DateTime startTime,
         DateTime? endTime = null,
         long? assetId = null,
-        long? groupId = null)
+        long? boxId = null)
     {
         if (operationShiftId <= 0)
             throw new DomainException("Invalid operation shift ID");
@@ -60,7 +60,7 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
             throw new DomainException("Task description is required");
 
         // Validation: Không được set cả AssetId và GroupId cùng lúc
-        if (assetId.HasValue && groupId.HasValue)
+        if (assetId.HasValue && boxId.HasValue)
             throw new DomainException("Cannot set both AssetId and GroupId. Choose either single asset or group.");
 
         _readings = [];
@@ -74,7 +74,7 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
         StartTime = startTime;
         EndTime = endTime;
         AssetId = assetId;
-        GroupId = groupId;
+        BoxId = boxId;
     }
 
     public void UpdateStartTime(DateTime startTime)
@@ -102,7 +102,7 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
         if (assetId <= 0)
             throw new DomainException("Invalid asset ID");
 
-        if (GroupId.HasValue)
+        if (BoxId.HasValue)
             throw new DomainException("Cannot assign to asset when already assigned to a group");
 
         AssetId = assetId;
@@ -112,25 +112,25 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
     /// <summary>
     /// Gán ShiftLog cho một group (nhiều assets)
     /// </summary>
-    public void AssignToGroup(long groupId)
+    public void AssignToBox(long boxId)
     {
-        if (groupId <= 0)
+        if (boxId <= 0)
             throw new DomainException("Invalid group ID");
 
         if (AssetId.HasValue)
             throw new DomainException("Cannot assign to group when already assigned to an asset");
 
-        GroupId = groupId;
+        BoxId = boxId;
         UpdatedAt = DateTime.UtcNow;
     }
 
     /// <summary>
     /// Bỏ gán asset/group (chuyển về shift-level log)
     /// </summary>
-    public void UnassignAssetOrGroup()
+    public void UnassignAssetOrBox()
     {
         AssetId = null;
-        GroupId = null;
+        BoxId = null;
         UpdatedAt = DateTime.UtcNow;
     }
 
@@ -139,7 +139,7 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
     /// </summary>
     public bool IsAssigned()
     {
-        return AssetId.HasValue || GroupId.HasValue;
+        return AssetId.HasValue || BoxId.HasValue;
     }
 
     /// <summary>
@@ -153,9 +153,9 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
     /// <summary>
     /// Kiểm tra xem ShiftLog có gắn với group không
     /// </summary>
-    public bool IsAssignedToGroup()
+    public bool IsAssignedToBox()
     {
-        return GroupId.HasValue;
+        return BoxId.HasValue;
     }
 
     #endregion

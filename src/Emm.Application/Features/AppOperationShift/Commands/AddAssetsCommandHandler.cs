@@ -47,7 +47,7 @@ public class AddAssetsCommandHandler : IRequestHandler<AddAssetsCommand, Result<
                     assetCode: existingAsset.Code,
                     assetName: existingAsset.DisplayName,
                     isPrimary: false,
-                    assetGroupId: request.AssetGroupId);
+                    assetBoxId: request.AssetBoxId);
             }
         }
 

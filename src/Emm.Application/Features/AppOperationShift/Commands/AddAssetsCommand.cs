@@ -6,5 +6,5 @@ public class AddAssetsCommand : IRequest<Result<object>>
 {
     public long ShiftId { get; set; }
     public IReadOnlyCollection<long> AssetIds { get; set; } = [];
-    public long? AssetGroupId { get; set; }
+    public long? AssetBoxId { get; set; }
 }

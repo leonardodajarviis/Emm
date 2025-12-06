@@ -32,7 +32,7 @@ public class CreateAssetGroupRequest
 {
     public required string GroupName { get; set; }
     public string? Description { get; set; }
-    public GroupRole Role { get; set; } = GroupRole.Secondary;
+    public BoxRole Role { get; set; } = BoxRole.Secondary;
     public int DisplayOrder { get; set; } = 0;
 }
 
@@ -40,7 +40,7 @@ public class UpdateAssetGroupRequest
 {
     public required string GroupName { get; set; }
     public string? Description { get; set; }
-    public required GroupRole Role { get; set; }
+    public required BoxRole Role { get; set; }
     public required int DisplayOrder { get; set; }
 }
 

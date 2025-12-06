@@ -1,5 +1,6 @@
 using Emm.Application.Abstractions;
 using Emm.Application.Common.ErrorCodes;
+using Emm.Domain.Abstractions;
 using Emm.Domain.Entities.AssetCatalog;
 using Emm.Domain.Entities.Operations;
 using Microsoft.EntityFrameworkCore;
@@ -12,8 +13,8 @@ public class CreateOperationShiftCommandHandler : IRequestHandler<CreateOperatio
     private readonly IOperationShiftRepository _repository;
     private readonly IQueryContext _qq;
     private readonly IUserContextService _userContextService;
-    private readonly IOutbox _outbox;
     private readonly ICodeGenerator _codeGenerator;
+    private readonly IDateTimeProvider _dateTimeProvider;
 
     public CreateOperationShiftCommandHandler(
         IUnitOfWork unitOfWork,
@@ -21,15 +22,14 @@ public class CreateOperationShiftCommandHandler : IRequestHandler<CreateOperatio
         IQueryContext queryContext,
         ICodeGenerator codeGenerator,
         IUserContextService userContextService,
-
-        IOutbox outbox)
+        IDateTimeProvider dateTimeProvider)
     {
         _unitOfWork = unitOfWork;
         _repository = repository;
         _qq = queryContext;
         _userContextService = userContextService;
-        _outbox = outbox;
         _codeGenerator = codeGenerator;
+        _dateTimeProvider = dateTimeProvider;
     }
 
     public async Task<Result<object>> Handle(CreateOperationShiftCommand request, CancellationToken cancellationToken)
@@ -60,53 +60,61 @@ public class CreateOperationShiftCommandHandler : IRequestHandler<CreateOperatio
                 name: request.Name,
                 primaryEmployeeId: userId.Value,
                 organizationUnitId: organizationUnitId.Value,
-                scheduledStartTime: DateTime.UtcNow,
-                scheduledEndTime: DateTime.UtcNow.AddHours(12),
+                scheduledStartTime: _dateTimeProvider.Now,
+                scheduledEndTime: _dateTimeProvider.Now.AddHours(12),
                 notes: request.Notes
             );
 
-            // Step 1: Create asset groups first (if provided)
-            // This creates groups with their LinkedId so assets can reference them
-            var groupLinkedIdToIdMap = new Dictionary<Guid, long>();
-            if (request.AssetGroups?.Count > 0)
+            // === PHASE 1: Create Boxes and save to get IDs ===
+            var boxNameToAssetIdsMap = new Dictionary<string, List<long>>();
+
+            if (request.AssetBoxes?.Count > 0)
             {
-                foreach (var groupRequest in request.AssetGroups)
+                foreach (var boxRequest in request.AssetBoxes)
                 {
-                    var groupId = operationShift.CreateAssetGroup(
-                        linkedId: groupRequest.LinkedId,
-                        groupName: groupRequest.GroupName,
-                        role: groupRequest.Role,
-                        displayOrder: groupRequest.DisplayOrder,
-                        description: groupRequest.Description
+                    operationShift.CreateAssetBox(
+                        boxName: boxRequest.BoxName,
+                        role: boxRequest.Role,
+                        displayOrder: boxRequest.DisplayOrder,
+                        description: boxRequest.Description
                     );
-                    groupLinkedIdToIdMap[groupRequest.LinkedId] = groupId;
+
+                    // Store mapping for later
+                    if (boxRequest.AssetIds?.Any() == true)
+                    {
+                        boxNameToAssetIdsMap[boxRequest.BoxName] = boxRequest.AssetIds.ToList();
+                    }
                 }
             }
 
-            // Step 2: Validate and add assets
+            // Save to get Box IDs
+            await _repository.AddAsync(operationShift, cancellationToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            // === PHASE 2: Add Assets with Box IDs ===
+            // Collect all asset IDs from both direct assets and box assets
+            var allAssetIds = new HashSet<long>();
             if (request.Assets?.Count > 0)
             {
-                // Validate all GroupLinkedIds exist in the groups we just created
-                var groupLinkedIds = request.Assets
-                    .Where(a => a.GroupLinkedId.HasValue)
-                    .Select(a => a.GroupLinkedId!.Value)
-                    .Distinct()
-                    .ToList();
+                foreach (var asset in request.Assets)
+                    allAssetIds.Add(asset.AssetId);
+            }
+            foreach (var assetIds in boxNameToAssetIdsMap.Values)
+            {
+                foreach (var assetId in assetIds)
+                    allAssetIds.Add(assetId);
+            }
 
-                if (groupLinkedIds.Count > 0)
-                {
-                    operationShift.ValidateGroupLinkedIds(groupLinkedIds);
-                }
-
-                // Get all asset IDs to fetch from database
-                var assetIds = request.Assets.Select(a => a.AssetId).Distinct().ToList();
+            if (allAssetIds.Count > 0)
+            {
+                // Fetch all assets from database
                 var assets = await _qq.Query<Asset>()
-                    .Where(a => assetIds.Contains(a.Id))
+                    .Where(a => allAssetIds.Contains(a.Id))
                     .ToListAsync(cancellationToken);
 
                 // Validate all requested assets exist
                 var foundAssetIds = assets.Select(a => a.Id).ToHashSet();
-                var missingAssetIds = assetIds.Where(id => !foundAssetIds.Contains(id)).ToList();
+                var missingAssetIds = allAssetIds.Where(id => !foundAssetIds.Contains(id)).ToList();
                 if (missingAssetIds.Count > 0)
                 {
                     return Result<object>.Validation(
@@ -114,53 +122,50 @@ public class CreateOperationShiftCommandHandler : IRequestHandler<CreateOperatio
                         ValidationErrorCodes.FieldRequired);
                 }
 
-                // Add assets to the shift
-                foreach (var assetRequest in request.Assets)
+                // Add direct assets (without box)
+                if (request.Assets?.Count > 0)
                 {
-                    var asset = assets.First(a => a.Id == assetRequest.AssetId);
-
-                    // Resolve group ID from LinkedId if provided
-                    long? assetGroupId = null;
-                    if (assetRequest.GroupLinkedId.HasValue)
+                    foreach (var assetRequest in request.Assets)
                     {
-                        assetGroupId = operationShift.GetGroupIdByLinkedId(assetRequest.GroupLinkedId.Value);
+                        var asset = assets.First(a => a.Id == assetRequest.AssetId);
+                        operationShift.AddAsset(
+                            assetId: asset.Id,
+                            assetCode: asset.Code,
+                            assetName: asset.DisplayName,
+                            isPrimary: assetRequest.IsPrimary,
+                            assetBoxId: null
+                        );
                     }
+                }
 
-                    operationShift.AddAsset(
-                        assetId: asset.Id,
-                        assetCode: asset.Code,
-                        assetName: asset.DisplayName,
-                        isPrimary: assetRequest.IsPrimary,
-                        assetGroupId: assetGroupId
-                    );
+                // Add assets to boxes
+                foreach (var (boxName, assetIds) in boxNameToAssetIdsMap)
+                {
+                    var box = operationShift.AssetBoxes.FirstOrDefault(b => b.BoxName == boxName);
+                    if (box == null) continue;
+
+                    foreach (var assetId in assetIds)
+                    {
+                        var asset = assets.First(a => a.Id == assetId);
+                        operationShift.AddAsset(
+                            assetId: asset.Id,
+                            assetCode: asset.Code,
+                            assetName: asset.DisplayName,
+                            isPrimary: false,
+                            assetBoxId: box.Id
+                        );
+                    }
                 }
             }
 
             // Start the shift
             operationShift.StartShift(DateTime.UtcNow);
 
-            await _repository.AddAsync(operationShift, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return Result<object>.Success(new
             {
                 operationShift.Id,
-                operationShift.Code,
-                AssetGroups = operationShift.AssetGroups.Select(g => new
-                {
-                    g.Id,
-                    g.LinkedId,
-                    g.GroupName,
-                    g.Role
-                }),
-                Assets = operationShift.Assets.Select(a => new
-                {
-                    a.AssetId,
-                    a.AssetCode,
-                    a.AssetName,
-                    a.AssetGroupId,
-                    a.IsPrimary
-                })
             });
         });
     }

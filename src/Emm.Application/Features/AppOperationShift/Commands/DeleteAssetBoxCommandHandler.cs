@@ -1,15 +1,13 @@
-using Emm.Application.Abstractions;
-using Emm.Application.Common;
 using Emm.Application.Common.ErrorCodes;
 
 namespace Emm.Application.Features.AppOperationShift.Commands;
 
-public class AssignAssetToBoxCommandHandler : IRequestHandler<AssignAssetToBoxCommand, Result<object>>
+public class DeleteAssetBoxCommandHandler : IRequestHandler<DeleteAssetBoxCommand, Result<object>>
 {
     private readonly IOperationShiftRepository _operationShiftRepository;
     private readonly IUnitOfWork _unitOfWork;
 
-    public AssignAssetToBoxCommandHandler(
+    public DeleteAssetBoxCommandHandler(
         IOperationShiftRepository operationShiftRepository,
         IUnitOfWork unitOfWork)
     {
@@ -17,7 +15,7 @@ public class AssignAssetToBoxCommandHandler : IRequestHandler<AssignAssetToBoxCo
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<Result<object>> Handle(AssignAssetToBoxCommand request, CancellationToken cancellationToken)
+    public async Task<Result<object>> Handle(DeleteAssetBoxCommand request, CancellationToken cancellationToken)
     {
         var shift = await _operationShiftRepository.GetByIdAsync(request.OperationShiftId, cancellationToken);
         if (shift is null)
@@ -25,10 +23,10 @@ public class AssignAssetToBoxCommandHandler : IRequestHandler<AssignAssetToBoxCo
             return Result<object>.NotFound("Operation shift not found", ShiftErrorCodes.NotFound);
         }
 
-        shift.AssignAssetToBox(request.AssetId, request.AssetBoxId);
+        shift.RemoveAssetBox(request.AssetBoxId);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return Result<object>.Success("Asset assigned to box successfully");
+        return Result<object>.Success("Asset box deleted successfully");
     }
 }

@@ -2,7 +2,8 @@ using Emm.Application.Common.ErrorCodes;
 using Emm.Domain.Entities.AssetCatalog;
 using Emm.Domain.Entities.Inventory;
 using Emm.Domain.Entities.Operations;
-using Emm.Domain.Repositories;
+using Emm.Domain.Entities.Organization;
+using Microsoft.EntityFrameworkCore;
 
 namespace Emm.Application.Features.AppOperationShift.Commands;
 
@@ -52,12 +53,83 @@ public class AddShiftLogCommandHandler : IRequestHandler<AddShiftLogCommand, Res
             .Distinct()
             .ToDictionary(a => a.AssetId, a => a);
 
-        // Validate AssetId and GroupId
-        if (request.AssetId.HasValue && request.GroupId.HasValue)
+        // Validate AssetId and BoxId
+        if (request.AssetId.HasValue && request.BoxId.HasValue)
         {
             return Result<object>.Validation(
-                "Cannot set both AssetId and GroupId. Choose either single asset or group.",
+                "Cannot set both AssetId and BoxId. Choose either single asset or box.",
                 ValidationErrorCodes.FieldRequired);
+        }
+
+        // Validate AssetId exists in shift
+        if (request.AssetId.HasValue)
+        {
+            var assetExists = shift.Assets.Any(a => a.AssetId == request.AssetId.Value);
+            if (!assetExists)
+            {
+                return Result<object>.Validation(
+                    $"Asset with ID {request.AssetId.Value} is not part of this operation shift",
+                    ValidationErrorCodes.FieldRequired);
+            }
+        }
+
+        // Validate BoxId exists in shift
+        if (request.BoxId.HasValue)
+        {
+            var boxExists = shift.AssetBoxes.Any(b => b.Id == request.BoxId.Value);
+            if (!boxExists)
+            {
+                return Result<object>.Validation(
+                    $"Box with ID {request.BoxId.Value} is not part of this operation shift",
+                    ValidationErrorCodes.FieldRequired);
+            }
+
+            // Get assets in this box for validation
+            var assetsInBox = shift.Assets
+                .Where(a => a.AssetBoxId == request.BoxId.Value)
+                .Select(a => a.AssetId)
+                .ToHashSet();
+
+            if (assetsInBox.Count == 0)
+            {
+                return Result<object>.Validation(
+                    $"Box with ID {request.BoxId.Value} has no assets assigned",
+                    ValidationErrorCodes.FieldRequired);
+            }
+
+            // Validate all readings are for assets in this box
+            if (request.Readings != null && request.Readings.Any())
+            {
+                var invalidReadings = request.Readings
+                    .Where(r => !assetsInBox.Contains(r.AssetId))
+                    .Select(r => r.AssetId)
+                    .Distinct()
+                    .ToList();
+
+                if (invalidReadings.Count > 0)
+                {
+                    return Result<object>.Validation(
+                        $"Readings contain assets not in Box {request.BoxId.Value}: {string.Join(", ", invalidReadings)}",
+                        ValidationErrorCodes.FieldRequired);
+                }
+            }
+
+            // Validate all items are for assets in this box
+            if (request.Items != null && request.Items.Any())
+            {
+                var invalidItems = request.Items
+                    .Where(i => !assetsInBox.Contains(i.AssetId))
+                    .Select(i => i.AssetId)
+                    .Distinct()
+                    .ToList();
+
+                if (invalidItems.Count > 0)
+                {
+                    return Result<object>.Validation(
+                        $"Items contain assets not in Box {request.BoxId.Value}: {string.Join(", ", invalidItems)}",
+                        ValidationErrorCodes.FieldRequired);
+                }
+            }
         }
 
         // Create new task aggregate
@@ -68,7 +140,7 @@ public class AddShiftLogCommandHandler : IRequestHandler<AddShiftLogCommand, Res
             request.StartTime,
             request.EndTime,
             request.AssetId,
-            request.GroupId);
+            request.BoxId);
 
         // Add readings if provided
         if (request.Readings != null && request.Readings.Any())
@@ -100,20 +172,31 @@ public class AddShiftLogCommandHandler : IRequestHandler<AddShiftLogCommand, Res
             }
         }
 
+        var locationIds = request.Checkpoints?.Select(c => c.LocationId).Distinct().ToArray() ?? [];
+        var localDict = await _qq.Query<Location>()
+            .Where(l => locationIds.Contains(l.Id))
+            .ToDictionaryAsync(l => l.Id, l => l, cancellationToken);
+
         // Add checkpoints if provided
         if (request.Checkpoints != null && request.Checkpoints.Any())
         {
             foreach (var checkpoint in request.Checkpoints)
             {
+                var location = localDict.GetValueOrDefault(checkpoint.LocationId);
+                if (location == null)
+                {
+                    return Result<object>.Failure(ErrorType.Validation, $"Location with ID {checkpoint.LocationId} does not exist");
+                }
                 newShiftLog.AddCheckpoint(
                     linkedId: checkpoint.LinkedId,
                     name: checkpoint.Name,
                     locationId: checkpoint.LocationId,
-                    locationName: "",
+                    locationName: location.Name,
                     isWithAttachedMaterial: checkpoint.IsWithAttachedMaterial,
                     itemId: checkpoint.ItemId);
             }
         }
+
 
         // Add status history events if provided
         if (request.Events != null && request.Events.Any())
@@ -162,6 +245,9 @@ public class AddShiftLogCommandHandler : IRequestHandler<AddShiftLogCommand, Res
         await _shiftLogRepository.AddAsync(newShiftLog, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return Result<object>.Success("Task added successfully");
+        return Result<object>.Success(new
+        {
+            newShiftLog.Id,
+        });
     }
 }

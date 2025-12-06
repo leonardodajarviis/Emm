@@ -9,17 +9,30 @@ public class AssetAdditionLine
     public string AssetCode { get; private set; } = null!;
     public decimal UnitPrice { get; private set; }
 
+    // Navigation property
+    public AssetAddition AssetAddition { get; private set; } = null!;
+
     public AssetAdditionLine(
-        long assetAdditionId,
         long assetModelId,
         string assetCode,
         decimal unitPrice)
     {
-        AssetAdditionId = assetAdditionId;
+        if (string.IsNullOrWhiteSpace(assetCode))
+            throw new ArgumentException("Asset code cannot be empty", nameof(assetCode));
+
+        if (unitPrice < 0)
+            throw new ArgumentException("Unit price must be non-negative", nameof(unitPrice));
+
         AssetModelId = assetModelId;
-        UnitPrice = unitPrice;
         AssetCode = assetCode;
+        UnitPrice = unitPrice;
     }
 
-    public AssetAdditionLine(){}
+    // EF Core constructor
+    private AssetAdditionLine() { }
+
+    internal void SetAssetAddition(AssetAddition assetAddition)
+    {
+        AssetAddition = assetAddition ?? throw new ArgumentNullException(nameof(assetAddition));
+    }
 }   

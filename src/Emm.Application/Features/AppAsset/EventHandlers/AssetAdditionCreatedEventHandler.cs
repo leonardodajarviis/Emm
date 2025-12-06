@@ -6,18 +6,18 @@ namespace Emm.Application.Features.AppAsset.EventHandlers;
 
 public class AssetAdditionCreatedEventHandler : IEventHandler<AssetAdditionCreatedEvent>
 {
-    private readonly IQueryContext _qq;
+    private readonly IQueryContext _queryContext;
     private readonly IRepository<Asset, long> _assetRepository;
-    private readonly IUnitOfWork _uow;
+    private readonly IUnitOfWork _unitOfWork;
 
     public AssetAdditionCreatedEventHandler(
         IQueryContext queryContext,
         IRepository<Asset, long> assetRepository,
-        IUnitOfWork uow)
+        IUnitOfWork unitOfWork)
     {
-        _qq = queryContext;
+        _queryContext = queryContext;
         _assetRepository = assetRepository;
-        _uow = uow;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task Handle(AssetAdditionCreatedEvent @event, CancellationToken cancellationToken = default)
@@ -29,55 +29,39 @@ public class AssetAdditionCreatedEventHandler : IEventHandler<AssetAdditionCreat
             .Distinct()
             .ToList();
 
-        var assetModels = await _qq.Query<AssetModel>()
+        var assetModels = await _queryContext.Query<AssetModel>()
             .Where(x => assetModelIds.Contains(x.Id))
             .Include(x => x.Parameters)
-            .Include(x => x.MaintenancePlanDefinitions)
-            .ThenInclude(x => x.JobSteps)
             .ToDictionaryAsync(x => x.Id, cancellationToken: cancellationToken);
 
-
         var assets = new List<Asset>();
-        // foreach (var line in @event.AssetLines)
-        // {
-        //     if (!assetModels.TryGetValue(line.AssetModelId, out var assetModel))
-        //     {
-        //         continue; // Skip if the asset model is not found
-        //     }
 
-        //     var asset = new Asset(
-        //         code: line.AssetCode,
-        //         displayName: assetModel.Name,
-        //         assetModelId: line.AssetModelId,
-        //         organizationUnitId: @event.OrganizationUnitId,
-        //         locationId: @event.LocationId,
-        //         assetAdditionId: @event.AssetAdditionId,
-        //         description: assetModel.Description); // Description can be set later if needed
+        foreach (var line in @event.AssetLines)
+        {
+            if (!assetModels.TryGetValue(line.AssetModelId, out var assetModel))
+            {
+                continue; // Skip if the asset model is not found
+            }
 
-        //     asset.AddParameters([..assetModel.Parameters.Select(p => p.ParameterId)]);
+            var asset = new Asset(
+                code: line.AssetCode,
+                displayName: assetModel.Name,
+                assetModelId: line.AssetModelId,
+                organizationUnitId: @event.OrganizationUnitId,
+                locationId: @event.LocationId,
+                assetAdditionId: @event.AssetAdditionId,
+                description: assetModel.Description);
 
+            // Add parameters from the asset model
+            if (assetModel.Parameters.Count > 0)
+            {
+                asset.AddParameters([.. assetModel.Parameters.Select(p => p.ParameterId)]);
+            }
 
-        //     foreach (var maintenancePlanDefinition in assetModel.MaintenancePlanDefinitions)
-        //     {
-        //         asset.AddMaintenancePlanInstance(
-        //             isActive: maintenancePlanDefinition.IsActive,
-        //             parameterId: maintenancePlanDefinition.ParameterId,
-        //             value: maintenancePlanDefinition.Value,
-        //             min: maintenancePlanDefinition.Min,
-        //             max: maintenancePlanDefinition.Max,
-        //             jobSteps: [.. maintenancePlanDefinition.JobSteps.Select(step => new MaintenancePlanJobStepInstanceSpec(
-        //                 Name: step.Name,
-        //                 OrganizationUnitId: step.OrganizationUnitId,
-        //                 Note: step.Note,
-        //                 Order: step.Order
-        //             ))]);
-        //     }
+            assets.Add(asset);
+        }
 
-        //     assets.Add(asset);
-        // }
         _assetRepository.AddRange(assets);
-        await _uow.SaveChangesAsync(cancellationToken);
-
-        return;
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 }

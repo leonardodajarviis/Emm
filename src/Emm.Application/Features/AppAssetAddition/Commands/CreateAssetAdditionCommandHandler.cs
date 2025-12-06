@@ -29,8 +29,7 @@ public class CreateAssetAdditionCommandHandler : IRequestHandler<CreateAssetAddi
                 locationId: request.LocationId,
                 decisionNumber: request.DecisionNumber,
                 decisionDate: request.DecisionDate,
-                reason: request.Reason,
-                createdAt: DateTime.UtcNow
+                reason: request.Reason
             );
 
             // Add AssetAdditionLines
@@ -46,15 +45,12 @@ public class CreateAssetAdditionCommandHandler : IRequestHandler<CreateAssetAddi
             await _repository.AddAsync(assetAddition);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
+            // Raise domain event after save to ensure Id is populated
             assetAddition.RegisterEvent();
-            _outbox.EnqueueRange(assetAddition.DomainEvents);
-
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
-
 
             return Result<object>.Success(new
             {
-                Id = assetAddition.Id
+                assetAddition.Id
             });
         });
 

@@ -4,7 +4,7 @@ public record CreateAssetAdditionCommand(
     long OrganizationUnitId,
     long LocationId,
     string? DecisionNumber,
-    string? DecisionDate,
+    DateTime? DecisionDate,
     string? Reason,
     List<CreateAssetAdditionLineCommand> AssetAdditionLines
 ) : IRequest<Result<object>>;

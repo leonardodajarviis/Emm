@@ -34,7 +34,7 @@ public class AssetAdditionConfiguration : IEntityTypeConfiguration<AssetAddition
             .IsRequired(false);
 
         builder.Property(x => x.DecisionDate)
-            .HasMaxLength(20)
+            .HasColumnType("datetime2")
             .IsRequired(false);
 
         builder.Property(x => x.Reason)
@@ -62,7 +62,7 @@ public class AssetAdditionConfiguration : IEntityTypeConfiguration<AssetAddition
 
         // Relationships
         builder.HasMany<AssetAdditionLine>("_assetAdditionLines")
-            .WithOne()
+            .WithOne(e => e.AssetAddition)
             .HasForeignKey(e => e.AssetAdditionId)
             .OnDelete(DeleteBehavior.Cascade);
 

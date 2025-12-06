@@ -33,7 +33,7 @@ public class OperationShiftAssetConfiguration : IEntityTypeConfiguration<Operati
         builder.Property(x => x.IsPrimary)
             .IsRequired();
 
-        builder.Property(x => x.AssetGroupId);
+        builder.Property(x => x.AssetBoxId);
 
         builder.Property(x => x.Status)
             .IsRequired()
@@ -55,7 +55,7 @@ public class OperationShiftAssetConfiguration : IEntityTypeConfiguration<Operati
 
         builder.HasIndex(x => x.Status);
 
-        builder.HasIndex(x => x.AssetGroupId);
+        builder.HasIndex(x => x.AssetBoxId);
 
         // Composite index for unique asset per shift
         builder.HasIndex(x => new { x.OperationShiftId, x.AssetId })

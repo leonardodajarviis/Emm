@@ -7,7 +7,7 @@ public class AssetAdditionResponse
     public required long OrganizationUnitId { get; set; }
     public required long LocationId { get; set; }
     public string? DecisionNumber { get; set; }
-    public string? DecisionDate { get; set; }
+    public DateTime? DecisionDate { get; set; }
     public string? Reason { get; set; }
     public required DateTime CreatedAt { get; set; }
     public List<AssetAdditionLineResponse> AssetAdditionLines { get; set; } = [];

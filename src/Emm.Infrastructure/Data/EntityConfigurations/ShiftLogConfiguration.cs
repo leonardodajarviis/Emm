@@ -37,7 +37,7 @@ public class ShiftLogConfiguration : IEntityTypeConfiguration<ShiftLog>
         // Asset and Group references
         builder.Property(x => x.AssetId);
 
-        builder.Property(x => x.GroupId);
+        builder.Property(x => x.BoxId);
 
         builder.Property(x => x.CreatedAt)
             .IsRequired();
@@ -50,7 +50,7 @@ public class ShiftLogConfiguration : IEntityTypeConfiguration<ShiftLog>
 
         // Indexes for AssetId and GroupId
         builder.HasIndex(x => x.AssetId);
-        builder.HasIndex(x => x.GroupId);
+        builder.HasIndex(x => x.BoxId);
 
         // Collections - using backing field pattern
 

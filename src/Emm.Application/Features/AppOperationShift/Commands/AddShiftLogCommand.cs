@@ -15,9 +15,9 @@ public class AddShiftLogCommand : IRequest<Result<object>>
     public long? AssetId { get; set; }
 
     /// <summary>
-    /// Group ID cho trường hợp ghi log cho nhiều assets theo group
+    /// Box ID cho trường hợp ghi log cho nhiều assets theo group
     /// </summary>
-    public long? GroupId { get; set; }
+    public long? BoxId { get; set; }
 
     public IEnumerable<ParameterReadingRequest>? Readings { get; set; }
     public IEnumerable<CheckpointRequest>? Checkpoints { get; set; }

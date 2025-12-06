@@ -4,6 +4,7 @@ using Emm.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Emm.Infrastructure.Migrations
 {
     [DbContext(typeof(XDbContext))]
-    partial class XDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251205093537_AddUniqueConstraintToBoxName")]
+    partial class AddUniqueConstraintToBoxName
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -577,8 +580,9 @@ namespace Emm.Infrastructure.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETUTCDATE()");
 
-                    b.Property<DateTime?>("DecisionDate")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("DecisionDate")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("DecisionNumber")
                         .HasMaxLength(100)
@@ -593,9 +597,6 @@ namespace Emm.Infrastructure.Migrations
                     b.Property<string>("Reason")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -2206,7 +2207,7 @@ namespace Emm.Infrastructure.Migrations
 
             modelBuilder.Entity("Emm.Domain.Entities.AssetTransaction.AssetAdditionLine", b =>
                 {
-                    b.HasOne("Emm.Domain.Entities.AssetTransaction.AssetAddition", "AssetAddition")
+                    b.HasOne("Emm.Domain.Entities.AssetTransaction.AssetAddition", null)
                         .WithMany("_assetAdditionLines")
                         .HasForeignKey("AssetAdditionId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -2217,8 +2218,6 @@ namespace Emm.Infrastructure.Migrations
                         .HasForeignKey("AssetModelId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
-
-                    b.Navigation("AssetAddition");
                 });
 
             modelBuilder.Entity("Emm.Domain.Entities.Authorization.RolePermission", b =>
