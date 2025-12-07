@@ -20,13 +20,8 @@ public class ParameterCatalogController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateParameterCatalog([FromBody] CreateParameterCatalog createParameterCatalog)
+    public async Task<IActionResult> CreateParameterCatalog([FromBody] CreateParameterCatalogCommand command)
     {
-        var command = new CreateParameterCatalogCommand(
-            Name: createParameterCatalog.Name,
-            Description: createParameterCatalog.Description
-        );
-
         var result = await _mediator.Send(command);
 
         return result.ToActionResult();

@@ -11,13 +11,14 @@ public class ParameterCatalog: AggregateRoot
     public string? Description { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public DateTime UpdatedAt { get; private set; }
-    public ParameterCatalog(string code, string name, string? description = null)
+    public ParameterCatalog(string code, string name, long unitOfMeasureId, string? description = null)
     {
         Code = code;
         Name = name;
         Description = description;
         CreatedAt = DateTime.UtcNow;
         UpdatedAt = DateTime.UtcNow;
+        UnitOfMeasureId = unitOfMeasureId;
     }
 
     public void Update(string name, string? description = null)

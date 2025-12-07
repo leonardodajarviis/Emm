@@ -18,14 +18,14 @@ public class CreateParameterCatalogCommandHandler : IRequestHandler<CreateParame
 
     public async Task<Result<object>> Handle(CreateParameterCatalogCommand request, CancellationToken cancellationToken)
     {
-        try
+        return await _unitOfWork.ExecuteInTransactionAsync(async () =>
         {
-            // Generate unique code for parameter catalog
             var code = await _unitOfWork.GenerateNextCodeAsync("TS", "ParameterCatalogs", 6, cancellationToken);
 
             var parameterCatalog = new ParameterCatalog(
                 code,
                 request.Name,
+                request.UnitOfMeasureId,
                 request.Description);
 
             await _repository.AddAsync(parameterCatalog, cancellationToken);
@@ -33,13 +33,10 @@ public class CreateParameterCatalogCommandHandler : IRequestHandler<CreateParame
 
             return Result<object>.Success(new
             {
-                Id = parameterCatalog.Id,
-                Code = parameterCatalog.Code
+                parameterCatalog.Id,
             });
-        }
-        catch (Exception ex)
-        {
-            return Result<object>.Failure(ErrorType.Internal, ex.Message);
-        }
+
+        });
+        // Generate unique code for parameter catalog
     }
 }
