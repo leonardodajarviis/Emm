@@ -2,6 +2,7 @@ using Emm.Application.Features.AppParameterCatalog.Dtos;
 using Emm.Application.Common;
 using Emm.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Emm.Domain.Entities.Inventory;
 
 namespace Emm.Application.Features.AppParameterCatalog.Queries;
 
@@ -30,6 +31,10 @@ public class GetParameterCatalogByIdQueryHandler : IRequestHandler<GetParameterC
                 parameterCatalog.Id,
                 parameterCatalog.Code,
                 parameterCatalog.Name,
+                _queryContext.Query<UnitOfMeasure>()
+                    .Where(uom => uom.Id == parameterCatalog.UnitOfMeasureId)
+                    .Select(uom => uom.Name)
+                    .FirstOrDefault(),
                 parameterCatalog.Description,
                 parameterCatalog.CreatedAt,
                 parameterCatalog.UpdatedAt
