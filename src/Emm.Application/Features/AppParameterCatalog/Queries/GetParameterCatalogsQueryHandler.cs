@@ -2,6 +2,8 @@ using Emm.Application.Features.AppParameterCatalog.Dtos;
 using Emm.Application.Common;
 using Emm.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Gridify;
+using Emm.Domain.Entities.Inventory;
 
 namespace Emm.Application.Features.AppParameterCatalog.Queries;
 
@@ -16,38 +18,37 @@ public class GetParameterCatalogsQueryHandler : IRequestHandler<GetParameterCata
 
     public async Task<Result<PagedResult>> Handle(GetParameterCatalogsQuery request, CancellationToken cancellationToken)
     {
-        try
+        var searchTerm = request.QueryRequest.SearchTerm?.Trim();
+        var queryRequest = request.QueryRequest;
+
+        var query = _queryContext.Query<ParameterCatalog>()
+            .ApplyFiltering(queryRequest)
+            .OrderBy(pc => pc.Id).AsQueryable();
+
+        if (!string.IsNullOrEmpty(searchTerm))
         {
-            var query = _queryContext.Query<ParameterCatalog>()
-                .OrderBy(pc => pc.Id);
-
-            var totalCount = await query.CountAsync(cancellationToken);
-
-            var parameterCatalogs = await query
-                .Skip((request.QueryRequest.Page - 1) * request.QueryRequest.PageSize)
-                .Take(request.QueryRequest.PageSize)
-                .Select(pc => new ParameterCatalogResponse(
-                    pc.Id,
-                    pc.Code,
-                    pc.Name,
-                    pc.Description,
-                    pc.CreatedAt,
-                    pc.UpdatedAt
-                ))
-                .ToListAsync(cancellationToken);
-
-            var pagedResult = new PagedResult(
-                request.QueryRequest.Page,
-                request.QueryRequest.PageSize,
-                totalCount,
-                parameterCatalogs.Cast<object>().ToList()
-            );
-
-            return Result<PagedResult>.Success(pagedResult);
+            query = query.Where(pc => EF.Functions.Like(pc.Name, $"%{searchTerm}%")
+                                     || EF.Functions.Like(pc.Code, $"%{searchTerm}%"));
         }
-        catch (Exception ex)
-        {
-            return Result<PagedResult>.Failure(ErrorType.Internal, ex.Message);
-        }
+
+        var totalCount = await query.CountAsync(cancellationToken);
+
+        var parameterCatalogs = await query
+            .ApplyOrderingAndPaging(request.QueryRequest)
+            .Select(pc => new ParameterCatalogResponse(
+                pc.Id,
+                pc.Code,
+                pc.Name,
+                _queryContext.Query<UnitOfMeasure>()
+                    .Where(uom => uom.Id == pc.UnitOfMeasureId)
+                    .Select(uom => uom.Name)
+                    .FirstOrDefault(),
+                pc.Description,
+                pc.CreatedAt,
+                pc.UpdatedAt
+            ))
+            .ToListAsync(cancellationToken);
+
+        return Result<PagedResult>.Success(queryRequest.AsPagedResult(totalCount, parameterCatalogs));
     }
 }

@@ -36,7 +36,7 @@ public class CreateAssetTypeCommandHandler : IRequestHandler<CreateAssetTypeComm
 
             return Result<object>.Success(new
             {
-                Id = assetType.Id
+                assetType.Id
             });
 
         });

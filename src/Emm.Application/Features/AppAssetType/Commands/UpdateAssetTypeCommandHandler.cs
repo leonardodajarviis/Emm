@@ -1,13 +1,12 @@
-using Emm.Domain.Entities.AssetCatalog;
 
 namespace Emm.Application.Features.AppAssetType.Commands;
 
 public class UpdateAssetTypeCommandHandler : IRequestHandler<UpdateAssetTypeCommand, Result<object>>
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IRepository<AssetType, long> _repository;
+    private readonly IAssetTypeRepository _repository;
 
-    public UpdateAssetTypeCommandHandler(IUnitOfWork unitOfWork, IRepository<AssetType, long> repository)
+    public UpdateAssetTypeCommandHandler(IUnitOfWork unitOfWork, IAssetTypeRepository repository)
     {
         _unitOfWork = unitOfWork;
         _repository = repository;
@@ -27,9 +26,11 @@ public class UpdateAssetTypeCommandHandler : IRequestHandler<UpdateAssetTypeComm
             description: request.Description,
             isActive: request.IsActive
         );
-        
+
+
+
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        
+
         return Result<object>.Success(new
         {
             Id = request.Id

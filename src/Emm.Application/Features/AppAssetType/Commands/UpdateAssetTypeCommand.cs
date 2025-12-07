@@ -5,5 +5,6 @@ public record UpdateAssetTypeCommand(
     string Name,
     long AssetCategoryId,
     string? Description,
-    bool IsActive
+    bool IsActive,
+    IEnumerable<long> ParameterIds
 ) : IRequest<Result<object>>;
