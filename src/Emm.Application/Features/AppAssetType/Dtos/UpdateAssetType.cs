@@ -6,4 +6,6 @@ public record UpdateAssetType
     public string? Description { get; set; }
     public required long AssetCategoryId { get; set; }
     public bool IsActive { get; set; } = true;
+
+    public IEnumerable<long> ParameterIds { get; set; } = [];
 }

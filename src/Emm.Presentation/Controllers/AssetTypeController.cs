@@ -43,6 +43,7 @@ public class AssetTypeController : ControllerBase
             Name: updateAssetType.Name,
             Description: updateAssetType.Description,
             AssetCategoryId: updateAssetType.AssetCategoryId,
+            ParameterIds: updateAssetType.ParameterIds,
             IsActive: updateAssetType.IsActive
         );
 
