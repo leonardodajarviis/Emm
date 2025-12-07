@@ -18,6 +18,21 @@ public class AuthController : ControllerBase
         _mediator = mediator;
     }
 
+    [HttpPost("register")]
+    public async Task<IActionResult> Register([FromBody] UserRegisterRequest request, CancellationToken cancellationToken)
+    {
+        var command = new UserRegisterCommand(
+            request.Username,
+            request.Password,
+            request.DisplayName,
+            request.Email
+        );
+
+        var result = await _mediator.Send(command, cancellationToken);
+
+        return result.ToActionResult();
+    }
+
     [HttpPost("login")]
     // [EnableRateLimiting("login")]
     public async Task<IActionResult> Login([FromBody] UserLoginRequest request, CancellationToken cancellationToken)
@@ -56,6 +71,12 @@ public class AuthController : ControllerBase
         return result.ToActionResult();
     }
 }
+
+public record UserRegisterRequest(
+    string Username,
+    string Password,
+    string DisplayName,
+    string Email);
 
 public record UserLoginRequest(string Username, string Password);
 

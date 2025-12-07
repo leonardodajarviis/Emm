@@ -1,5 +1,6 @@
 using Emm.Application.Features.AppAssetCategory.Dtos;
 using Emm.Domain.Entities.AssetCatalog;
+using Gridify;
 using Microsoft.EntityFrameworkCore;
 
 namespace Emm.Application.Features.AppAssetCategory.Queries;
@@ -15,18 +16,28 @@ public class GetAssetCategoriesQueryHandler : IRequestHandler<GetAssetCategories
 
     public async Task<Result<PagedResult>> Handle(GetAssetCategoriesQuery request, CancellationToken cancellationToken)
     {
+        var queryRequest = request.QueryRequest;
         var query = _queryContext.Query<AssetCategory>()
-            .AsQueryable()
-            .OrderBy(x => x.Name);
+            .ApplyFiltering(queryRequest)
+            .OrderBy(q => q.Id)
+            .AsQueryable();
+
+        if (!string.IsNullOrEmpty(queryRequest.SearchTerm))
+        {
+            var searchTerm = queryRequest.SearchTerm.Trim();
+            query = query
+                .Where(q => EF.Functions.Like(q.Name, $"%{searchTerm}%")
+                            || EF.Functions.Like(q.Description, $"%{searchTerm}%"));
+        }
 
         var totalCount = await query.CountAsync(cancellationToken);
 
         var items = await query
-            .Skip((request.QueryRequest.Page - 1) * request.QueryRequest.PageSize)
-            .Take(request.QueryRequest.PageSize)
+            .ApplyOrderingAndPaging(queryRequest)
             .Select(x => new AssetCategoryResponse
             {
                 Id = x.Id,
+                Code = x.Code,
                 Name = x.Name,
                 Description = x.Description,
                 IsActive = x.IsActive,

@@ -9,7 +9,7 @@ public class QueryParam : IGridifyQuery
         return new PagedResult(Page, PageSize, totalCount, items ?? []);
     }
 
-    public string? Search { get; set; }
+    public string? SearchTerm { get; set; }
     public int Page {get; set;}
     public int PageSize {get; set;}
     public string? Filter {get; set;}
@@ -18,7 +18,7 @@ public class QueryParam : IGridifyQuery
 
     public string? GetSearch()
     {
-        return string.IsNullOrEmpty(Search) ? null : Search.Trim();
+        return string.IsNullOrEmpty(SearchTerm) ? null : SearchTerm.Trim();
     }
 
 }

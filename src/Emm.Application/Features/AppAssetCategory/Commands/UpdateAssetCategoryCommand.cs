@@ -5,4 +5,4 @@ public record UpdateAssetCategoryCommand(
     string Name,
     string? Description,
     bool IsActive
-) : IRequest<Result<object>>;
+) : IRequest<Result>;
