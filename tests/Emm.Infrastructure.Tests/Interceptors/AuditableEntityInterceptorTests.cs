@@ -40,7 +40,7 @@ public class AuditableEntityInterceptorTests
     {
         // Arrange
         await using var context = CreateInMemoryDbContext();
-        var category = new AssetCategory("CAT001", "Test Category", "Test Description");
+        var category = new AssetCategory("CAT001",false, "Test Category", "Test Description");
 
         // Assert initial state - timestamps should be default
         Assert.Equal(default, category.CreatedAt);
@@ -63,7 +63,7 @@ public class AuditableEntityInterceptorTests
     {
         // Arrange
         await using var context = CreateInMemoryDbContext();
-        var category = new AssetCategory("CAT002", "Test Category 2", "Description");
+        var category = new AssetCategory("CAT002",false, "Test Category 2", "Description");
 
         context.Add(category);
         await context.SaveChangesAsync();
@@ -89,9 +89,9 @@ public class AuditableEntityInterceptorTests
     {
         // Arrange
         await using var context = CreateInMemoryDbContext();
-        var category1 = new AssetCategory("CAT003", "Category 1", "Desc 1");
-        var category2 = new AssetCategory("CAT004", "Category 2", "Desc 2");
-        var category3 = new AssetCategory("CAT005", "Category 3", "Desc 3");
+        var category1 = new AssetCategory("CAT003", false, "Category 1", "Desc 1");
+        var category2 = new AssetCategory("CAT004", false, "Category 2", "Desc 2");
+        var category3 = new AssetCategory("CAT005", false, "Category 3", "Desc 3");
 
         // Act
         context.AddRange(category1, category2, category3);

@@ -22,6 +22,11 @@ public class ParameterCatalogConfiguration : IEntityTypeConfiguration<ParameterC
             .HasMaxLength(50)
             .IsRequired();
 
+        builder.Property(x => x.IsCodeGenerated)
+            .HasMaxLength(50)
+            .IsRequired()
+            .HasDefaultValueSql("0");
+
         builder.Property(x => x.UnitOfMeasureId).IsRequired();
 
         builder.Property(x => x.Name)
@@ -31,12 +36,34 @@ public class ParameterCatalogConfiguration : IEntityTypeConfiguration<ParameterC
         builder.Property(x => x.Description)
             .HasMaxLength(500);
 
+        builder.Property(x => x.CreatedAt)
+            .IsRequired()
+            .HasDefaultValueSql("GETUTCDATE()");
+
+        builder.Property(x => x.UpdatedAt)
+            .IsRequired()
+            .HasDefaultValueSql("GETUTCDATE()");
+
+        builder.Property(x => x.CreatedByUserId);
+
+        builder.Property(x => x.UpdatedByUserId);
+
         builder.HasIndex(x => x.Code)
             .IsUnique();
 
         builder.HasOne<UnitOfMeasure>()
             .WithMany()
             .HasForeignKey(pc => pc.UnitOfMeasureId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne<User>()
+            .WithMany()
+            .HasForeignKey(pc => pc.CreatedByUserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne<User>()
+            .WithMany()
+            .HasForeignKey(pc => pc.UpdatedByUserId)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }

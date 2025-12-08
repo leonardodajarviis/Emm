@@ -10,12 +10,15 @@ public class AssetCategory : AggregateRoot, IAuditableEntity
     public string Name { get; private set; } = null!;
     public string? Description { get; private set; }
     public bool IsActive { get; private set; }
+    public bool IsCodeGenerated { get; private set; }
+    public long? CreatedByUserId { get; private set; }
+    public long? UpdatedByUserId { get; private set; }
 
     // IAuditableEntity implementation với private set để bảo vệ encapsulation
     public DateTime CreatedAt { get; private set; }
     public DateTime UpdatedAt { get; private set; }
 
-    public AssetCategory(string code, string name, string? description = null, bool isActive = true)
+    public AssetCategory(string code, bool isCodeGenerated, string name, string? description = null, bool isActive = true)
     {
         if (string.IsNullOrWhiteSpace(code))
             throw new DomainException("Category code is required");
@@ -27,6 +30,13 @@ public class AssetCategory : AggregateRoot, IAuditableEntity
         Name = name;
         Description = description;
         IsActive = isActive;
+        IsCodeGenerated = isCodeGenerated;
+    }
+
+    public void SetAuditInfo(long? createdByUserId, long? updatedByUserId)
+    {
+        CreatedByUserId = createdByUserId;
+        UpdatedByUserId = updatedByUserId;
     }
 
     public void Update(string name, string? description, bool isActive)

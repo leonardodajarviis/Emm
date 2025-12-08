@@ -1,3 +1,4 @@
+using Emm.Domain.Entities;
 using Emm.Domain.Entities.AssetCatalog;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -12,7 +13,7 @@ public class AssetCategoryConfiguration : IEntityTypeConfiguration<AssetCategory
 
         // Primary Key
         builder.HasKey(x => x.Id);
-        
+
         // Properties Configuration
         builder.Property(x => x.Id)
             .ValueGeneratedOnAdd()
@@ -42,6 +43,10 @@ public class AssetCategoryConfiguration : IEntityTypeConfiguration<AssetCategory
             .IsRequired()
             .HasDefaultValueSql("GETUTCDATE()");
 
+        builder.Property(x => x.CreatedByUserId);
+
+        builder.Property(x => x.UpdatedByUserId);
+
         // Indexes
         builder.HasIndex(x => x.Code)
             .IsUnique()
@@ -53,5 +58,15 @@ public class AssetCategoryConfiguration : IEntityTypeConfiguration<AssetCategory
 
         builder.HasIndex(x => x.IsActive)
             .HasDatabaseName("IX_AssetCategories_IsActive");
+
+        builder.HasOne<User>()
+            .WithMany()
+            .HasForeignKey(pc => pc.CreatedByUserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne<User>()
+            .WithMany()
+            .HasForeignKey(pc => pc.UpdatedByUserId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }
