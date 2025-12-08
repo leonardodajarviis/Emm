@@ -1,12 +1,16 @@
 namespace Emm.Application.Features.AppAssetCategory.Dtos;
 
-public class AssetCategoryResponse
+public record AssetCategoryResponse
 {
-    public required long Id { get; set; }
-    public required string Name { get; set; }
-    public required string Code {get; set;}
-    public string? Description { get; set; }
-    public required bool IsActive { get; set; }
-    public required DateTime CreatedAt { get; set; }
-    public required DateTime UpdatedAt { get; set; }
+    public required long Id { get; init; }
+    public required string Name { get; init; }
+    public required string Code {get; init;}
+    public string? Description { get; init; }
+    public required bool IsActive { get; init; }
+    public required DateTime CreatedAt { get; init; }
+    public required DateTime UpdatedAt { get; init; }
+    public string? CreatedBy { get; init; }
+    public string? UpdatedBy { get; init; }
+    public long? CreatedByUserId { get; init; }
+    public long? UpdatedByUserId { get; init; }
 }

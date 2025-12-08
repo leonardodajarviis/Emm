@@ -1,4 +1,5 @@
 using Emm.Application.Features.AppAssetCategory.Dtos;
+using Emm.Domain.Entities;
 using Emm.Domain.Entities.AssetCatalog;
 using Gridify;
 using Microsoft.EntityFrameworkCore;
@@ -42,7 +43,17 @@ public class GetAssetCategoriesQueryHandler : IRequestHandler<GetAssetCategories
                 Description = x.Description,
                 IsActive = x.IsActive,
                 CreatedAt = x.CreatedAt,
-                UpdatedAt = x.UpdatedAt
+                UpdatedAt = x.UpdatedAt,
+                CreatedBy = _queryContext.Query<User>()
+                    .Where(u => u.Id == x.CreatedByUserId)
+                    .Select(u => u.DisplayName)
+                    .FirstOrDefault(),
+                UpdatedBy = _queryContext.Query<User>()
+                    .Where(u => u.Id == x.UpdatedByUserId)
+                    .Select(u => u.DisplayName)
+                    .FirstOrDefault(),
+                CreatedByUserId = x.CreatedByUserId,
+                UpdatedByUserId = x.UpdatedByUserId
             })
             .ToListAsync(cancellationToken);
 
