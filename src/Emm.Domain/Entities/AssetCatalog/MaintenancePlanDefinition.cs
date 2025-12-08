@@ -14,6 +14,8 @@ public class MaintenancePlanDefinition: IAuditableEntity
     public MaintenancePlanType PlanType { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public DateTime UpdatedAt { get; private set; }
+    public long? CreatedByUserId { get; private set; }
+    public long? UpdatedByUserId { get; private set; }
     public string? RRule { get; private set; }
 
     private ParameterBasedMaintenanceTrigger? _parameterBasedTrigger;

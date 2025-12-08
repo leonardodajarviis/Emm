@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Emm.Application.Features.AppAssetType.Queries;
 
-public class GetAssetTypesQueryHandler: IRequestHandler<GetAssetTypesQuery, Result<PagedResult>>
+public class GetAssetTypesQueryHandler : IRequestHandler<GetAssetTypesQuery, Result<PagedResult>>
 {
     private readonly IQueryContext _queryContext;
 
@@ -46,11 +46,19 @@ public class GetAssetTypesQueryHandler: IRequestHandler<GetAssetTypesQuery, Resu
                     .Where(ac => ac.Id == at.AssetCategoryId)
                     .Select(ac => ac.Name)
                     .FirstOrDefault(),
+                CreatedBy = _queryContext.Query<User>()
+                    .Where(u => u.Id == at.CreatedByUserId)
+                    .Select(u => u.DisplayName)
+                    .FirstOrDefault(),
+                UpdatedBy = _queryContext.Query<User>()
+                    .Where(u => u.Id == at.UpdatedByUserId)
+                    .Select(u => u.DisplayName)
+                    .FirstOrDefault(),
+                UpdatedByUserId = at.UpdatedByUserId,
+                CreatedByUserId = at.CreatedByUserId,
                 CreatedAt = at.CreatedAt,
                 UpdatedAt = at.UpdatedAt
             })
-            // .Skip((request.QueryRequest.Page - 1) * request.QueryRequest.PageSize)
-            // .Take(request.QueryRequest.PageSize)
             .ToListAsync(cancellationToken);
 
         return Result<PagedResult>.Success(request.QueryRequest.AsPagedResult(total, result));

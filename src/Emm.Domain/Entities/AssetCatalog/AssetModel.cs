@@ -20,6 +20,8 @@ public class AssetModel : AggregateRoot, IAuditableEntity
     public bool IsActive { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public DateTime UpdatedAt { get; private set; }
+    public long? CreatedByUserId { get; private set; }
+    public long? UpdatedByUserId { get; private set; }
     public Guid? ThumbnailFileId { get; private set; }
     public string? ThumbnailUrl { get; private set; }
 

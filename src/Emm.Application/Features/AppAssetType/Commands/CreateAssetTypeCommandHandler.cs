@@ -1,3 +1,4 @@
+using Emm.Application.Abstractions;
 using Emm.Domain.Entities.AssetCatalog;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,20 +9,32 @@ public class CreateAssetTypeCommandHandler : IRequestHandler<CreateAssetTypeComm
     private readonly IUnitOfWork _unitOfWork;
     private readonly IAssetTypeRepository _repository;
     private readonly IQueryContext _queryContext;
+    private readonly IUserContextService _userContextService;
 
-    public CreateAssetTypeCommandHandler(IUnitOfWork unitOfWork, IAssetTypeRepository repository, IQueryContext queryContext)
+    public CreateAssetTypeCommandHandler(
+        IUnitOfWork unitOfWork,
+        IAssetTypeRepository repository,
+        IQueryContext queryContext,
+        IUserContextService userContextService)
     {
         _unitOfWork = unitOfWork;
         _repository = repository;
         _queryContext = queryContext;
+        _userContextService = userContextService;
     }
 
     public async Task<Result<object>> Handle(CreateAssetTypeCommand request, CancellationToken cancellationToken)
     {
         return await _unitOfWork.ExecuteInTransactionAsync(async () =>
         {
-            var code = await _unitOfWork.GenerateNextCodeAsync("LTS", "AssetTypes", 6, cancellationToken: cancellationToken);
+            var code = request.Code;
+            if (request.IsCodeGenerated)
+            {
+                code = await _unitOfWork.GenerateNextCodeAsync("LTS", "AssetTypes", 6, cancellationToken: cancellationToken);
+            }
+
             var assetType = new AssetType(
+                request.IsCodeGenerated,
                 code: code,
                 name: request.Name,
                 assetCategoryId: request.AssetCategoryId,
@@ -29,7 +42,9 @@ public class CreateAssetTypeCommandHandler : IRequestHandler<CreateAssetTypeComm
                 isActive: request.IsActive
             );
 
+            var currentUserId = _userContextService.GetCurrentUserId();
             assetType.AddParameters(request.ParameterIds);
+            assetType.SetAuditInfo(currentUserId, currentUserId);
 
             await _repository.AddAsync(assetType);
             await _unitOfWork.SaveChangesAsync(cancellationToken);

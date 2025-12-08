@@ -40,6 +40,16 @@ public class GetAssetTypeByIdQueryHandler : IRequestHandler<GetAssetTypeByIdQuer
                     .Where(ac => ac.Id == at.AssetCategoryId)
                     .Select(ac => ac.Name)
                     .FirstOrDefault(),
+                CreatedBy = _queryContext.Query<User>()
+                    .Where(u => u.Id == at.CreatedByUserId)
+                    .Select(u => u.DisplayName)
+                    .FirstOrDefault(),
+                UpdatedBy = _queryContext.Query<User>()
+                    .Where(u => u.Id == at.UpdatedByUserId)
+                    .Select(u => u.DisplayName)
+                    .FirstOrDefault(),
+                UpdatedByUserId = at.UpdatedByUserId,
+                CreatedByUserId = at.CreatedByUserId,
                 CreatedAt = at.CreatedAt,
                 UpdatedAt = at.UpdatedAt
             })

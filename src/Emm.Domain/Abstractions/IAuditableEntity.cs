@@ -15,6 +15,9 @@ public interface IAuditableEntity
     /// Thời điểm cập nhật gần nhất (UTC)
     /// </summary>
     DateTime UpdatedAt { get; }
+
+    long? CreatedByUserId { get; }
+    long? UpdatedByUserId { get; }
 }
 
 /// <summary>

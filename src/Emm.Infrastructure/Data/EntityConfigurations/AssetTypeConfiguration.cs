@@ -1,4 +1,5 @@
 using Emm.Domain.Entities.AssetCatalog;
+using Emm.Infrastructure.Data.EntityConfigurations.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -38,13 +39,7 @@ public class AssetTypeConfiguration : IEntityTypeConfiguration<AssetType>
             .IsRequired()
             .HasDefaultValue(true);
 
-        builder.Property(x => x.CreatedAt)
-            .IsRequired()
-            .HasDefaultValueSql("GETUTCDATE()");
-
-        builder.Property(x => x.UpdatedAt)
-            .IsRequired()
-            .HasDefaultValueSql("GETUTCDATE()");
+        builder.ConfigureAuditInfo();
 
         // Relationships
         builder.HasOne<AssetCategory>()

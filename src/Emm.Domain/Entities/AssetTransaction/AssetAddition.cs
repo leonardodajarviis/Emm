@@ -12,11 +12,13 @@ public class AssetAddition : AggregateRoot, IAuditableEntity
     public string? DecisionNumber { get; private set; }
     public DateTime? DecisionDate { get; private set; }
     public string? Reason { get; private set; }
-    public DateTime CreatedAt { get; private set; }
     private readonly List<AssetAdditionLine> _assetAdditionLines = [];
     public IReadOnlyList<AssetAdditionLine> AssetAdditionLines => _assetAdditionLines.AsReadOnly();
 
-    public DateTime UpdatedAt {get; private set;}
+    public DateTime CreatedAt { get; private set; }
+    public DateTime UpdatedAt { get; private set; }
+    public long? CreatedByUserId { get; private set; }
+    public long? UpdatedByUserId { get; private set; }
 
 
     public AssetAddition(

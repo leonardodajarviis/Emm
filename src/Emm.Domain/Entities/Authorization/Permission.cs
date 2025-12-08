@@ -42,6 +42,8 @@ public class Permission : AggregateRoot, IAuditableEntity
 
     public DateTime CreatedAt { get; private set; }
     public DateTime UpdatedAt { get; private set; }
+    public long? CreatedByUserId { get; private set; }
+    public long? UpdatedByUserId { get; private set; }
 
     // Navigation properties
     private readonly List<RolePermission> _rolePermissions = [];

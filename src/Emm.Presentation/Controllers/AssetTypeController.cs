@@ -20,16 +20,8 @@ public class AssetTypeController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateAssetType([FromBody] CreateAssetType createAssetType)
+    public async Task<IActionResult> CreateAssetType([FromBody] CreateAssetTypeCommand command)
     {
-        var command = new CreateAssetTypeCommand(
-            Name: createAssetType.Name,
-            AssetCategoryId: createAssetType.AssetCategoryId,
-            ParameterIds: createAssetType.ParameterIds,
-            Description: createAssetType.Description,
-            IsActive: createAssetType.IsActive
-        );
-
         var result = await _mediator.Send(command);
 
         return result.ToActionResult();
