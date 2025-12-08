@@ -23,6 +23,7 @@ public class GetAssetCategoryByIdQueryHandler : IRequestHandler<GetAssetCategory
                 Id = x.Id,
                 Code = x.Code,
                 Name = x.Name,
+                IsCodeGenerated = x.IsCodeGenerated,
                 Description = x.Description,
                 IsActive = x.IsActive,
                 CreatedBy = _queryContext.Query<User>()

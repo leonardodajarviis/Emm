@@ -41,6 +41,7 @@ public class GetAssetCategoriesQueryHandler : IRequestHandler<GetAssetCategories
                 Code = x.Code,
                 Name = x.Name,
                 Description = x.Description,
+                IsCodeGenerated = x.IsCodeGenerated,
                 IsActive = x.IsActive,
                 CreatedAt = x.CreatedAt,
                 UpdatedAt = x.UpdatedAt,
