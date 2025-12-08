@@ -8,6 +8,8 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
 {
     public DateTime CreatedAt { get; private set; }
     public DateTime UpdatedAt { get; private set; }
+    public long? CreatedByUserId { get; private set; }
+    public long? UpdatedByUserId { get; private set; }
     public long Id { get; private set; }
     public int LogOrder { get; private set; }
     public long OperationShiftId { get; private set; }

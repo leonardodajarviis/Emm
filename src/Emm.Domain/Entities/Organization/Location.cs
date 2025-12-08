@@ -12,6 +12,8 @@ public class Location : AggregateRoot, IAuditableEntity
     public bool IsActive { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public DateTime UpdatedAt { get; private set; }
+    public long? CreatedByUserId { get; private set; }
+    public long? UpdatedByUserId { get; private set; }
 
     public Location(string code, string name, long organizationUnitId, string? description = null, bool isActive = true)
     {

@@ -10,7 +10,7 @@ public record IncidentReportResponse
     public required string Description { get; set; }
     public required long AssetId { get; set; }
     public string? AssetName { get; set; }
-    public required long CreatedById { get; set; }
+    public long? CreatedById { get; set; }
     public string? CreatedBy { get; set; }
     public required DateTime ReportedAt { get; set; }
     public required IncidentPriority Priority { get; set; }

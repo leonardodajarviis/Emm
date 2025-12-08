@@ -25,6 +25,8 @@ public class OperationShift : AggregateRoot, IAuditableEntity
     public string? Notes { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public DateTime UpdatedAt { get; private set; }
+    public long? CreatedByUserId { get; private set; }
+    public long? UpdatedByUserId { get; private set; }
 
     // Collections - using backing field pattern for EF Core
     private readonly List<OperationShiftAsset> _assets;

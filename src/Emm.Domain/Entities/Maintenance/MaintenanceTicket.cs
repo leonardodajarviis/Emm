@@ -29,7 +29,6 @@ public class MaintenanceTicket : AggregateRoot, IAuditableEntity
 
     public long? AssignedToUserId { get; private set; }
     public long? AssignedToTeamId { get; private set; }
-    public long CreatedByUserId { get; private set; }
 
     public decimal EstimatedCost { get; private set; }
     public decimal ActualCost { get; private set; }
@@ -41,6 +40,8 @@ public class MaintenanceTicket : AggregateRoot, IAuditableEntity
 
     public DateTime CreatedAt { get; private set; }
     public DateTime UpdatedAt { get; private set; }
+    public long? CreatedByUserId { get; private set; }
+    public long? UpdatedByUserId { get; private set; }
 
     private readonly List<MaintenanceTask> _tasks;
     public IReadOnlyCollection<MaintenanceTask> Tasks => _tasks;

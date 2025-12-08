@@ -41,9 +41,9 @@ public class GetIncidentReportsQueryHandler : IRequestHandler<GetIncidentReports
                     .Where(a => a.Id == ir.AssetId)
                     .Select(a => a.DisplayName)
                     .FirstOrDefault(),
-                CreatedById = ir.CreatedById,
+                CreatedById = ir.CreatedByUserId,
                 CreatedBy = _queryContext.Query<User>()
-                    .Where(u => u.Id == ir.CreatedById)
+                    .Where(u => u.Id == ir.CreatedByUserId)
                     .Select(u => u.DisplayName)
                     .FirstOrDefault(),
                 ReportedAt = ir.ReportedAt,

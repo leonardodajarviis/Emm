@@ -32,6 +32,8 @@ public class MaterialRequest : AggregateRoot, IAuditableEntity
 
     public DateTime CreatedAt { get; private set; }
     public DateTime UpdatedAt { get; private set; }
+    public long? CreatedByUserId { get; private set; }
+    public long? UpdatedByUserId { get; private set; }
 
     private readonly List<MaterialRequestLine> _lines;
     public IReadOnlyCollection<MaterialRequestLine> Lines => _lines;

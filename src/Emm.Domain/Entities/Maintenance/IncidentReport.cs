@@ -18,8 +18,8 @@ public class IncidentReport : AggregateRoot, IAuditableEntity
     public IncidentStatus Status { get; private set; }
     public DateTime? ResolvedAt { get; private set; }
     public string? ResolutionNotes { get; private set; }
-    public long CreatedById { get; private set; }
-    public long UpdatedById { get; private set; }
+    public long? CreatedByUserId { get; private set; }
+    public long? UpdatedByUserId { get; private set; }
 
     public DateTime CreatedAt { get; private set; }
     public DateTime UpdatedAt { get; private set; }
@@ -43,7 +43,7 @@ public class IncidentReport : AggregateRoot, IAuditableEntity
         Title = title;
         Description = description;
         AssetId = assetId;
-        CreatedById = reportedByUserId;
+        CreatedByUserId = reportedByUserId;
         Priority = priority;
         Status = IncidentStatus.New;
         ReportedAt = DateTime.UtcNow;

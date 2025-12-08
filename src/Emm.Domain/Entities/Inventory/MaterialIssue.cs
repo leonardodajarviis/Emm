@@ -29,6 +29,8 @@ public class MaterialIssue : AggregateRoot, IAuditableEntity
 
     public DateTime CreatedAt { get; private set; }
     public DateTime UpdatedAt { get; private set; }
+    public long? CreatedByUserId { get; private set; }
+    public long? UpdatedByUserId { get; private set; }
 
     private readonly List<MaterialIssueLine> _lines;
     public IReadOnlyCollection<MaterialIssueLine> Lines => _lines;

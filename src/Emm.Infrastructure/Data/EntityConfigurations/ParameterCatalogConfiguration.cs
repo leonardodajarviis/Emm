@@ -23,7 +23,6 @@ public class ParameterCatalogConfiguration : IEntityTypeConfiguration<ParameterC
             .IsRequired();
 
         builder.Property(x => x.IsCodeGenerated)
-            .HasMaxLength(50)
             .IsRequired()
             .HasDefaultValueSql("0");
 

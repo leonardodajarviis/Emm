@@ -33,6 +33,8 @@ public class MaterialReturn : AggregateRoot, IAuditableEntity
 
     public DateTime CreatedAt { get; private set; }
     public DateTime UpdatedAt { get; private set; }
+    public long? CreatedByUserId { get; private set; }
+    public long? UpdatedByUserId { get; private set; }
 
     private readonly List<MaterialReturnLine> _lines;
     public IReadOnlyCollection<MaterialReturnLine> Lines => _lines;

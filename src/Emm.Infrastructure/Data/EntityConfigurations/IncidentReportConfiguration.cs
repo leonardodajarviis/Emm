@@ -41,7 +41,7 @@ public class IncidentReportConfiguration : IEntityTypeConfiguration<IncidentRepo
         builder.Property(x => x.Status)
             .IsRequired();
 
-        builder.Property(x => x.CreatedById)
+        builder.Property(x => x.CreatedByUserId)
             .IsRequired();
 
         builder.Property(x => x.CreatedAt)
@@ -62,12 +62,12 @@ public class IncidentReportConfiguration : IEntityTypeConfiguration<IncidentRepo
 
         builder.HasOne<User>()
             .WithMany()
-            .HasForeignKey(x => x.CreatedById)
+            .HasForeignKey(x => x.CreatedByUserId)
             .OnDelete(DeleteBehavior.NoAction);
 
         builder.HasOne<User>()
             .WithMany()
-            .HasForeignKey(x => x.UpdatedById)
+            .HasForeignKey(x => x.UpdatedByUserId)
             .OnDelete(DeleteBehavior.NoAction);
     }
 }
