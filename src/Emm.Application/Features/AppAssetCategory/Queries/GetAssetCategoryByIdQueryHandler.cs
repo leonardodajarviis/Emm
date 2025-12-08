@@ -1,4 +1,5 @@
 using Emm.Application.Features.AppAssetCategory.Dtos;
+using Emm.Domain.Entities;
 using Emm.Domain.Entities.AssetCatalog;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,6 +25,16 @@ public class GetAssetCategoryByIdQueryHandler : IRequestHandler<GetAssetCategory
                 Name = x.Name,
                 Description = x.Description,
                 IsActive = x.IsActive,
+                CreatedBy = _queryContext.Query<User>()
+                    .Where(u => u.Id == x.CreatedByUserId)
+                    .Select(u => u.DisplayName)
+                    .FirstOrDefault(),
+                UpdatedBy = _queryContext.Query<User>()
+                    .Where(u => u.Id == x.UpdatedByUserId)
+                    .Select(u => u.DisplayName)
+                    .FirstOrDefault(),
+                CreatedByUserId = x.CreatedByUserId,
+                UpdatedByUserId = x.UpdatedByUserId,
                 CreatedAt = x.CreatedAt,
                 UpdatedAt = x.UpdatedAt
             })
