@@ -25,6 +25,7 @@ public class GetAssetTypeByIdQueryHandler : IRequestHandler<GetAssetTypeByIdQuer
                 Code = at.Code,
                 Name = at.Name,
                 Description = at.Description,
+                IsCodeGenerated = at.IsCodeGenerated,
                 IsActive = at.IsActive,
                 Parameters = _queryContext.Query<AssetTypeParameter>()
                     .Where(atp => atp.AssetTypeId == at.Id)

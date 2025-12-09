@@ -30,6 +30,7 @@ public class GetAssetTypesQueryHandler : IRequestHandler<GetAssetTypesQuery, Res
                 Id = at.Id,
                 Code = at.Code,
                 Name = at.Name,
+                IsCodeGenerated = at.IsCodeGenerated,
                 Description = at.Description,
                 IsActive = at.IsActive,
                 AssetCategoryId = at.AssetCategoryId,
