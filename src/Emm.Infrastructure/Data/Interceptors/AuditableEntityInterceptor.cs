@@ -47,13 +47,19 @@ public class AuditableEntityInterceptor : SaveChangesInterceptor
         var userId = _userContextService.GetCurrentUserId();
         if (userId is null)
         {
-            throw new InvalidOperationException("Cannot set audit info: current user ID is null.");
+            userId = 1;
         }
 
         var now = _dateTimeProvider.Now;
 
         foreach (var entry in entries)
         {
+            // Chỉ xử lý các entity đã có AuditMetadata
+            if (entry.Entity.Audit is null)
+            {
+                continue; // Skip nếu entity chưa có Audit
+            }
+
             if (entry.State == EntityState.Added)
             {
                 entry.Entity.SetAudit(AuditMetadata.Create(userId.Value, now));
