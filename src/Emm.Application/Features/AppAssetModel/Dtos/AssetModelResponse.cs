@@ -16,5 +16,5 @@ public record AssetModelSummaryResponse
     public string? AssetTypeName { get; set; }
     public bool IsActive { get;  set; }
     public DateTime CreatedAt { get; set; }
-    public DateTime UpdatedAt { get;  set; }
+    public DateTime? ModifiedAt { get;  set; }
 }

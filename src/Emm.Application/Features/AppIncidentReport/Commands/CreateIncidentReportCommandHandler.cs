@@ -44,7 +44,7 @@ public class CreateIncidentReportCommandHandler : IRequestHandler<CreateIncident
             // Validate Asset
             var assetExists = await _queryContext.Query<Asset>()
                 .AnyAsync(x => x.Id == request.AssetId, cancellationToken);
-            
+
             if (!assetExists)
             {
                 return Result<object>.Failure(ErrorType.NotFound, "Asset not found");
@@ -57,7 +57,6 @@ public class CreateIncidentReportCommandHandler : IRequestHandler<CreateIncident
                 title: request.Title,
                 description: request.Description,
                 assetId: request.AssetId,
-                reportedByUserId: userId.Value,
                 priority: request.Priority
             );
 

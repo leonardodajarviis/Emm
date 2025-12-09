@@ -1,7 +1,7 @@
 using Emm.Domain.Abstractions;
 using Emm.Domain.ValueObjects;
 
-namespace Emm.Domain.Entities.Inventory;
+namespace Emm.Domain.Entities;
 
 public class UnitOfMeasure : AggregateRoot
 {

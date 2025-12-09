@@ -1,15 +1,12 @@
 using Emm.Domain.Abstractions;
 using Emm.Domain.Events.Operations;
 using Emm.Domain.Exceptions;
+using Emm.Domain.ValueObjects;
 
 namespace Emm.Domain.Entities.Operations;
 
 public class ShiftLog : AggregateRoot, IAuditableEntity
 {
-    public DateTime CreatedAt { get; private set; }
-    public DateTime UpdatedAt { get; private set; }
-    public long? CreatedByUserId { get; private set; }
-    public long? UpdatedByUserId { get; private set; }
     public long Id { get; private set; }
     public int LogOrder { get; private set; }
     public long OperationShiftId { get; private set; }
@@ -42,6 +39,9 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
 
     private readonly List<ShiftLogItem> _items;
     public IReadOnlyCollection<ShiftLogItem> Items => _items;
+
+    public AuditMetadata Audit { get; private set; } = null!;
+    public void SetAudit(AuditMetadata audit) => Audit = audit;
 
     public ShiftLog(
         long operationShiftId,
@@ -82,7 +82,6 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
     public void UpdateStartTime(DateTime startTime)
     {
         StartTime = startTime;
-        UpdatedAt = DateTime.UtcNow;
     }
 
     public void UpdateEndTime(DateTime endTime)
@@ -91,7 +90,6 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
             throw new DomainException("End time cannot be before start time");
 
         EndTime = endTime;
-        UpdatedAt = DateTime.UtcNow;
     }
 
     #region Asset and Group Management
@@ -108,7 +106,6 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
             throw new DomainException("Cannot assign to asset when already assigned to a group");
 
         AssetId = assetId;
-        UpdatedAt = DateTime.UtcNow;
     }
 
     /// <summary>
@@ -123,7 +120,6 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
             throw new DomainException("Cannot assign to group when already assigned to an asset");
 
         BoxId = boxId;
-        UpdatedAt = DateTime.UtcNow;
     }
 
     /// <summary>
@@ -133,7 +129,6 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
     {
         AssetId = null;
         BoxId = null;
-        UpdatedAt = DateTime.UtcNow;
     }
 
     /// <summary>
@@ -293,7 +288,6 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
     public void UpdateNotes(string? notes)
     {
         Notes = notes;
-        UpdatedAt = DateTime.UtcNow;
     }
 
     public void UpdateName(string name)
@@ -302,7 +296,6 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
             throw new DomainException("Task name is required");
 
         Name = name;
-        UpdatedAt = DateTime.UtcNow;
     }
 
     public void UpdateDescription(string description)
@@ -311,7 +304,6 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
             throw new DomainException("Task description is required");
 
         Description = description;
-        UpdatedAt = DateTime.UtcNow;
     }
 
     /// <summary>

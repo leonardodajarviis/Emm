@@ -26,7 +26,7 @@ public class GetAssetAdditionByIdQueryHandler : IRequestHandler<GetAssetAddition
                 DecisionNumber = x.DecisionNumber,
                 DecisionDate = x.DecisionDate,
                 Reason = x.Reason,
-                CreatedAt = x.CreatedAt,
+                CreatedAt = x.Audit.CreatedAt,
                 AssetAdditionLines = x.AssetAdditionLines.Select(line => new AssetAdditionLineResponse
                 {
                     Id = line.Id,

@@ -39,7 +39,7 @@ public class AssetTypeConfiguration : IEntityTypeConfiguration<AssetType>
             .IsRequired()
             .HasDefaultValue(true);
 
-        builder.ConfigureAuditInfo();
+        builder.ConfigureAuditEntity();
 
         // Relationships
         builder.HasOne<AssetCategory>()

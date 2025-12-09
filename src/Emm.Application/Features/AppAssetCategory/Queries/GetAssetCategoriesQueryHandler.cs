@@ -43,18 +43,18 @@ public class GetAssetCategoriesQueryHandler : IRequestHandler<GetAssetCategories
                 Description = x.Description,
                 IsCodeGenerated = x.IsCodeGenerated,
                 IsActive = x.IsActive,
-                CreatedAt = x.CreatedAt,
-                UpdatedAt = x.UpdatedAt,
+                CreatedAt = x.Audit.CreatedAt,
+                ModifiedAt = x.Audit.ModifiedAt,
                 CreatedBy = _queryContext.Query<User>()
-                    .Where(u => u.Id == x.CreatedByUserId)
+                    .Where(u => u.Id == x.Audit.CreatedByUserId)
                     .Select(u => u.DisplayName)
                     .FirstOrDefault(),
-                UpdatedBy = _queryContext.Query<User>()
-                    .Where(u => u.Id == x.UpdatedByUserId)
+                ModifiedBy = _queryContext.Query<User>()
+                    .Where(u => u.Id == x.Audit.ModifiedByUserId)
                     .Select(u => u.DisplayName)
                     .FirstOrDefault(),
-                CreatedByUserId = x.CreatedByUserId,
-                UpdatedByUserId = x.UpdatedByUserId
+                CreatedByUserId = x.Audit.CreatedByUserId,
+                ModifiedByUserId = x.Audit.ModifiedByUserId
             })
             .ToListAsync(cancellationToken);
 

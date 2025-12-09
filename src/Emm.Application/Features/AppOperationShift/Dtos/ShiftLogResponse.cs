@@ -19,7 +19,7 @@ public record OperationShiftSummaryResponse
     public required OperationShiftStatus Status { get; set; }
     public string? Notes { get; set; }
     public required DateTime CreatedAt { get; set; }
-    public required DateTime UpdatedAt { get; set; }
+    public required DateTime? ModifiedAt { get; set; }
 }
 public record OperationShiftResponse
 {
@@ -38,7 +38,7 @@ public record OperationShiftResponse
     public required OperationShiftStatus Status { get; set; }
     public string? Notes { get; set; }
     public required DateTime CreatedAt { get; set; }
-    public required DateTime UpdatedAt { get; set; }
+    public required DateTime? ModifiedAt { get; set; }
 
     // Related data
     public List<OperationShiftAssetResponse> Assets { get; set; } = [];

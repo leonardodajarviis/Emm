@@ -1,4 +1,5 @@
 using Emm.Domain.Abstractions;
+using Emm.Domain.ValueObjects;
 
 namespace Emm.Domain.Entities.Authorization;
 
@@ -40,10 +41,8 @@ public class Permission : AggregateRoot, IAuditableEntity
     /// </summary>
     public string? Category { get; private set; }
 
-    public DateTime CreatedAt { get; private set; }
-    public DateTime UpdatedAt { get; private set; }
-    public long? CreatedByUserId { get; private set; }
-    public long? UpdatedByUserId { get; private set; }
+    public AuditMetadata Audit { get; private set; } = null!;
+    public void SetAudit(AuditMetadata audit) => Audit = audit;
 
     // Navigation properties
     private readonly List<RolePermission> _rolePermissions = [];
@@ -74,8 +73,6 @@ public class Permission : AggregateRoot, IAuditableEntity
         DisplayName = displayName.Trim();
         Description = description?.Trim();
         Category = category?.Trim();
-        CreatedAt = DateTime.UtcNow;
-        UpdatedAt = DateTime.UtcNow;
     }
 
     public void Update(string displayName, string? description, string? category)
@@ -86,7 +83,6 @@ public class Permission : AggregateRoot, IAuditableEntity
         DisplayName = displayName.Trim();
         Description = description?.Trim();
         Category = category?.Trim();
-        UpdatedAt = DateTime.UtcNow;
     }
 
     private Permission() { } // EF Core constructor

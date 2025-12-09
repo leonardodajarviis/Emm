@@ -1,4 +1,5 @@
 using Emm.Domain.Entities.Organization;
+using Emm.Infrastructure.Data.EntityConfigurations.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -35,13 +36,7 @@ public class LocationConfiguration : IEntityTypeConfiguration<Location>
             .IsRequired()
             .HasDefaultValue(true);
 
-        builder.Property(x => x.CreatedAt)
-            .IsRequired()
-            .HasDefaultValueSql("GETUTCDATE()");
-
-        builder.Property(x => x.UpdatedAt)
-            .IsRequired()
-            .HasDefaultValueSql("GETUTCDATE()");
+        builder.ConfigureAuditEntity();
 
         builder.HasIndex(x => x.Code)
             .IsUnique()

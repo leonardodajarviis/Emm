@@ -1,4 +1,4 @@
-using Emm.Domain.Entities.Inventory;
+using Emm.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

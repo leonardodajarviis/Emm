@@ -1,4 +1,4 @@
-using Emm.Domain.Entities.Inventory;
+using Emm.Domain.Entities;
 
 namespace Emm.Application.Features.AppUnitOfMeasure.Dtos;
 

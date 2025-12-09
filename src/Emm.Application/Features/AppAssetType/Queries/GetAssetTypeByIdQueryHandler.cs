@@ -42,17 +42,17 @@ public class GetAssetTypeByIdQueryHandler : IRequestHandler<GetAssetTypeByIdQuer
                     .Select(ac => ac.Name)
                     .FirstOrDefault(),
                 CreatedBy = _queryContext.Query<User>()
-                    .Where(u => u.Id == at.CreatedByUserId)
+                    .Where(u => u.Id == at.Audit.CreatedByUserId)
                     .Select(u => u.DisplayName)
                     .FirstOrDefault(),
-                UpdatedBy = _queryContext.Query<User>()
-                    .Where(u => u.Id == at.UpdatedByUserId)
+                ModifiedBy = _queryContext.Query<User>()
+                    .Where(u => u.Id == at.Audit.ModifiedByUserId)
                     .Select(u => u.DisplayName)
                     .FirstOrDefault(),
-                UpdatedByUserId = at.UpdatedByUserId,
-                CreatedByUserId = at.CreatedByUserId,
-                CreatedAt = at.CreatedAt,
-                UpdatedAt = at.UpdatedAt
+                ModifiedByUserId = at.Audit.CreatedByUserId,
+                CreatedByUserId = at.Audit.ModifiedByUserId,
+                CreatedAt = at.Audit.CreatedAt,
+                ModifiedAt = at.Audit.ModifiedAt
             })
             .FirstOrDefaultAsync(cancellationToken);
 

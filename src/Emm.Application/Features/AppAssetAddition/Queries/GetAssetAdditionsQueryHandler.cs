@@ -17,7 +17,7 @@ public class GetAssetAdditionsQueryHandler : IRequestHandler<GetAssetAdditionsQu
     {
         var query = _queryContext.Query<AssetAddition>()
             .AsQueryable()
-            .OrderByDescending(x => x.CreatedAt);
+            .OrderByDescending(x => x.Audit.CreatedAt);
 
         var totalCount = await query.CountAsync(cancellationToken);
 
@@ -33,7 +33,7 @@ public class GetAssetAdditionsQueryHandler : IRequestHandler<GetAssetAdditionsQu
                 DecisionNumber = x.DecisionNumber,
                 DecisionDate = x.DecisionDate,
                 Reason = x.Reason,
-                CreatedAt = x.CreatedAt,
+                CreatedAt = x.Audit.CreatedAt,
                 AssetAdditionLines = x.AssetAdditionLines.Select(line => new AssetAdditionLineResponse
                 {
                     Id = line.Id,

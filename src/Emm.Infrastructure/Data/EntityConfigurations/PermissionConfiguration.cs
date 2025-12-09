@@ -1,4 +1,5 @@
 using Emm.Domain.Entities.Authorization;
+using Emm.Infrastructure.Data.EntityConfigurations.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -35,13 +36,7 @@ public class PermissionConfiguration : IEntityTypeConfiguration<Permission>
         builder.Property(p => p.Category)
             .HasMaxLength(100);
 
-        builder.Property(p => p.CreatedAt)
-            .IsRequired()
-            .HasDefaultValueSql("GETUTCDATE()");
-
-        builder.Property(p => p.UpdatedAt)
-            .IsRequired()
-            .HasDefaultValueSql("GETUTCDATE()");
+        builder.ConfigureAuditEntity();
 
         // Indexes
         builder.HasIndex(p => p.Code).IsUnique();

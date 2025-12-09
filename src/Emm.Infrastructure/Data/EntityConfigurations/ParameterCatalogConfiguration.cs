@@ -1,5 +1,5 @@
 using Emm.Domain.Entities;
-using Emm.Domain.Entities.Inventory;
+using Emm.Infrastructure.Data.EntityConfigurations.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -34,17 +34,7 @@ public class ParameterCatalogConfiguration : IEntityTypeConfiguration<ParameterC
         builder.Property(x => x.Description)
             .HasMaxLength(500);
 
-        builder.Property(x => x.CreatedAt)
-            .IsRequired()
-            .HasDefaultValueSql("GETUTCDATE()");
-
-        builder.Property(x => x.UpdatedAt)
-            .IsRequired()
-            .HasDefaultValueSql("GETUTCDATE()");
-
-        builder.Property(x => x.CreatedByUserId);
-
-        builder.Property(x => x.UpdatedByUserId);
+        builder.ConfigureAuditEntity();
 
         builder.HasIndex(x => x.Code)
             .IsUnique();
@@ -52,16 +42,6 @@ public class ParameterCatalogConfiguration : IEntityTypeConfiguration<ParameterC
         builder.HasOne<UnitOfMeasure>()
             .WithMany()
             .HasForeignKey(pc => pc.UnitOfMeasureId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        builder.HasOne<User>()
-            .WithMany()
-            .HasForeignKey(pc => pc.CreatedByUserId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        builder.HasOne<User>()
-            .WithMany()
-            .HasForeignKey(pc => pc.UpdatedByUserId)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }

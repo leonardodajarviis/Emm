@@ -9,5 +9,5 @@ public record LocationResponse
     public required long OrganizationUnitId { get; set; }
     public bool IsActive { get; set; }
     public DateTime CreatedAt { get; set; }
-    public DateTime UpdatedAt { get; set; }
+    public DateTime? ModifiedAt { get; set; }
 }

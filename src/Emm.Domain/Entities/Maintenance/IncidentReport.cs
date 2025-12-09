@@ -1,5 +1,6 @@
 using Emm.Domain.Abstractions;
 using Emm.Domain.Exceptions;
+using Emm.Domain.ValueObjects;
 
 namespace Emm.Domain.Entities.Maintenance;
 
@@ -18,18 +19,14 @@ public class IncidentReport : AggregateRoot, IAuditableEntity
     public IncidentStatus Status { get; private set; }
     public DateTime? ResolvedAt { get; private set; }
     public string? ResolutionNotes { get; private set; }
-    public long? CreatedByUserId { get; private set; }
-    public long? UpdatedByUserId { get; private set; }
-
-    public DateTime CreatedAt { get; private set; }
-    public DateTime UpdatedAt { get; private set; }
+    public AuditMetadata Audit { get; private set; } = null!;
+    public void SetAudit(AuditMetadata audit) => Audit = audit;
 
     public IncidentReport(
         string code,
         string title,
         string description,
         long assetId,
-        long reportedByUserId,
         IncidentPriority priority
     )
     {
@@ -37,13 +34,11 @@ public class IncidentReport : AggregateRoot, IAuditableEntity
         if (string.IsNullOrWhiteSpace(title)) throw new DomainException("Title is required");
         if (string.IsNullOrWhiteSpace(description)) throw new DomainException("Description is required");
         if (assetId <= 0) throw new DomainException("AssetId is required");
-        if (reportedByUserId <= 0) throw new DomainException("ReportedByUserId is required");
 
         Code = code;
         Title = title;
         Description = description;
         AssetId = assetId;
-        CreatedByUserId = reportedByUserId;
         Priority = priority;
         Status = IncidentStatus.New;
         ReportedAt = DateTime.UtcNow;
@@ -51,12 +46,12 @@ public class IncidentReport : AggregateRoot, IAuditableEntity
 
     public void UpdateInfo(string title, string description, IncidentPriority priority)
     {
-         if (string.IsNullOrWhiteSpace(title)) throw new DomainException("Title is required");
-         if (string.IsNullOrWhiteSpace(description)) throw new DomainException("Description is required");
+        if (string.IsNullOrWhiteSpace(title)) throw new DomainException("Title is required");
+        if (string.IsNullOrWhiteSpace(description)) throw new DomainException("Description is required");
 
-         Title = title;
-         Description = description;
-         Priority = priority;
+        Title = title;
+        Description = description;
+        Priority = priority;
     }
 
     public void Assign()

@@ -36,7 +36,7 @@ public class AssetCategoryConfiguration : IEntityTypeConfiguration<AssetCategory
             .IsRequired()
             .HasDefaultValue(true);
 
-        builder.ConfigureAuditInfo();
+        builder.ConfigureAuditEntity();
 
         // Indexes
         builder.HasIndex(x => x.Code)

@@ -18,5 +18,5 @@ public record IncidentReportResponse
     public DateTime? ResolvedAt { get; set; }
     public string? ResolutionNotes { get; set; }
     public required DateTime CreatedAt { get; set; }
-    public required DateTime UpdatedAt { get; set; }
+    public required DateTime? ModifiedAt { get; set; }
 }

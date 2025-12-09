@@ -3,7 +3,6 @@ using Emm.Application.Common;
 using Emm.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Gridify;
-using Emm.Domain.Entities.Inventory;
 
 namespace Emm.Application.Features.AppParameterCatalog.Queries;
 
@@ -44,8 +43,8 @@ public class GetParameterCatalogsQueryHandler : IRequestHandler<GetParameterCata
                     .Select(uom => uom.Name)
                     .FirstOrDefault(),
                 pc.Description,
-                pc.CreatedAt,
-                pc.UpdatedAt
+                pc.Audit.CreatedAt,
+                pc.Audit.ModifiedAt
             ))
             .ToListAsync(cancellationToken);
 

@@ -1,4 +1,5 @@
 using Emm.Domain.Abstractions;
+using Emm.Domain.ValueObjects;
 using System.Text.Json;
 
 namespace Emm.Domain.Entities.Authorization;
@@ -58,10 +59,8 @@ public class Policy : AggregateRoot, IAuditableEntity
     /// </summary>
     public bool IsActive { get; private set; }
 
-    public DateTime CreatedAt { get; private set; }
-    public DateTime UpdatedAt { get; private set; }
-    public long? CreatedByUserId { get; private set; }
-    public long? UpdatedByUserId { get; private set; }
+    public AuditMetadata Audit { get; private set; } = null!;
+    public void SetAudit(AuditMetadata audit) => Audit = audit;
 
     public Policy(
         string code,
@@ -86,8 +85,6 @@ public class Policy : AggregateRoot, IAuditableEntity
         Description = description?.Trim();
         Priority = priority;
         IsActive = true;
-        CreatedAt = DateTime.UtcNow;
-        UpdatedAt = DateTime.UtcNow;
     }
 
     public void Update(string name, string? description, int priority)
@@ -98,13 +95,11 @@ public class Policy : AggregateRoot, IAuditableEntity
         Name = name.Trim();
         Description = description?.Trim();
         Priority = priority;
-        UpdatedAt = DateTime.UtcNow;
     }
 
     public void SetConditions(object conditions)
     {
         ConditionsJson = JsonSerializer.Serialize(conditions);
-        UpdatedAt = DateTime.UtcNow;
     }
 
     public T? GetConditions<T>() where T : class
@@ -118,13 +113,11 @@ public class Policy : AggregateRoot, IAuditableEntity
     public void Activate()
     {
         IsActive = true;
-        UpdatedAt = DateTime.UtcNow;
     }
 
     public void Deactivate()
     {
         IsActive = false;
-        UpdatedAt = DateTime.UtcNow;
     }
 
     private Policy() { } // EF Core constructor

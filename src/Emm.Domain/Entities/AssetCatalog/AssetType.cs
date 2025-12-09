@@ -1,4 +1,5 @@
 using Emm.Domain.Abstractions;
+using Emm.Domain.ValueObjects;
 
 namespace Emm.Domain.Entities.AssetCatalog;
 
@@ -11,15 +12,12 @@ public class AssetType : AggregateRoot, IAuditableEntity
     public bool IsActive { get; private set; }
     public bool IsCodeGenerated { get; private set; }
     public long AssetCategoryId { get; private set; }
-    // public bool IsCalibrationInspectionMgmt { get; private set; }
-    // public bool IsWarrantyInsuranceMgmt { get; private set; }
-    public long? CreatedByUserId { get; private set; }
-    public long? UpdatedByUserId { get; private set; }
-    public DateTime CreatedAt { get; private set; }
-    public DateTime UpdatedAt { get; private set; }
-
     private readonly List<AssetTypeParameter> _parameters = [];
     public IReadOnlyCollection<AssetTypeParameter> Parameters => _parameters.AsReadOnly();
+
+    public AuditMetadata Audit { get; private set; } = null!;
+    public void SetAudit(AuditMetadata audit) => Audit = audit;
+
 
     private AssetType() { } // EF Core constructor
 
@@ -31,12 +29,6 @@ public class AssetType : AggregateRoot, IAuditableEntity
         Description = description;
         IsActive = isActive;
         IsCodeGenerated = isCodeGenerated;
-    }
-
-    public void SetAuditInfo(long? createdByUserId, long? updatedByUserId)
-    {
-        CreatedByUserId = createdByUserId;
-        UpdatedByUserId = updatedByUserId;
     }
 
     public void Update(string name, long assetCategoryId, string? description, bool isActive)

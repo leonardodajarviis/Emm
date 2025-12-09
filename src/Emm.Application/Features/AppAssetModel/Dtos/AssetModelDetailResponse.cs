@@ -18,7 +18,7 @@ public record AssetModelDetailResponse
     public long? AssetTypeId { get; set; }
     public bool IsActive { get; set; }
     public DateTime CreatedAt { get; set; }
-    public DateTime UpdatedAt { get; set; }
+    public DateTime? ModifiedAt { get; set; }
 
     // Navigation properties with full details
     public AssetModelParentResponse? Parent { get; set; }
@@ -66,7 +66,7 @@ public record MaintenancePlanDefinitionResponse
     public long AssetModelId { get; set; }
     public string? RRule { get; set; }
     public DateTime CreatedAt { get; set; }
-    public DateTime UpdatedAt { get; set; }
+    public DateTime? ModifiedAt { get; set; }
 
     // For Parameter-based maintenance
     public ParameterBasedMaintenanceTriggerResponse? ParameterBasedTrigger { get; set; }

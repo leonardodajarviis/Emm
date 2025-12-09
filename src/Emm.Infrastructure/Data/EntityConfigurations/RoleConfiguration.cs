@@ -32,14 +32,6 @@ public class RoleConfiguration : IEntityTypeConfiguration<Role>
             .IsRequired()
             .HasDefaultValue(true);
 
-        builder.Property(r => r.CreatedAt)
-            .IsRequired()
-            .HasDefaultValueSql("GETUTCDATE()");
-
-        builder.Property(r => r.UpdatedAt)
-            .IsRequired()
-            .HasDefaultValueSql("GETUTCDATE()");
-
         // Indexes
         builder.HasIndex(r => r.Code).IsUnique();
         builder.HasIndex(r => r.IsActive);

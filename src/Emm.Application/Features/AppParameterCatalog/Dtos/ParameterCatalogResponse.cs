@@ -7,5 +7,5 @@ public record ParameterCatalogResponse(
     string? UnitOfMeasureName,
     string? Description,
     DateTime CreatedAt,
-    DateTime UpdatedAt
+    DateTime? ModifiedAt
 );

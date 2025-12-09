@@ -1,4 +1,5 @@
 using Emm.Domain.Entities.AssetCatalog;
+using Emm.Infrastructure.Data.EntityConfigurations.Extensions;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -33,13 +34,7 @@ public class MaintenancePlanDefinitionConfiguration : IEntityTypeConfiguration<M
 
         builder.Property(x => x.RRule);
 
-        builder.Property(x => x.CreatedAt)
-            .IsRequired()
-            .HasDefaultValueSql("GETUTCDATE()");
-
-        builder.Property(x => x.UpdatedAt)
-            .IsRequired()
-            .HasDefaultValueSql("GETUTCDATE()");
+        builder.ConfigureAuditEntity();
 
         builder.HasIndex(x => new { x.AssetModelId, x.IsActive, x.PlanType })
             .HasDatabaseName("IX_MaintenancePlanDefinitions_AssetModelId_IsActive_PlanType");

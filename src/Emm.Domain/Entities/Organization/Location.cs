@@ -1,4 +1,5 @@
 using Emm.Domain.Abstractions;
+using Emm.Domain.ValueObjects;
 
 namespace Emm.Domain.Entities.Organization;
 
@@ -10,10 +11,8 @@ public class Location : AggregateRoot, IAuditableEntity
     public string? Description { get; private set; }
     public long OrganizationUnitId { get; private set; }
     public bool IsActive { get; private set; }
-    public DateTime CreatedAt { get; private set; }
-    public DateTime UpdatedAt { get; private set; }
-    public long? CreatedByUserId { get; private set; }
-    public long? UpdatedByUserId { get; private set; }
+    public AuditMetadata Audit { get; private set; } = null!;
+    public void SetAudit(AuditMetadata audit) => Audit = audit;
 
     public Location(string code, string name, long organizationUnitId, string? description = null, bool isActive = true)
     {
@@ -22,8 +21,6 @@ public class Location : AggregateRoot, IAuditableEntity
         OrganizationUnitId = organizationUnitId;
         Description = description;
         IsActive = isActive;
-        CreatedAt = DateTime.UtcNow;
-        UpdatedAt = DateTime.UtcNow;
     }
 
     public void Update(string name, string? description, bool isActive)
@@ -31,7 +28,6 @@ public class Location : AggregateRoot, IAuditableEntity
         Name = name;
         Description = description;
         IsActive = isActive;
-        UpdatedAt = DateTime.UtcNow;
     }
 
     private Location() { } // EF Core constructor

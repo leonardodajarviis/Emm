@@ -1,5 +1,6 @@
 using Emm.Domain.Abstractions;
 using Emm.Domain.Events.AssetAddition;
+using Emm.Domain.ValueObjects;
 
 namespace Emm.Domain.Entities.AssetTransaction;
 
@@ -15,11 +16,8 @@ public class AssetAddition : AggregateRoot, IAuditableEntity
     private readonly List<AssetAdditionLine> _assetAdditionLines = [];
     public IReadOnlyList<AssetAdditionLine> AssetAdditionLines => _assetAdditionLines.AsReadOnly();
 
-    public DateTime CreatedAt { get; private set; }
-    public DateTime UpdatedAt { get; private set; }
-    public long? CreatedByUserId { get; private set; }
-    public long? UpdatedByUserId { get; private set; }
-
+    public AuditMetadata Audit { get; private set; } = null!;
+    public void SetAudit(AuditMetadata audit) => Audit = audit;
 
     public AssetAddition(
         string code,

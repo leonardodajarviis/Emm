@@ -44,7 +44,6 @@ public class CreateAssetTypeCommandHandler : IRequestHandler<CreateAssetTypeComm
 
             var currentUserId = _userContextService.GetCurrentUserId();
             assetType.AddParameters(request.ParameterIds);
-            assetType.SetAuditInfo(currentUserId, currentUserId);
 
             await _repository.AddAsync(assetType);
             await _unitOfWork.SaveChangesAsync(cancellationToken);

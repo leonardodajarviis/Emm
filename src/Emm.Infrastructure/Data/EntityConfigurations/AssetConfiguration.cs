@@ -1,6 +1,7 @@
 using Emm.Domain.Entities.AssetCatalog;
 using Emm.Domain.Entities.AssetTransaction;
 using Emm.Domain.Entities.Organization;
+using Emm.Infrastructure.Data.EntityConfigurations.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -32,14 +33,6 @@ public class AssetConfiguration : IEntityTypeConfiguration<Asset>
             .HasMaxLength(1000)
             .IsRequired(false);
 
-        builder.Property(x => x.CreatedAt)
-            .IsRequired()
-            .HasDefaultValueSql("GETUTCDATE()");
-
-        builder.Property(x => x.UpdatedAt)
-            .IsRequired()
-            .HasDefaultValueSql("GETUTCDATE()");
-
         builder.HasOne<AssetModel>()
             .WithMany()
             .HasForeignKey(x => x.AssetModelId)
@@ -60,13 +53,12 @@ public class AssetConfiguration : IEntityTypeConfiguration<Asset>
             .HasForeignKey(x => x.LocationId)
             .OnDelete(DeleteBehavior.NoAction);
 
+        builder.ConfigureAuditEntity();
+
         // Indexes
         builder.HasIndex(x => x.Code).IsUnique();
 
         builder.HasIndex(x => x.DisplayName);
-
-        builder.HasIndex(x => x.CreatedAt);
-
 
         builder.HasMany(e => e.Parameters)
             .WithOne()

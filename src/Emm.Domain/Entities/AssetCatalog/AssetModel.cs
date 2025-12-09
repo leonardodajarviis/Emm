@@ -1,5 +1,6 @@
 using Emm.Domain.Abstractions;
 using Emm.Domain.Exceptions;
+using Emm.Domain.ValueObjects;
 
 namespace Emm.Domain.Entities.AssetCatalog;
 
@@ -11,7 +12,7 @@ public class AssetModel : AggregateRoot, IAuditableEntity
 
     public long Id { get; private set; }
     public bool IsCodeGenerated { get; private set; }
-    public string Code { get; private set; } = null!;
+    public NaturalKey Code { get; private set; }
     public string Name { get; private set; } = null!;
     public string? Description { get; private set; }
     public string? Notes { get; private set; }
@@ -19,10 +20,6 @@ public class AssetModel : AggregateRoot, IAuditableEntity
     public long? AssetCategoryId { get; private set; }
     public long? AssetTypeId { get; private set; }
     public bool IsActive { get; private set; }
-    public DateTime CreatedAt { get; private set; }
-    public DateTime UpdatedAt { get; private set; }
-    public long? CreatedByUserId { get; private set; }
-    public long? UpdatedByUserId { get; private set; }
     public Guid? ThumbnailFileId { get; private set; }
     public string? ThumbnailUrl { get; private set; }
 
@@ -35,6 +32,9 @@ public class AssetModel : AggregateRoot, IAuditableEntity
     private readonly List<AssetModelImage> _images;
     public IReadOnlyCollection<AssetModelImage> Images => _images;
 
+    public AuditMetadata Audit { get; private set; } = null!;
+    public void SetAudit(AuditMetadata audit) => Audit = audit;
+
     private AssetModel()
     {
         _parameters = [];
@@ -44,7 +44,7 @@ public class AssetModel : AggregateRoot, IAuditableEntity
 
     public AssetModel(
         bool isCodeGenerated,
-        string code,
+        NaturalKey code,
         string name,
         string? description = null,
         string? notes = null,
@@ -54,7 +54,6 @@ public class AssetModel : AggregateRoot, IAuditableEntity
         bool isActive = true)
     {
 
-        ValidateCode(code);
         ValidateName(name);
         ValidateForeignKey(assetCategoryId, nameof(AssetCategoryId));
         ValidateForeignKey(assetTypeId, nameof(AssetTypeId));
@@ -74,12 +73,6 @@ public class AssetModel : AggregateRoot, IAuditableEntity
         IsCodeGenerated = isCodeGenerated;
 
         // RaiseDomainEvent(new AssetModelCreatedEvent(code, name));
-    }
-
-    public void SetAuditInfo(long? createdByUserId, long? updatedByUserId)
-    {
-        CreatedByUserId = createdByUserId;
-        UpdatedByUserId = updatedByUserId;
     }
 
     public void SetThumbnailOnCreate(Guid fileId, string fileUrl)

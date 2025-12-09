@@ -1,4 +1,5 @@
 using Emm.Application.Features.AppItem.Dtos;
+using Emm.Domain.Entities;
 using Emm.Domain.Entities.Inventory;
 using Microsoft.EntityFrameworkCore;
 

@@ -1,6 +1,7 @@
 using Emm.Domain.Abstractions;
 using Emm.Domain.Events.Operations;
 using Emm.Domain.Exceptions;
+using Emm.Domain.ValueObjects;
 
 namespace Emm.Domain.Entities.Operations;
 
@@ -23,10 +24,8 @@ public class OperationShift : AggregateRoot, IAuditableEntity
     public DateTime? ActualEndTime { get; private set; }
     public OperationShiftStatus Status { get; private set; }
     public string? Notes { get; private set; }
-    public DateTime CreatedAt { get; private set; }
-    public DateTime UpdatedAt { get; private set; }
-    public long? CreatedByUserId { get; private set; }
-    public long? UpdatedByUserId { get; private set; }
+    public AuditMetadata Audit { get; private set; } = null!;
+    public void SetAudit(AuditMetadata audit) => Audit = audit;
 
     // Collections - using backing field pattern for EF Core
     private readonly List<OperationShiftAsset> _assets;
@@ -152,7 +151,6 @@ public class OperationShift : AggregateRoot, IAuditableEntity
 
         Status = OperationShiftStatus.Cancelled;
         Notes = reason;
-        UpdatedAt = DateTime.UtcNow;
 
         // Raise domain event
         Raise(new OperationShiftCancelledEvent(Id, reason));
@@ -250,7 +248,6 @@ public class OperationShift : AggregateRoot, IAuditableEntity
     public void UpdateNotes(string? notes)
     {
         Notes = notes;
-        UpdatedAt = DateTime.UtcNow;
     }
 
     public void ChangePrimaryEmployee(long newPrimaryEmployeeId)
@@ -280,7 +277,6 @@ public class OperationShift : AggregateRoot, IAuditableEntity
         Notes = string.IsNullOrEmpty(Notes)
             ? $"Paused: {reason}"
             : $"{Notes}\nPaused: {reason}";
-        UpdatedAt = DateTime.UtcNow;
 
         // Raise domain event
         Raise(new OperationShiftPausedEvent(Id, reason));
@@ -301,7 +297,6 @@ public class OperationShift : AggregateRoot, IAuditableEntity
                 ? $"Resumed: {notes}"
                 : $"{Notes}\nResumed: {notes}";
         }
-        UpdatedAt = DateTime.UtcNow;
 
         // Raise domain event
         Raise(new OperationShiftResumedEvent(Id, notes));
@@ -326,7 +321,6 @@ public class OperationShift : AggregateRoot, IAuditableEntity
         Notes = string.IsNullOrEmpty(Notes)
             ? $"Overdue: {reason}"
             : $"{Notes}\nOverdue: {reason}";
-        UpdatedAt = DateTime.UtcNow;
 
         // Raise domain event
         Raise(new OperationShiftOverdueEvent(Id, reason));
@@ -354,7 +348,6 @@ public class OperationShift : AggregateRoot, IAuditableEntity
         Notes = string.IsNullOrEmpty(Notes)
             ? $"Rescheduled: {reason}"
             : $"{Notes}\nRescheduled: {reason}";
-        UpdatedAt = DateTime.UtcNow;
 
         // Raise domain event
         Raise(new OperationShiftRescheduledEvent(
@@ -384,7 +377,6 @@ public class OperationShift : AggregateRoot, IAuditableEntity
         Notes = string.IsNullOrEmpty(Notes)
             ? $"Reactivated: {reason}"
             : $"{Notes}\nReactivated: {reason}";
-        UpdatedAt = DateTime.UtcNow;
 
         // Raise domain event
         Raise(new OperationShiftReactivatedEvent(

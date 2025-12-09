@@ -41,9 +41,9 @@ public class GetIncidentReportsQueryHandler : IRequestHandler<GetIncidentReports
                     .Where(a => a.Id == ir.AssetId)
                     .Select(a => a.DisplayName)
                     .FirstOrDefault(),
-                CreatedById = ir.CreatedByUserId,
+                CreatedById = ir.Audit.CreatedByUserId,
                 CreatedBy = _queryContext.Query<User>()
-                    .Where(u => u.Id == ir.CreatedByUserId)
+                    .Where(u => u.Id == ir.Audit.CreatedByUserId)
                     .Select(u => u.DisplayName)
                     .FirstOrDefault(),
                 ReportedAt = ir.ReportedAt,
@@ -51,8 +51,8 @@ public class GetIncidentReportsQueryHandler : IRequestHandler<GetIncidentReports
                 Status = ir.Status,
                 ResolvedAt = ir.ResolvedAt,
                 ResolutionNotes = ir.ResolutionNotes,
-                CreatedAt = ir.CreatedAt,
-                UpdatedAt = ir.UpdatedAt
+                CreatedAt = ir.Audit.CreatedAt,
+                ModifiedAt = ir.Audit.ModifiedAt
             })
             .OrderByDescending(x => x.CreatedAt)
             .ApplyOrderingAndPaging(request.QueryRequest)

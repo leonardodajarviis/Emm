@@ -1,6 +1,6 @@
 using Emm.Application.Common;
 using Emm.Application.Features.AppUnitOfMeasure.Dtos;
-using Emm.Domain.Entities.Inventory;
+using Emm.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Emm.Application.Features.AppUnitOfMeasure.Queries;

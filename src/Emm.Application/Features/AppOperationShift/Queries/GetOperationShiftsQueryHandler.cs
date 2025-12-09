@@ -56,8 +56,8 @@ public class GetOperationShiftsQueryHandler : IRequestHandler<GetOperationShifts
                 ActualEndTime = os.ActualEndTime,
                 Status = os.Status,
                 Notes = os.Notes,
-                CreatedAt = os.CreatedAt,
-                UpdatedAt = os.UpdatedAt
+                CreatedAt = os.Audit.CreatedAt,
+                ModifiedAt = os.Audit.ModifiedAt
             })
             .ToListAsync(cancellationToken);
 

@@ -3,7 +3,6 @@ using Emm.Application.Features.AppAssetModel.Dtos;
 using Emm.Application.Features.AppParameterCatalog.Dtos;
 using Emm.Domain.Entities;
 using Emm.Domain.Entities.AssetCatalog;
-using Emm.Domain.Entities.Inventory;
 using Emm.Domain.Entities.Organization;
 using Microsoft.EntityFrameworkCore;
 
@@ -27,7 +26,7 @@ public class GetAssetModelByIdQueryHandler : IRequestHandler<GetAssetModelByIdQu
             .Select(root => new AssetModelDetailResponse
             {
                 Id = root.Id,
-                Code = root.Code,
+                Code = root.Code.Value,
                 Name = root.Name,
                 Description = root.Description,
                 Notes = root.Notes,
@@ -36,8 +35,8 @@ public class GetAssetModelByIdQueryHandler : IRequestHandler<GetAssetModelByIdQu
                 ThumbnailUrl = _fileStorage.GetFileUrl(root.ThumbnailUrl ?? ""),
                 AssetTypeId = root.AssetTypeId,
                 IsActive = root.IsActive,
-                CreatedAt = root.CreatedAt,
-                UpdatedAt = root.UpdatedAt,
+                CreatedAt = root.Audit.CreatedAt,
+                ModifiedAt = root.Audit.ModifiedAt,
                 ThumbnailFileId = root.ThumbnailFileId,
 
                 Parameters = _qq.Query<AssetModelParameter>()
@@ -71,7 +70,7 @@ public class GetAssetModelByIdQueryHandler : IRequestHandler<GetAssetModelByIdQu
                     .Select(x => new AssetModelParentResponse
                     {
                         Id = x.Id,
-                        Code = x.Code,
+                        Code = x.Code.Value,
                         Name = x.Name
                     })
                     .FirstOrDefault(),
@@ -105,8 +104,8 @@ public class GetAssetModelByIdQueryHandler : IRequestHandler<GetAssetModelByIdQu
                         IsActive = mp.IsActive,
                         AssetModelId = mp.AssetModelId,
                         RRule = mp.RRule,
-                        CreatedAt = mp.CreatedAt,
-                        UpdatedAt = mp.UpdatedAt,
+                        CreatedAt = mp.Audit.CreatedAt,
+                        ModifiedAt = mp.Audit.ModifiedAt,
 
                         ParameterBasedTrigger = mp.ParameterBasedTrigger != null ? new ParameterBasedMaintenanceTriggerResponse
                         {

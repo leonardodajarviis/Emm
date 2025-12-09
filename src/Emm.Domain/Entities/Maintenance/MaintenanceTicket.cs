@@ -1,5 +1,6 @@
 using Emm.Domain.Abstractions;
 using Emm.Domain.Exceptions;
+using Emm.Domain.ValueObjects;
 
 namespace Emm.Domain.Entities.Maintenance;
 
@@ -38,10 +39,8 @@ public class MaintenanceTicket : AggregateRoot, IAuditableEntity
     public string? CompletionNotes { get; private set; }
     public string? CancellationReason { get; private set; }
 
-    public DateTime CreatedAt { get; private set; }
-    public DateTime UpdatedAt { get; private set; }
-    public long? CreatedByUserId { get; private set; }
-    public long? UpdatedByUserId { get; private set; }
+    public AuditMetadata Audit { get; private set; } = null!;
+    public void SetAudit(AuditMetadata audit) => Audit = audit;
 
     private readonly List<MaintenanceTask> _tasks;
     public IReadOnlyCollection<MaintenanceTask> Tasks => _tasks;
@@ -59,7 +58,6 @@ public class MaintenanceTicket : AggregateRoot, IAuditableEntity
         string code,
         string title,
         long assetId,
-        long createdByUserId,
         MaintenanceType maintenanceType,
         MaintenancePriority priority,
         DateTime scheduledStartDate,
@@ -72,7 +70,6 @@ public class MaintenanceTicket : AggregateRoot, IAuditableEntity
         ValidateCode(code);
         ValidateTitle(title);
         ValidateForeignKey(assetId, nameof(AssetId));
-        ValidateForeignKey(createdByUserId, nameof(CreatedByUserId));
         ValidateScheduledDates(scheduledStartDate, scheduledEndDate);
 
         _tasks = [];
@@ -88,7 +85,6 @@ public class MaintenanceTicket : AggregateRoot, IAuditableEntity
         Status = MaintenanceTicketStatus.Draft;
         ScheduledStartDate = scheduledStartDate;
         ScheduledEndDate = scheduledEndDate;
-        CreatedByUserId = createdByUserId;
         EstimatedCost = estimatedCost;
         EstimatedDurationHours = estimatedDurationHours;
 

@@ -41,8 +41,8 @@ public class GetOperationShiftByIdQueryHandler : IRequestHandler<GetOperationShi
                 ActualEndTime = x.ActualEndTime,
                 Status = x.Status,
                 Notes = x.Notes,
-                CreatedAt = x.CreatedAt,
-                UpdatedAt = x.UpdatedAt,
+                CreatedAt = x.Audit.CreatedAt,
+                ModifiedAt = x.Audit.ModifiedAt,
 
                 Assets = x.Assets.Select(a => new OperationShiftAssetResponse
                 {

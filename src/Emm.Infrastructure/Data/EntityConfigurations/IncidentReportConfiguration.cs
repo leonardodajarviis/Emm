@@ -1,6 +1,7 @@
 using Emm.Domain.Entities;
 using Emm.Domain.Entities.AssetCatalog;
 using Emm.Domain.Entities.Maintenance;
+using Emm.Infrastructure.Data.EntityConfigurations.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -41,16 +42,7 @@ public class IncidentReportConfiguration : IEntityTypeConfiguration<IncidentRepo
         builder.Property(x => x.Status)
             .IsRequired();
 
-        builder.Property(x => x.CreatedByUserId)
-            .IsRequired();
-
-        builder.Property(x => x.CreatedAt)
-            .IsRequired()
-            .HasDefaultValueSql("GETUTCDATE()");
-
-        builder.Property(x => x.UpdatedAt)
-            .IsRequired()
-            .HasDefaultValueSql("GETUTCDATE()");
+        builder.ConfigureAuditEntity();
 
         builder.HasIndex(x => x.Code)
             .IsUnique();
@@ -58,16 +50,6 @@ public class IncidentReportConfiguration : IEntityTypeConfiguration<IncidentRepo
         builder.HasOne<Asset>()
             .WithMany()
             .HasForeignKey(x => x.AssetId)
-            .OnDelete(DeleteBehavior.NoAction);
-
-        builder.HasOne<User>()
-            .WithMany()
-            .HasForeignKey(x => x.CreatedByUserId)
-            .OnDelete(DeleteBehavior.NoAction);
-
-        builder.HasOne<User>()
-            .WithMany()
-            .HasForeignKey(x => x.UpdatedByUserId)
             .OnDelete(DeleteBehavior.NoAction);
     }
 }

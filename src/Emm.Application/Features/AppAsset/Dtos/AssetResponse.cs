@@ -11,7 +11,7 @@ public class AssetSummaryResponse
     public string? Description { get; set; }
     public int Status { get; set; }
     public required DateTime CreatedAt { get; set; }
-    public required DateTime UpdatedAt { get; set; }
+    public required DateTime? ModifiedAt { get; set; }
 }
 
 
@@ -35,7 +35,7 @@ public class AssetResponse
     public string? LocationName { get; set; }
     public string? Description { get; set; }
     public required DateTime CreatedAt { get; set; }
-    public required DateTime UpdatedAt { get; set; }
+    public required DateTime? ModifiedAt { get; set; }
     public int Status { get; set; }
 
     // Maintenance Plan Definitions từ AssetModel

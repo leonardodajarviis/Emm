@@ -1,5 +1,6 @@
 using Emm.Domain.Entities.AssetTransaction;
 using Emm.Domain.Entities.Organization;
+using Emm.Infrastructure.Data.EntityConfigurations.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -41,9 +42,7 @@ public class AssetAdditionConfiguration : IEntityTypeConfiguration<AssetAddition
             .HasMaxLength(500)
             .IsRequired(false);
 
-        builder.Property(x => x.CreatedAt)
-            .IsRequired()
-            .HasDefaultValueSql("GETUTCDATE()");
+        builder.ConfigureAuditEntity();
 
         // Indexes
         builder.HasIndex(x => x.Code)
@@ -55,10 +54,6 @@ public class AssetAdditionConfiguration : IEntityTypeConfiguration<AssetAddition
 
         builder.HasIndex(x => x.LocationId)
             .HasDatabaseName("IX_AssetAdditions_LocationId");
-
-        builder.HasIndex(x => x.CreatedAt)
-            .HasDatabaseName("IX_AssetAdditions_CreatedAt");
-        
 
         // Relationships
         builder.HasMany<AssetAdditionLine>("_assetAdditionLines")
@@ -75,8 +70,8 @@ public class AssetAdditionConfiguration : IEntityTypeConfiguration<AssetAddition
             .WithMany()
             .HasForeignKey(e => e.LocationId)
             .OnDelete(DeleteBehavior.NoAction);
-        
-        
+
+
         builder.Ignore(x => x.AssetAdditionLines);
     }
 }

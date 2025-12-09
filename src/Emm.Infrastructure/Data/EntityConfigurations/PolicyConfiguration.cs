@@ -1,4 +1,5 @@
 using Emm.Domain.Entities.Authorization;
+using Emm.Infrastructure.Data.EntityConfigurations.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -47,14 +48,7 @@ public class PolicyConfiguration : IEntityTypeConfiguration<Policy>
             .IsRequired()
             .HasDefaultValue(true);
 
-        builder.Property(p => p.CreatedAt)
-            .IsRequired()
-            .HasDefaultValueSql("GETUTCDATE()");
-
-        builder.Property(p => p.UpdatedAt)
-            .IsRequired()
-            .HasDefaultValueSql("GETUTCDATE()");
-
+        builder.ConfigureAuditEntity();
         // Indexes
         builder.HasIndex(p => p.Code).IsUnique();
         builder.HasIndex(p => p.ResourceType);

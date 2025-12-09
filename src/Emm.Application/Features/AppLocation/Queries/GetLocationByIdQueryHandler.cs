@@ -26,8 +26,8 @@ public class GetLocationByIdQueryHandler : IRequestHandler<GetLocationByIdQuery,
                 Description = x.Description,
                 OrganizationUnitId = x.OrganizationUnitId,
                 IsActive = x.IsActive,
-                CreatedAt = x.CreatedAt,
-                UpdatedAt = x.UpdatedAt
+                CreatedAt = x.Audit.CreatedAt,
+                ModifiedAt = x.Audit.ModifiedAt
             })
             .FirstOrDefaultAsync(cancellationToken);
 

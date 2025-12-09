@@ -1,4 +1,5 @@
 using Emm.Domain.Abstractions;
+using Emm.Domain.ValueObjects;
 
 namespace Emm.Domain.Entities.Inventory;
 
@@ -9,10 +10,8 @@ public class Item : AggregateRoot, IAuditableEntity
     public string Name { get; private set; } = null!;
     public long UnitOfMeasureId { get; private set; }
 
-    public DateTime CreatedAt {get; private set; }
-    public DateTime UpdatedAt {get; private set; }
-    public long? CreatedByUserId { get; private set; }
-    public long? UpdatedByUserId { get; private set; }
+    public AuditMetadata Audit { get; private set; } = null!;
+    public void SetAudit(AuditMetadata audit) => Audit = audit;
 
 
     public Item(string code, string name, long unitOfMeasureId)

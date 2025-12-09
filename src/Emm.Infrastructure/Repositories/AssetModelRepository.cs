@@ -27,7 +27,7 @@ public class AssetModelRepository : GenericRepository<AssetModel, long>, IAssetM
 
     public async Task<bool> ExistsByCodeAsync(string code)
     {
-        return await DbSet.AnyAsync(am => am.Code == code);
+        return await DbSet.AnyAsync(am => am.Code.Value == code);
     }
 
     public async Task<AssetModel?> GetByCodeAsync(string code)
@@ -39,6 +39,6 @@ public class AssetModelRepository : GenericRepository<AssetModel, long>, IAssetM
             .ThenInclude(am => am.JobSteps)
             .Include(am => am.MaintenancePlanDefinitions)
             .ThenInclude(am => am.ParameterBasedTrigger)
-            .FirstOrDefaultAsync(am => am.Code == code);
+            .FirstOrDefaultAsync(am => am.Code.Value == code);
     }
 }

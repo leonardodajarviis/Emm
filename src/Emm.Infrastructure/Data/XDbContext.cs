@@ -1,4 +1,5 @@
 using Emm.Domain.Entities;
+using Emm.Domain.ValueObjects;
 using Emm.Infrastructure.Data.Interceptors;
 using Emm.Infrastructure.Messaging;
 using Microsoft.EntityFrameworkCore;
@@ -31,6 +32,8 @@ public class XDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Owned<AuditMetadata>();
+        // modelBuilder.Owned<NaturalKey>();
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(XDbContext).Assembly);
         base.OnModelCreating(modelBuilder);
     }

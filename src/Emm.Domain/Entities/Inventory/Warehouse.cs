@@ -1,4 +1,5 @@
 using Emm.Domain.Abstractions;
+using Emm.Domain.ValueObjects;
 
 namespace Emm.Domain.Entities.Inventory;
 
@@ -14,10 +15,8 @@ public class Warehouse : AggregateRoot, IAuditableEntity
     public string? Description { get; private set; }
     public bool IsActive { get; private set; } = true;
 
-    public DateTime CreatedAt { get; private set; }
-    public DateTime UpdatedAt { get; private set; }
-    public long? CreatedByUserId { get; private set; }
-    public long? UpdatedByUserId { get; private set; }
+    public AuditMetadata Audit { get; private set; } = null!;
+    public void SetAudit(AuditMetadata audit) => Audit = audit;
 
     private Warehouse() { }
 

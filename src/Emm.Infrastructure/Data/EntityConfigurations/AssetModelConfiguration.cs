@@ -1,4 +1,5 @@
 using Emm.Domain.Entities.AssetCatalog;
+using Emm.Infrastructure.Data.Converters;
 using Emm.Infrastructure.Data.EntityConfigurations.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -14,7 +15,7 @@ public class AssetModelConfiguration : IEntityTypeConfiguration<AssetModel>
         // Primary Key
         builder.HasKey(x => x.Id);
 
-        builder.ConfigureAuditInfo();
+        builder.ConfigureAuditEntity();
 
         // Properties Configuration
         builder.Property(x => x.Id)
@@ -22,6 +23,7 @@ public class AssetModelConfiguration : IEntityTypeConfiguration<AssetModel>
             .IsRequired();
 
         builder.Property(x => x.Code)
+            .HasConversion<NaturalKeyConverter>()
             .HasMaxLength(50)
             .IsRequired();
 
@@ -99,7 +101,7 @@ public class AssetModelConfiguration : IEntityTypeConfiguration<AssetModel>
         builder.Navigation(x => x.Images)
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
-        builder.ConfigureAuditInfo();
+        builder.ConfigureAuditEntity();
 
         // Indexes
         builder.HasIndex(x => x.Code)

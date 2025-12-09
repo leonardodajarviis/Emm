@@ -1,5 +1,6 @@
 using Emm.Application.Abstractions;
 using Emm.Domain.Abstractions;
+using Emm.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
@@ -46,15 +47,12 @@ public class AuditableEntityInterceptor : SaveChangesInterceptor
         {
             if (entry.State == EntityState.Added)
             {
-                entry.Entity.SetCreatedAt(now);
-                entry.Entity.SetUpdatedAt(now);
+                entry.Entity.SetAudit(AuditMetadata.Create(0, now));
             }
             else if (entry.State == EntityState.Modified)
             {
-                entry.Entity.SetUpdatedAt(now);
-
-                // Đảm bảo CreatedAt không bị thay đổi
-                entry.Property(e => e.CreatedAt).IsModified = false;
+                var currentAudit = entry.Entity.Audit;
+                entry.Entity.SetAudit(currentAudit.Update(0, now));
             }
         }
     }

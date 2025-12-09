@@ -25,8 +25,8 @@ public class GetRoleByIdQueryHandler : IRequestHandler<GetRoleByIdQuery, Result<
                 Description = x.Description,
                 IsSystemRole = x.IsSystemRole,
                 IsActive = x.IsActive,
-                CreatedAt = x.CreatedAt,
-                UpdatedAt = x.UpdatedAt
+                CreatedAt = x.Audit.CreatedAt,
+                ModifiedAt = x.Audit.ModifiedAt
             })
             .FirstOrDefaultAsync(cancellationToken);
 

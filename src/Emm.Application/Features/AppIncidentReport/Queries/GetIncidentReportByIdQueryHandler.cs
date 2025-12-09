@@ -31,9 +31,9 @@ public class GetIncidentReportByIdQueryHandler : IRequestHandler<GetIncidentRepo
                     .Where(a => a.Id == x.AssetId)
                     .Select(a => a.DisplayName)
                     .FirstOrDefault(),
-                CreatedById = x.CreatedByUserId,
+                CreatedById = x.Audit.CreatedByUserId,
                 CreatedBy = _qq.Query<User>()
-                    .Where(u => u.Id == x.CreatedByUserId)
+                    .Where(u => u.Id == x.Audit.CreatedByUserId)
                     .Select(u => u.DisplayName)
                     .FirstOrDefault(),
                 ReportedAt = x.ReportedAt,
@@ -41,8 +41,8 @@ public class GetIncidentReportByIdQueryHandler : IRequestHandler<GetIncidentRepo
                 Status = x.Status,
                 ResolvedAt = x.ResolvedAt,
                 ResolutionNotes = x.ResolutionNotes,
-                CreatedAt = x.CreatedAt,
-                UpdatedAt = x.UpdatedAt
+                CreatedAt = x.Audit.CreatedAt,
+                ModifiedAt = x.Audit.ModifiedAt
             })
             .FirstOrDefaultAsync(cancellationToken);
 

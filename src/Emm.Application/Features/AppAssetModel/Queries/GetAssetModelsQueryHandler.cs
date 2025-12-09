@@ -24,7 +24,7 @@ public class GetAssetModelsQueryHandler : IRequestHandler<GetAssetModelsQuery, R
         if (!string.IsNullOrEmpty(request.QueryRequest.GetSearch()))
         {
             var search = request.QueryRequest.GetSearch()!;
-            query = query.Where(x => x.Code.Contains(search) || x.Name.Contains(search));
+            query = query.Where(x => x.Code.Value.Contains(search) || x.Name.Contains(search));
         }
 
         var total = await query.CountAsync(cancellationToken);
@@ -34,7 +34,7 @@ public class GetAssetModelsQueryHandler : IRequestHandler<GetAssetModelsQuery, R
             .Select(x => new AssetModelSummaryResponse
             {
                 Id = x.Id,
-                Code = x.Code,
+                Code = x.Code.Value,
                 Name = x.Name,
                 Description = x.Description,
                 Notes = x.Notes,
@@ -43,8 +43,8 @@ public class GetAssetModelsQueryHandler : IRequestHandler<GetAssetModelsQuery, R
                 ThumbnailUrl = _fileStorage.GetFileUrl(x.ThumbnailUrl ?? ""),
                 AssetTypeId = x.AssetTypeId,
                 IsActive = x.IsActive,
-                CreatedAt = x.CreatedAt,
-                UpdatedAt = x.UpdatedAt,
+                CreatedAt = x.Audit.CreatedAt,
+                ModifiedAt = x.Audit.ModifiedAt,
                 ParentName = _queryContext.Query<AssetModel>()
                     .Where(am => am.Id == x.ParentId)
                     .Select(am => am.Name)

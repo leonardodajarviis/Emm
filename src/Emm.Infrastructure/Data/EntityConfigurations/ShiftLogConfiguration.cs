@@ -1,4 +1,5 @@
 using Emm.Domain.Entities.Operations;
+using Emm.Infrastructure.Data.EntityConfigurations.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -39,12 +40,7 @@ public class ShiftLogConfiguration : IEntityTypeConfiguration<ShiftLog>
 
         builder.Property(x => x.BoxId);
 
-        builder.Property(x => x.CreatedAt)
-            .IsRequired();
-
-        builder.Property(x => x.UpdatedAt)
-            .IsRequired();
-
+        builder.ConfigureAuditEntity();
         // Foreign key reference to OperationShift (separate aggregate)
         builder.HasIndex(x => x.OperationShiftId);
 

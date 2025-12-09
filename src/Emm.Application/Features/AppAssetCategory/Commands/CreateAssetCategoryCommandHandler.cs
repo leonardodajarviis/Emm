@@ -37,7 +37,6 @@ public class CreateAssetCategoryCommandHandler : IRequestHandler<CreateAssetCate
             );
 
             var currentUserid = _userContextService.GetCurrentUserId();
-            assetCategory.SetAuditInfo(currentUserid, currentUserid);
 
             await _repository.AddAsync(assetCategory);
             await _unitOfWork.SaveChangesAsync(cancellationToken);

@@ -1,5 +1,6 @@
 using Emm.Domain.Abstractions;
 using Emm.Domain.Exceptions;
+using Emm.Domain.ValueObjects;
 
 namespace Emm.Domain.Entities.Inventory;
 
@@ -29,11 +30,8 @@ public class MaterialRequest : AggregateRoot, IAuditableEntity
     public long? ApprovedByUserId { get; private set; }
     public string? ApprovalNotes { get; private set; }
     public string? RejectionReason { get; private set; }
-
-    public DateTime CreatedAt { get; private set; }
-    public DateTime UpdatedAt { get; private set; }
-    public long? CreatedByUserId { get; private set; }
-    public long? UpdatedByUserId { get; private set; }
+    public AuditMetadata Audit { get; private set; } = null!;
+    public void SetAudit(AuditMetadata audit) => Audit = audit;
 
     private readonly List<MaterialRequestLine> _lines;
     public IReadOnlyCollection<MaterialRequestLine> Lines => _lines;

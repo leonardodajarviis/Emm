@@ -1,4 +1,5 @@
 using Emm.Domain.Abstractions;
+using Emm.Domain.ValueObjects;
 
 namespace Emm.Domain.Entities.Authorization;
 
@@ -35,10 +36,8 @@ public class Role : AggregateRoot, IAuditableEntity
     /// </summary>
     public bool IsActive { get; private set; }
 
-    public DateTime CreatedAt { get; private set; }
-    public DateTime UpdatedAt { get; private set; }
-    public long? CreatedByUserId { get; private set; }
-    public long? UpdatedByUserId { get; private set; }
+    public AuditMetadata Audit { get; private set; } = null!;
+    public void SetAudit(AuditMetadata audit) => Audit = audit;
 
     // Navigation properties
     private readonly List<RolePermission> _rolePermissions = [];
@@ -64,8 +63,6 @@ public class Role : AggregateRoot, IAuditableEntity
         Description = description?.Trim();
         IsSystemRole = isSystemRole;
         IsActive = true;
-        CreatedAt = DateTime.UtcNow;
-        UpdatedAt = DateTime.UtcNow;
     }
 
     public void Update(string name, string? description)
@@ -75,13 +72,11 @@ public class Role : AggregateRoot, IAuditableEntity
 
         Name = name.Trim();
         Description = description?.Trim();
-        UpdatedAt = DateTime.UtcNow;
     }
 
     public void Activate()
     {
         IsActive = true;
-        UpdatedAt = DateTime.UtcNow;
     }
 
     public void Deactivate()
@@ -90,7 +85,6 @@ public class Role : AggregateRoot, IAuditableEntity
             throw new InvalidOperationException("Cannot deactivate system role");
 
         IsActive = false;
-        UpdatedAt = DateTime.UtcNow;
     }
 
     public void AddPermission(long permissionId)
@@ -99,7 +93,6 @@ public class Role : AggregateRoot, IAuditableEntity
             return; // Already exists
 
         _rolePermissions.Add(new RolePermission(Id, permissionId));
-        UpdatedAt = DateTime.UtcNow;
     }
 
     public void RemovePermission(long permissionId)
@@ -108,7 +101,6 @@ public class Role : AggregateRoot, IAuditableEntity
         if (rolePermission != null)
         {
             _rolePermissions.Remove(rolePermission);
-            UpdatedAt = DateTime.UtcNow;
         }
     }
 

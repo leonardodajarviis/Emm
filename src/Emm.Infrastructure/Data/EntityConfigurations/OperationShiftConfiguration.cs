@@ -1,4 +1,5 @@
 using Emm.Domain.Entities.Operations;
+using Emm.Infrastructure.Data.EntityConfigurations.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -54,11 +55,7 @@ public class OperationShiftConfiguration : IEntityTypeConfiguration<OperationShi
         builder.Property(x => x.IsCheckpointLogEnabled)
             .IsRequired();
 
-        builder.Property(x => x.CreatedAt)
-            .IsRequired();
-
-        builder.Property(x => x.UpdatedAt)
-            .IsRequired();
+        builder.ConfigureAuditEntity();
 
         // Collections - using backing field pattern
         builder.HasMany(x => x.Assets)
@@ -88,7 +85,5 @@ public class OperationShiftConfiguration : IEntityTypeConfiguration<OperationShi
         builder.HasIndex(x => x.Status);
 
         builder.HasIndex(x => x.ScheduledStartTime);
-
-        builder.HasIndex(x => x.CreatedAt);
     }
 }

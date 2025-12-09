@@ -1,4 +1,6 @@
+using Emm.Domain.Entities;
 using Emm.Domain.Entities.Inventory;
+using Emm.Infrastructure.Data.EntityConfigurations.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -23,13 +25,7 @@ public class ItemConfiguration : IEntityTypeConfiguration<Item>
         builder.Property(i => i.UnitOfMeasureId)
             .IsRequired();
 
-        builder.Property(i => i.CreatedAt)
-            .IsRequired()
-            .HasDefaultValueSql("GETUTCDATE()");
-
-        builder.Property(i => i.UpdatedAt)
-            .IsRequired()
-            .HasDefaultValueSql("GETUTCDATE()");
+        builder.ConfigureAuditEntity();
 
         builder.HasIndex(i => i.Code)
             .IsUnique();

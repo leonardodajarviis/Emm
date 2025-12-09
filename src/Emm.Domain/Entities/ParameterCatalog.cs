@@ -1,8 +1,9 @@
 using Emm.Domain.Abstractions;
+using Emm.Domain.ValueObjects;
 
 namespace Emm.Domain.Entities;
 
-public class ParameterCatalog: AggregateRoot, IAuditableEntity
+public class ParameterCatalog : AggregateRoot, IAuditableEntity
 {
     public long Id { get; private set; }
     public string Code { get; private set; } = null!;
@@ -10,10 +11,8 @@ public class ParameterCatalog: AggregateRoot, IAuditableEntity
     public long UnitOfMeasureId { get; private set; }
     public string? Description { get; private set; }
     public bool IsCodeGenerated { get; private set; }
-    public long? CreatedByUserId { get; private set; }
-    public long? UpdatedByUserId { get; private set; }
-    public DateTime CreatedAt { get; private set; }
-    public DateTime UpdatedAt { get; private set; }
+    public AuditMetadata Audit { get; private set; } = null!;
+    public void SetAudit(AuditMetadata audit) => Audit = audit;
     public ParameterCatalog(string code, string name, long unitOfMeasureId, string? description = null)
     {
         Code = code;
@@ -22,17 +21,10 @@ public class ParameterCatalog: AggregateRoot, IAuditableEntity
         UnitOfMeasureId = unitOfMeasureId;
     }
 
-    public void SetAuditInfo(long? createdByUserId, long? updatedByUserId)
-    {
-        CreatedByUserId = createdByUserId;
-        UpdatedByUserId = updatedByUserId;
-    }
-
     public void Update(string name, string? description = null)
     {
         Name = name;
         Description = description;
-        UpdatedAt = DateTime.UtcNow;
     }
 
     private ParameterCatalog() { } // EF Core constructor

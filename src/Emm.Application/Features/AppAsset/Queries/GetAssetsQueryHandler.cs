@@ -33,8 +33,8 @@ public class GetAssetsQueryHandler : IRequestHandler<GetAssetsQuery, Result<Page
                 AssetModelId = x.AssetModelId,
                 Description = x.Description,
                 Status = (int)x.Status,
-                CreatedAt = x.CreatedAt,
-                UpdatedAt = x.UpdatedAt
+                CreatedAt = x.Audit.CreatedAt,
+                ModifiedAt = x.Audit.ModifiedAt
             })
             .ToListAsync(cancellationToken);
 

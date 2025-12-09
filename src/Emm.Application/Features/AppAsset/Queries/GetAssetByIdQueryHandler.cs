@@ -36,8 +36,8 @@ public class GetAssetByIdQueryHandler : IRequestHandler<GetAssetByIdQuery, Resul
                 AssetTypeName = x.AssetTypeName,
                 Description = x.Description,
                 Status = (int)x.Status,
-                CreatedAt = x.CreatedAt,
-                UpdatedAt = x.UpdatedAt,
+                CreatedAt = x.Audit.CreatedAt,
+                ModifiedAt = x.Audit.ModifiedAt,
 
                 // Lấy Maintenance Plan Definitions từ AssetModel
                 MaintenancePlanDefinitions = _qq.Query<MaintenancePlanDefinition>()
@@ -51,8 +51,8 @@ public class GetAssetByIdQueryHandler : IRequestHandler<GetAssetByIdQuery, Resul
                         IsActive = mp.IsActive,
                         AssetModelId = mp.AssetModelId,
                         RRule = mp.RRule,
-                        CreatedAt = mp.CreatedAt,
-                        UpdatedAt = mp.UpdatedAt,
+                        CreatedAt = mp.Audit.CreatedAt,
+                        ModifiedAt = mp.Audit.ModifiedAt,
 
                         ParameterBasedTrigger = mp.ParameterBasedTrigger != null ? new ParameterBasedMaintenanceTriggerResponse
                         {

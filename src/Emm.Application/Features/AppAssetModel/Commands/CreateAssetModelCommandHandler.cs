@@ -1,6 +1,7 @@
 ﻿using Emm.Application.Abstractions;
 using Emm.Domain.Entities;
 using Emm.Domain.Entities.AssetCatalog;
+using Emm.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 
 namespace Emm.Application.Features.AppAssetModel.Commands;
@@ -12,24 +13,28 @@ public class CreateAssetModelCommandHandler : IRequestHandler<CreateAssetModelCo
     private readonly IQueryContext _qq;
     private readonly IFileStorage _fileStorage;
     private readonly IUserContextService _userContextService;
+    private readonly ICodeGenerator _codeGenerator;
 
     public CreateAssetModelCommandHandler(
         IUnitOfWork unitOfWork,
         IAssetModelRepository repository,
         IQueryContext queryContext,
         IFileStorage fileStorage,
+        ICodeGenerator codeGenerator,
         IUserContextService userContextService)
     {
         ArgumentNullException.ThrowIfNull(unitOfWork);
         ArgumentNullException.ThrowIfNull(repository);
         ArgumentNullException.ThrowIfNull(queryContext);
         ArgumentNullException.ThrowIfNull(userContextService);
+        ArgumentNullException.ThrowIfNull(codeGenerator);
 
         _unitOfWork = unitOfWork;
         _repository = repository;
         _fileStorage = fileStorage;
         _qq = queryContext;
         _userContextService = userContextService;
+        _codeGenerator = codeGenerator;
     }
 
     public async Task<Result<object>> Handle(CreateAssetModelCommand request, CancellationToken cancellationToken)
@@ -38,11 +43,17 @@ public class CreateAssetModelCommandHandler : IRequestHandler<CreateAssetModelCo
 
         return await _unitOfWork.ExecuteInTransactionAsync(async () =>
         {
-            var code = request.Code;
+            NaturalKey code = new();
+
             if (request.IsCodeGenerated)
             {
-                code = await _unitOfWork.GenerateNextCodeAsync("DTB", "AssetModels", 6, cancellationToken);
+                code = await _codeGenerator.GetNaturalKeyAsync("DTB", "AssetModels", 6, cancellationToken);
             }
+            else
+            {
+                code = NaturalKey.CreateRaw(request.Code);
+            }
+
             var existsCode = await _qq.Query<AssetModel>()
                 .AnyAsync(am => am.Code == code, cancellationToken);
 
@@ -64,7 +75,6 @@ public class CreateAssetModelCommandHandler : IRequestHandler<CreateAssetModelCo
             );
 
             var currentUserId = _userContextService.GetCurrentUserId();
-            assetModel.SetAuditInfo(currentUserId, currentUserId);
 
             // Add parameters from AssetType if AssetTypeId is provided
             if (request.AssetTypeId.HasValue)

@@ -7,45 +7,53 @@ namespace Emm.Infrastructure.Data.EntityConfigurations.Extensions;
 
 public static class EntityTypeBuilderExtensions
 {
-    /// <summary>
-    /// Cấu hình các thuộc tính audit (CreatedAt, UpdatedAt, CreatedByUserId, UpdatedByUserId) cho entity
-    /// </summary>
-    public static EntityTypeBuilder<TEntity> ConfigureAuditInfo<TEntity>(
-        this EntityTypeBuilder<TEntity> builder,
-        bool withUserTracking = true)
+    public static EntityTypeBuilder<TEntity> ConfigureAuditEntity<TEntity>(
+        this EntityTypeBuilder<TEntity> builder)
         where TEntity : class, IAuditableEntity
     {
-        // CreatedAt
-        builder.Property(x => x.CreatedAt)
-            .IsRequired()
-            .HasDefaultValueSql("GETUTCDATE()");
-
-        // UpdatedAt
-        builder.Property(x => x.UpdatedAt)
-            .IsRequired()
-            .HasDefaultValueSql("GETUTCDATE()");
-
-        if (withUserTracking)
+        // SỬ DỤNG OWNSONE THAY VÌ COMPLEXPROPERTY
+        builder.OwnsOne(o => o.Audit, cb =>
         {
-            // CreatedByUserId
-            builder.Property(x => x.CreatedByUserId)
-                .IsRequired(false);
+            // 1. Cấu hình cột
+            cb.Property(a => a.CreatedByUserId)
+              .HasColumnName("CreatedByUserId")
+              .IsRequired();
 
-            // UpdatedByUserId
-            builder.Property(x => x.UpdatedByUserId)
-                .IsRequired(false);
+            cb.Property(a => a.CreatedAt)
+              .HasColumnName("CreatedAt")
+              .IsRequired();
 
-            // Foreign Key Relationships
-            builder.HasOne<User>()
-                .WithMany()
-                .HasForeignKey(x => x.CreatedByUserId)
-                .OnDelete(DeleteBehavior.Restrict);
+            cb.Property(a => a.ModifiedByUserId)
+              .HasColumnName("ModifiedByUserId")
+              .IsRequired(false);
 
-            builder.HasOne<User>()
-                .WithMany()
-                .HasForeignKey(x => x.UpdatedByUserId)
-                .OnDelete(DeleteBehavior.Restrict);
-        }
+            cb.Property(a => a.ModifiedAt)
+              .HasColumnName("ModifiedAt")
+              .IsRequired(false);
+
+            // 2. Cấu hình Foreign Key NGAY TẠI ĐÂY
+            // Lợi thế: Bạn truy cập trực tiếp 'a.CreatedByUserId', không cần 'e.Audit...'
+            // nên không bị lỗi Expression nữa.
+
+            // --- FK cho CreatedBy ---
+            cb.HasOne<User>() // Entity User của bạn
+              .WithMany()
+              .HasForeignKey(a => a.CreatedByUserId) // Trỏ trực tiếp property trong VO
+              .HasPrincipalKey(u => u.Id)
+              .OnDelete(DeleteBehavior.Restrict);
+
+            // --- FK cho ModifiedBy ---
+            cb.HasOne<User>()
+              .WithMany()
+              .HasForeignKey(a => a.ModifiedByUserId)
+              .HasPrincipalKey(u => u.Id)
+              .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // Cấu hình Navigation Property (Optional)
+        // Nếu Entity cha (TEntity) có property public User Creator { get; set; }
+        // Bạn cần chỉ định EF biết nó map vào mối quan hệ trong Owned Type
+        builder.Navigation(x => x.Audit).IsRequired();
 
         return builder;
     }

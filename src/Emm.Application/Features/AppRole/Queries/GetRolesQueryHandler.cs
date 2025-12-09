@@ -22,7 +22,7 @@ public class GetRolesQueryHandler : IRequestHandler<GetRolesQuery, Result<PagedR
 
         // Apply pagination
         var items = await query
-            .OrderByDescending(x => x.CreatedAt)
+            .OrderByDescending(x => x.Audit.CreatedAt)
             .Skip((request.QueryRequest.Page - 1) * request.QueryRequest.PageSize)
             .Take(request.QueryRequest.PageSize)
             .Select(x => new RoleResponse
@@ -33,8 +33,8 @@ public class GetRolesQueryHandler : IRequestHandler<GetRolesQuery, Result<PagedR
                 Description = x.Description,
                 IsSystemRole = x.IsSystemRole,
                 IsActive = x.IsActive,
-                CreatedAt = x.CreatedAt,
-                UpdatedAt = x.UpdatedAt
+                CreatedAt = x.Audit.CreatedAt,
+                ModifiedAt = x.Audit.ModifiedAt
             })
             .ToListAsync(cancellationToken);
 
