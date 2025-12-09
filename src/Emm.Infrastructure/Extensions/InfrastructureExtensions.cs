@@ -23,7 +23,7 @@ public static class InfrastructureExtensions
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         // Register Interceptors - must be registered before DbContext
-        services.AddSingleton<AuditableEntityInterceptor>();
+        services.AddScoped<AuditableEntityInterceptor>();
         services.AddSingleton<DomainEventInterceptor>();
 
         services.AddDbContext<XDbContext>(options =>

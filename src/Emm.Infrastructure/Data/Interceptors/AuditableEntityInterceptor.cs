@@ -1,5 +1,6 @@
 using Emm.Application.Abstractions;
 using Emm.Domain.Abstractions;
+using Emm.Domain.Entities;
 using Emm.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -12,10 +13,12 @@ namespace Emm.Infrastructure.Data.Interceptors;
 public class AuditableEntityInterceptor : SaveChangesInterceptor
 {
     private readonly IDateTimeProvider _dateTimeProvider;
+    private readonly IUserContextService _userContextService;
 
-    public AuditableEntityInterceptor(IDateTimeProvider dateTimeProvider)
+    public AuditableEntityInterceptor(IDateTimeProvider dateTimeProvider, IUserContextService userContextService)
     {
         _dateTimeProvider = dateTimeProvider;
+        _userContextService = userContextService;
     }
     public override InterceptionResult<int> SavingChanges(
         DbContextEventData eventData,
@@ -41,18 +44,24 @@ public class AuditableEntityInterceptor : SaveChangesInterceptor
         var entries = context.ChangeTracker
             .Entries<IAuditableEntity>();
 
+        var userId = _userContextService.GetCurrentUserId();
+        if (userId is null)
+        {
+            throw new InvalidOperationException("Cannot set audit info: current user ID is null.");
+        }
+
         var now = _dateTimeProvider.Now;
 
         foreach (var entry in entries)
         {
             if (entry.State == EntityState.Added)
             {
-                entry.Entity.SetAudit(AuditMetadata.Create(0, now));
+                entry.Entity.SetAudit(AuditMetadata.Create(userId.Value, now));
             }
             else if (entry.State == EntityState.Modified)
             {
                 var currentAudit = entry.Entity.Audit;
-                entry.Entity.SetAudit(currentAudit.Update(0, now));
+                entry.Entity.SetAudit(currentAudit.Update(userId.Value, now));
             }
         }
     }
