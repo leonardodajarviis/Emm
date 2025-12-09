@@ -14,7 +14,6 @@ public class UserLoginCommandHandler : IRequestHandler<UserLoginCommand, Result<
     private readonly IPasswordHasher _passwordHasher;
     private readonly IUserSessionRepository _userSessionRepository;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly ILogger<UserLoginCommandHandler> _logger;
     private readonly IAuthenticationSettings _authSettings;
 
     public UserLoginCommandHandler(
@@ -23,7 +22,6 @@ public class UserLoginCommandHandler : IRequestHandler<UserLoginCommand, Result<
         IPasswordHasher passwordHasher,
         IUserSessionRepository userSessionRepository,
         IUnitOfWork unitOfWork,
-        ILogger<UserLoginCommandHandler> logger,
         IAuthenticationSettings authSettings)
     {
         _userRepository = userRepository;
@@ -31,7 +29,6 @@ public class UserLoginCommandHandler : IRequestHandler<UserLoginCommand, Result<
         _passwordHasher = passwordHasher;
         _userSessionRepository = userSessionRepository;
         _unitOfWork = unitOfWork;
-        _logger = logger;
         _authSettings = authSettings;
     }
 
@@ -56,7 +53,6 @@ public class UserLoginCommandHandler : IRequestHandler<UserLoginCommand, Result<
         // If single-device mode, revoke all existing sessions first
         if (!_authSettings.IsMultiDeviceLoginAllowed)
         {
-            _logger.LogInformation("Single-device mode: Revoking all existing sessions for user {UserId}", user.Id);
             await _userSessionRepository.RevokeAllUserSessionsAsync(user.Id, cancellationToken);
         }
 

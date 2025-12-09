@@ -13,7 +13,6 @@ public class LocalFileStorage : IFileStorage
 {
     private readonly LocalFileStorageOptions _options;
     private readonly XDbContext _db;
-    private readonly ILogger<LocalFileStorage> _logger;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
     // Cache để tránh phải kiểm tra directory exists nhiều lần
@@ -76,13 +75,11 @@ public class LocalFileStorage : IFileStorage
     public LocalFileStorage(
         IOptions<LocalFileStorageOptions> options,
         XDbContext db,
-        ILogger<LocalFileStorage> logger,
         IHttpContextAccessor httpContextAccessor)
     {
         _options = options.Value;
         _db = db;
         _httpContextAccessor = httpContextAccessor;
-        _logger = logger;
 
         EnsureDirectoryExists(_options.RootPath);
     }
@@ -99,9 +96,8 @@ public class LocalFileStorage : IFileStorage
         {
             return await ProcessFileUploadAsync(fileStream, fileName, null, subfolder, cancellationToken);
         }
-        catch (Exception ex)
+        catch
         {
-            _logger.LogError(ex, "Error occurred while saving file {FileName}", fileName);
             return CreateErrorResult("An error occurred while saving the file");
         }
     }
@@ -129,9 +125,8 @@ public class LocalFileStorage : IFileStorage
         {
             return await ProcessFileUploadAsync(fileStream, fileName, expectedFileType, subfolder, cancellationToken);
         }
-        catch (Exception ex)
+        catch
         {
-            _logger.LogError(ex, "Error occurred while saving file {FileName} with expected type {FileType}", fileName, expectedFileType);
             return CreateErrorResult("An error occurred while saving the file");
         }
     }

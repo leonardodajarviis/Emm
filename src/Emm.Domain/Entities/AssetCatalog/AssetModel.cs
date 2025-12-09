@@ -10,6 +10,7 @@ public class AssetModel : AggregateRoot, IAuditableEntity
     private const int MaxParametersPerModel = 200;
 
     public long Id { get; private set; }
+    public bool IsCodeGenerated { get; private set; }
     public string Code { get; private set; } = null!;
     public string Name { get; private set; } = null!;
     public string? Description { get; private set; }
@@ -42,6 +43,7 @@ public class AssetModel : AggregateRoot, IAuditableEntity
     } // EF Core constructor
 
     public AssetModel(
+        bool isCodeGenerated,
         string code,
         string name,
         string? description = null,
@@ -69,8 +71,15 @@ public class AssetModel : AggregateRoot, IAuditableEntity
         AssetCategoryId = assetCategoryId;
         AssetTypeId = assetTypeId;
         IsActive = isActive;
+        IsCodeGenerated = isCodeGenerated;
 
         // RaiseDomainEvent(new AssetModelCreatedEvent(code, name));
+    }
+
+    public void SetAuditInfo(long? createdByUserId, long? updatedByUserId)
+    {
+        CreatedByUserId = createdByUserId;
+        UpdatedByUserId = updatedByUserId;
     }
 
     public void SetThumbnailOnCreate(Guid fileId, string fileUrl)
@@ -232,6 +241,7 @@ public class AssetModel : AggregateRoot, IAuditableEntity
         string? description,
         string rrule,
         IReadOnlyCollection<MaintenancePlanJobStepDefinitionSpec>? jobSteps = null,
+        IReadOnlyCollection<MaintenancePlanRequiredItemDefinitionSpec>? requiredItems = null,
         bool isActive = true)
     {
         ValidateMaintenancePlanLimit();
@@ -243,6 +253,7 @@ public class AssetModel : AggregateRoot, IAuditableEntity
             description: description,
             rrule: rrule,
             jobSteps: jobSteps,
+            requiredItems: requiredItems,
             isActive: isActive
         );
 
@@ -261,6 +272,7 @@ public class AssetModel : AggregateRoot, IAuditableEntity
         decimal maxValue,
         MaintenanceTriggerCondition triggerCondition = MaintenanceTriggerCondition.GreaterThanOrEqual,
         IReadOnlyCollection<MaintenancePlanJobStepDefinitionSpec>? jobSteps = null,
+        IReadOnlyCollection<MaintenancePlanRequiredItemDefinitionSpec>? requiredItems = null,
         bool isActive = true)
     {
         ValidateMaintenancePlanLimit();
@@ -276,6 +288,7 @@ public class AssetModel : AggregateRoot, IAuditableEntity
             maxValue: maxValue,
             triggerCondition: triggerCondition,
             jobSteps: jobSteps,
+            requiredItems: requiredItems,
             isActive: isActive
         );
 
@@ -285,33 +298,6 @@ public class AssetModel : AggregateRoot, IAuditableEntity
     }
 
     // General maintenance plan methods
-    public void AddMaintenancePlanWithJobSteps(
-        string name,
-        string? description,
-        MaintenancePlanType planType,
-        IReadOnlyCollection<MaintenancePlanJobStepDefinitionSpec> jobSteps,
-        bool isActive = true)
-    {
-        ValidateMaintenancePlanLimit();
-        ValidateMaintenancePlanName(name);
-
-        if (jobSteps == null || jobSteps.Count == 0)
-            throw new DomainException("Maintenance plan must have at least one job step");
-
-        var maintenancePlan = new MaintenancePlanDefinition(
-            assetModelId: Id,
-            name: name,
-            description: description,
-            planType: planType,
-            jobSteps: jobSteps,
-            isActive: isActive
-        );
-
-        _maintenancePlanDefinitions.Add(maintenancePlan);
-
-        // RaiseDomainEvent(new MaintenancePlanAddedEvent(Id, maintenancePlan.Id, name));
-    }
-
     public void RemoveMaintenancePlan(long maintenancePlanId)
     {
         var maintenancePlan = _maintenancePlanDefinitions.FirstOrDefault(mp => mp.Id == maintenancePlanId);

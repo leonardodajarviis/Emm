@@ -20,41 +20,8 @@ public class AssetModelController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateAssetModel([FromBody] CreateAssetModel createAssetModel)
+    public async Task<IActionResult> CreateAssetModel([FromBody] CreateAssetModelCommand command)
     {
-        var command = new CreateAssetModelCommand(
-            Name: createAssetModel.Name,
-            Description: createAssetModel.Description,
-            Notes: createAssetModel.Notes,
-            ParentId: createAssetModel.ParentId,
-            AssetCategoryId: createAssetModel.AssetCategoryId,
-            AssetTypeId: createAssetModel.AssetTypeId,
-            ParameterIds: createAssetModel.ParameterIds,
-            MaintenancePlanDefinitions: createAssetModel.MaintenancePlanDefinitions?.Select(mp => new CreateMaintenancePlanDefinitionCommand(
-                Name: mp.Name,
-                Description: mp.Description,
-                PlanType: mp.PlanType,
-                IsActive: mp.IsActive,
-                RRule: mp.RRule,
-                ParameterId: mp.ParameterId,
-                TriggerValue: mp.TriggerValue,
-                MinValue: mp.MinValue,
-                MaxValue: mp.MaxValue,
-                TriggerCondition: mp.TriggerCondition,
-                JobSteps: mp.JobSteps?.Select(js => new MaintenancePlanJobStepDefinitionCommand(
-                    Name: js.Name,
-                    OrganizationUnitId: js.OrganizationUnitId,
-                    Note: js.Note,
-                    Order: js.Order
-                )).ToList()
-            )).ToList(),
-            Images: createAssetModel.Images?.Select(img => new CreateAssetModelImageCommand(
-                FileId: img.FileId
-            )).ToList(),
-            ThumbnailFileId: createAssetModel.ThumbnailFileId,
-            IsActive: createAssetModel.IsActive
-        );
-
         var result = await _mediator.Send(command);
 
         return result.ToActionResult();

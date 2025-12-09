@@ -10,11 +10,8 @@ namespace Emm.Application.Behaviors
     public class DomainExceptionHandlerBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
         where TRequest : IRequest<TResponse>
     {
-        private readonly ILogger<DomainExceptionHandlerBehavior<TRequest, TResponse>> _logger;
-
-        public DomainExceptionHandlerBehavior(ILogger<DomainExceptionHandlerBehavior<TRequest, TResponse>> logger)
+        public DomainExceptionHandlerBehavior()
         {
-            _logger = logger;
         }
 
         public async Task<TResponse> Handle(TRequest request, PipelineNext<TResponse> next, CancellationToken cancellationToken = default)
@@ -25,11 +22,6 @@ namespace Emm.Application.Behaviors
             }
             catch (DbUpdateException ex)
             {
-                _logger.LogError(ex,
-                    "Database update exception occurred while handling {RequestType}. Inner exception: {InnerException}",
-                    typeof(TRequest).Name,
-                    ex.InnerException?.Message ?? ex.Message);
-
                 // Kiểm tra xem TResponse có phải là Result<T> không
                 if (IsResultType(typeof(TResponse)))
                 {
@@ -41,12 +33,6 @@ namespace Emm.Application.Behaviors
             }
             catch (DomainException ex)
             {
-                _logger.LogWarning(ex,
-                    "Domain exception occurred while handling {RequestType}: {ExceptionType} - {Message}",
-                    typeof(TRequest).Name,
-                    ex.GetType().Name,
-                    ex.Message);
-
                 // Kiểm tra xem TResponse có phải là Result<T> không
                 if (IsResultType(typeof(TResponse)))
                 {

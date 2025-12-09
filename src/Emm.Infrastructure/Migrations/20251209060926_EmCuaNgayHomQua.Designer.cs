@@ -4,6 +4,7 @@ using Emm.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Emm.Infrastructure.Migrations
 {
     [DbContext(typeof(XDbContext))]
-    partial class XDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251209060926_EmCuaNgayHomQua")]
+    partial class EmCuaNgayHomQua
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1060,6 +1063,9 @@ namespace Emm.Infrastructure.Migrations
                         .HasPrecision(18, 6)
                         .HasColumnType("decimal(18,6)");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Description")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
@@ -1081,6 +1087,9 @@ namespace Emm.Infrastructure.Migrations
 
                     b.Property<int>("UnitType")
                         .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -2432,10 +2441,12 @@ namespace Emm.Infrastructure.Migrations
 
             modelBuilder.Entity("Emm.Domain.Entities.Inventory.UnitOfMeasure", b =>
                 {
-                    b.HasOne("Emm.Domain.Entities.Inventory.UnitOfMeasure", null)
+                    b.HasOne("Emm.Domain.Entities.Inventory.UnitOfMeasure", "BaseUnit")
                         .WithMany("DerivedUnits")
                         .HasForeignKey("BaseUnitId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("BaseUnit");
                 });
 
             modelBuilder.Entity("Emm.Domain.Entities.Maintenance.IncidentReport", b =>

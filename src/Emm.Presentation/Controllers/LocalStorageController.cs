@@ -10,12 +10,10 @@ namespace Emm.Presentation.Controllers;
 public class LocalStorageController : ControllerBase
 {
     private readonly IFileStorage _fileStorage;
-    private readonly ILogger<LocalStorageController> _logger;
 
-    public LocalStorageController(IFileStorage fileStorage, ILogger<LocalStorageController> logger)
+    public LocalStorageController(IFileStorage fileStorage)
     {
         _fileStorage = fileStorage;
-        _logger = logger;
     }
 
     [HttpPost("upload")]

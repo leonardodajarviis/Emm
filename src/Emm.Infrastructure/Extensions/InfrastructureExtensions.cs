@@ -29,9 +29,9 @@ public static class InfrastructureExtensions
         services.AddDbContext<XDbContext>(options =>
         {
             options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
-            // options.UseLoggerFactory(NullLoggerFactory.Instance);   // Disable logging
-            // options.EnableSensitiveDataLogging(false);
-            // options.EnableDetailedErrors(false);
+            options.UseLoggerFactory(NullLoggerFactory.Instance);   // Disable logging
+            options.EnableSensitiveDataLogging(false);
+            options.EnableDetailedErrors(false);
         });
 
 

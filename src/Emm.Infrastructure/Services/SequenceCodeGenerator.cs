@@ -1,9 +1,11 @@
 using Emm.Domain.Repositories;
+using Emm.Domain.ValueObjects;
+using Emm.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using System.Collections.Concurrent;
 
-namespace Emm.Infrastructure.Data;
+namespace Emm.Infrastructure.Services;
 
 public class SequenceCodeGenerator : ICodeGenerator, IDisposable
 {
@@ -17,6 +19,23 @@ public class SequenceCodeGenerator : ICodeGenerator, IDisposable
     public SequenceCodeGenerator(XDbContext dbContext)
     {
         _dbContext = dbContext;
+    }
+
+    public async Task<NaturalKey> GetNaturalKeyAsync(
+        string prefix,
+        string tableName,
+        int numberLength = 6,
+        CancellationToken cancellationToken = default)
+    {
+        var code = await GenerateNextCodeAsync(prefix, tableName, numberLength, cancellationToken);
+
+        var numberPart = code[prefix.Length..];
+        if (!int.TryParse(numberPart, out var number))
+        {
+            throw new InvalidOperationException("Generated code has invalid format");
+        }
+
+        return NaturalKey.Create(prefix, number, numberLength);
     }
 
     public async Task<string> GenerateNextCodeAsync(

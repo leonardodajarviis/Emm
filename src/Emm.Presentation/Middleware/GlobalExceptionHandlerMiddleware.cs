@@ -9,16 +9,13 @@ namespace Emm.Presentation.Middleware;
 public class GlobalExceptionHandlerMiddleware
 {
     private readonly RequestDelegate _next;
-    private readonly ILogger<GlobalExceptionHandlerMiddleware> _logger;
     private readonly ErrorHandlingOptions _errorOptions;
 
     public GlobalExceptionHandlerMiddleware(
         RequestDelegate next,
-        ILogger<GlobalExceptionHandlerMiddleware> logger,
         IOptions<ErrorHandlingOptions> errorOptions)
     {
         _next = next;
-        _logger = logger;
         _errorOptions = errorOptions.Value;
     }
 
@@ -31,7 +28,6 @@ public class GlobalExceptionHandlerMiddleware
         catch (Exception ex)
         {
             var traceId = context.TraceIdentifier;
-            _logger.LogError(ex, "Unhandled exception occurred. TraceId: {TraceId}, Message: {Message}", traceId, ex.Message);
             await HandleExceptionAsync(context, ex, traceId);
         }
     }

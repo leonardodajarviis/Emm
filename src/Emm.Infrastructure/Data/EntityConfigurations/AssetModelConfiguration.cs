@@ -1,4 +1,5 @@
 using Emm.Domain.Entities.AssetCatalog;
+using Emm.Infrastructure.Data.EntityConfigurations.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -12,6 +13,8 @@ public class AssetModelConfiguration : IEntityTypeConfiguration<AssetModel>
 
         // Primary Key
         builder.HasKey(x => x.Id);
+
+        builder.ConfigureAuditInfo();
 
         // Properties Configuration
         builder.Property(x => x.Id)
@@ -55,14 +58,6 @@ public class AssetModelConfiguration : IEntityTypeConfiguration<AssetModel>
 
         builder.Property(x => x.ThumbnailUrl);
 
-        builder.Property(x => x.CreatedAt)
-            .IsRequired()
-            .HasDefaultValueSql("GETUTCDATE()");
-
-        builder.Property(x => x.UpdatedAt)
-            .IsRequired()
-            .HasDefaultValueSql("GETUTCDATE()");
-
         // Relationships
         builder.HasOne<AssetCategory>()
             .WithMany()
@@ -84,7 +79,7 @@ public class AssetModelConfiguration : IEntityTypeConfiguration<AssetModel>
             .WithOne()
             .HasForeignKey(x => x.AssetModelId)
             .OnDelete(DeleteBehavior.Cascade);
-        
+
         builder.Navigation(x => x.Parameters)
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
@@ -92,7 +87,7 @@ public class AssetModelConfiguration : IEntityTypeConfiguration<AssetModel>
             .WithOne()
             .HasForeignKey(x => x.AssetModelId)
             .OnDelete(DeleteBehavior.Cascade);
-        
+
         builder.Navigation(x => x.MaintenancePlanDefinitions)
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
@@ -100,9 +95,11 @@ public class AssetModelConfiguration : IEntityTypeConfiguration<AssetModel>
             .WithOne()
             .HasForeignKey(x => x.AssetModelId)
             .OnDelete(DeleteBehavior.Cascade);
-        
+
         builder.Navigation(x => x.Images)
             .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+        builder.ConfigureAuditInfo();
 
         // Indexes
         builder.HasIndex(x => x.Code)

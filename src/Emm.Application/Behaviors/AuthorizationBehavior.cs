@@ -14,16 +14,13 @@ public class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavior<TReq
 {
     private readonly IAuthorizationService _authorizationService;
     private readonly IUserContextService _userContextService;
-    private readonly ILogger<AuthorizationBehavior<TRequest, TResponse>> _logger;
 
     public AuthorizationBehavior(
         IAuthorizationService authorizationService,
-        IUserContextService userContextService,
-        ILogger<AuthorizationBehavior<TRequest, TResponse>> logger)
+        IUserContextService userContextService)
     {
         _authorizationService = authorizationService;
         _userContextService = userContextService;
-        _logger = logger;
     }
 
     public async Task<TResponse> Handle(
@@ -34,7 +31,6 @@ public class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavior<TReq
         // Skip authorization for public requests (Login, Register, etc.)
         if (request is IPublicRequest)
         {
-            _logger.LogDebug("Skipping authorization for public request: {RequestType}", typeof(TRequest).Name);
             return await next();
         }
 
@@ -42,7 +38,6 @@ public class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavior<TReq
         var userId = _userContextService.GetCurrentUserId();
         if (userId == null)
         {
-            _logger.LogWarning("Authorization check failed: User is not authenticated");
             return AuthorizationBehavior<TRequest, TResponse>.CreateUnauthorizedResult();
         }
 
@@ -55,11 +50,6 @@ public class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavior<TReq
 
             if (!hasPermission)
             {
-                _logger.LogWarning(
-                    "Authorization failed for user {UserId}: Missing permission(s) {Permissions}",
-                    userId.Value,
-                    string.Join(", ", permissionRequest.RequiredPermissions));
-
                 return CreateForbiddenResult($"Missing required permission(s): {string.Join(", ", permissionRequest.RequiredPermissions)}");
             }
         }
@@ -75,11 +65,6 @@ public class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavior<TReq
 
             if (!hasRole)
             {
-                _logger.LogWarning(
-                    "Authorization failed for user {UserId}: Missing role(s) {Roles}",
-                    userId.Value,
-                    string.Join(", ", roleRequest.RequiredRoles));
-
                 return CreateForbiddenResult($"Missing required role(s): {string.Join(", ", roleRequest.RequiredRoles)}");
             }
         }
@@ -96,12 +81,6 @@ public class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavior<TReq
 
             if (!canAccess)
             {
-                _logger.LogWarning(
-                    "ABAC authorization failed for user {UserId}: Cannot access {Resource}.{Action}",
-                    userId.Value,
-                    resourceRequest.Resource,
-                    resourceRequest.Action);
-
                 return CreateForbiddenResult($"Access denied to {resourceRequest.Resource}.{resourceRequest.Action}");
             }
         }

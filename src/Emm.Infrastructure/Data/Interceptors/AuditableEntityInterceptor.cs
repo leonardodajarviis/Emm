@@ -1,3 +1,4 @@
+using Emm.Application.Abstractions;
 using Emm.Domain.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -9,6 +10,12 @@ namespace Emm.Infrastructure.Data.Interceptors;
 /// </summary>
 public class AuditableEntityInterceptor : SaveChangesInterceptor
 {
+    private readonly IDateTimeProvider _dateTimeProvider;
+
+    public AuditableEntityInterceptor(IDateTimeProvider dateTimeProvider)
+    {
+        _dateTimeProvider = dateTimeProvider;
+    }
     public override InterceptionResult<int> SavingChanges(
         DbContextEventData eventData,
         InterceptionResult<int> result)
@@ -26,14 +33,14 @@ public class AuditableEntityInterceptor : SaveChangesInterceptor
         return base.SavingChangesAsync(eventData, result, cancellationToken);
     }
 
-    private static void UpdateAuditableEntities(DbContext? context)
+    private void UpdateAuditableEntities(DbContext? context)
     {
         if (context == null) return;
 
         var entries = context.ChangeTracker
             .Entries<IAuditableEntity>();
 
-        var now = DateTime.UtcNow;
+        var now = _dateTimeProvider.Now;
 
         foreach (var entry in entries)
         {

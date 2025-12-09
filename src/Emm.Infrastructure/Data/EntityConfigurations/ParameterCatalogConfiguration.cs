@@ -23,8 +23,7 @@ public class ParameterCatalogConfiguration : IEntityTypeConfiguration<ParameterC
             .IsRequired();
 
         builder.Property(x => x.IsCodeGenerated)
-            .IsRequired()
-            .HasDefaultValueSql("0");
+            .IsRequired();
 
         builder.Property(x => x.UnitOfMeasureId).IsRequired();
 

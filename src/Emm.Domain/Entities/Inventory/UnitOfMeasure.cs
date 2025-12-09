@@ -1,4 +1,5 @@
 using Emm.Domain.Abstractions;
+using Emm.Domain.ValueObjects;
 
 namespace Emm.Domain.Entities.Inventory;
 
@@ -13,12 +14,8 @@ public class UnitOfMeasure : AggregateRoot
     public long? BaseUnitId { get; private set; }
     public decimal? ConversionFactor { get; private set; }
     public bool IsActive { get; private set; }
-    public DateTime CreatedAt { get; private set; }
-    public DateTime UpdatedAt { get; private set; }
-
-    // Navigation properties
-    public UnitOfMeasure? BaseUnit { get; private set; }
-    public ICollection<UnitOfMeasure> DerivedUnits { get; private set; } = new List<UnitOfMeasure>();
+    private readonly List<UnitOfMeasure> _derivedUnits;
+    public IReadOnlyCollection<UnitOfMeasure> DerivedUnits => _derivedUnits.AsReadOnly();
 
     public UnitOfMeasure(
         string code,
@@ -29,6 +26,7 @@ public class UnitOfMeasure : AggregateRoot
         long? baseUnitId = null,
         decimal? conversionFactor = null)
     {
+        _derivedUnits = [];
         Code = code;
         Name = name;
         Symbol = symbol;
@@ -37,10 +35,7 @@ public class UnitOfMeasure : AggregateRoot
         BaseUnitId = baseUnitId;
         ConversionFactor = conversionFactor;
         IsActive = true;
-        CreatedAt = DateTime.UtcNow;
-        UpdatedAt = DateTime.UtcNow;
-
-        ValidateConversionFactor();
+        // ValidateConversionFactor();
     }
 
     public void Update(
@@ -57,21 +52,16 @@ public class UnitOfMeasure : AggregateRoot
         Description = description;
         BaseUnitId = baseUnitId;
         ConversionFactor = conversionFactor;
-        UpdatedAt = DateTime.UtcNow;
-
-        ValidateConversionFactor();
     }
 
     public void Activate()
     {
         IsActive = true;
-        UpdatedAt = DateTime.UtcNow;
     }
 
     public void Deactivate()
     {
         IsActive = false;
-        UpdatedAt = DateTime.UtcNow;
     }
 
     public decimal ConvertTo(decimal value, UnitOfMeasure targetUnit)
@@ -118,7 +108,10 @@ public class UnitOfMeasure : AggregateRoot
         }
     }
 
-    private UnitOfMeasure() { } // EF Core constructor
+    private UnitOfMeasure()
+    {
+        _derivedUnits = [];
+    } // EF Core constructor
 }
 
 public enum UnitType
@@ -137,6 +130,5 @@ public enum UnitType
     Frequency = 12,      // Hz, kHz, MHz
     Quantity = 13,       // piece, box, pallet, unit
     Percentage = 14,     // %
-    Currency = 15,       // VND, USD, EUR
     Other = 99           // Other custom units
 }

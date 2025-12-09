@@ -14,12 +14,10 @@ namespace Emm.Infrastructure.Services;
 public class JwtService : IJwtService
 {
     private readonly JwtOptions _jwtOptions;
-    private readonly ILogger<JwtService> _logger;
 
-    public JwtService(IOptions<JwtOptions> jwtOptions, ILogger<JwtService> logger)
+    public JwtService(IOptions<JwtOptions> jwtOptions)
     {
         _jwtOptions = jwtOptions.Value;
-        _logger = logger;
     }
 
     public TokenResult GenerateTokens(object userId, string email)
@@ -139,24 +137,10 @@ public class JwtService : IJwtService
                 jti = jtiClaim ?? string.Empty;
                 return true;
             }
-
-            _logger.LogWarning("Token validation failed: UserId claim not found in token");
         }
-        catch (SecurityTokenExpiredException ex)
+        catch
         {
-            _logger.LogWarning(ex, "Token validation failed: Token has expired");
-        }
-        catch (SecurityTokenInvalidSignatureException ex)
-        {
-            _logger.LogWarning(ex, "Token validation failed: Invalid token signature");
-        }
-        catch (SecurityTokenException ex)
-        {
-            _logger.LogWarning(ex, "Token validation failed: {Message}", ex.Message);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Unexpected error during token validation");
+            return false;
         }
         return false;
     }

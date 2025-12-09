@@ -1,6 +1,7 @@
 using Emm.Application.Common;
 using Emm.Application.Features.AppUnitOfMeasure.Dtos;
 using Emm.Domain.Entities.Inventory;
+using Gridify;
 using Microsoft.EntityFrameworkCore;
 
 namespace Emm.Application.Features.AppUnitOfMeasure.Queries;
@@ -16,40 +17,29 @@ public class GetUnitOfMeasuresQueryHandler : IRequestHandler<GetUnitOfMeasuresQu
 
     public async Task<Result<PagedResult>> Handle(GetUnitOfMeasuresQuery request, CancellationToken cancellationToken)
     {
-        try
-        {
-            var query = _queryContext.Query<UnitOfMeasure>()
-                .OrderBy(u => u.UnitType)
-                .ThenBy(u => u.Name);
+        var queryRequest = request.QueryRequest;
 
-            var totalCount = await query.CountAsync(cancellationToken);
+        var query = _queryContext.Query<UnitOfMeasure>()
+            .ApplyFiltering(queryRequest)
+            .OrderBy(u => u.UnitType)
+            .ThenBy(u => u.Name).AsQueryable();
 
-            var units = await query
-                .Skip((request.QueryRequest.Page - 1) * request.QueryRequest.PageSize)
-                .Take(request.QueryRequest.PageSize)
-                .Select(u => new UnitOfMeasureListResponse(
-                    u.Id,
-                    u.Code,
-                    u.Name,
-                    u.Symbol,
-                    u.UnitType,
-                    u.UnitType.ToString(),
-                    u.IsActive
-                ))
-                .ToListAsync(cancellationToken);
+        var totalCount = await query.CountAsync(cancellationToken);
 
-            var pagedResult = new PagedResult(
-                request.QueryRequest.Page,
-                request.QueryRequest.PageSize,
-                totalCount,
-                units.Cast<object>().ToList()
-            );
+        var units = await query
+            .ApplyOrderingAndPaging(queryRequest)
+            .Select(u => new UnitOfMeasureSummaryResponse(
+                u.Id,
+                u.Code,
+                u.Name,
+                u.Symbol,
+                u.Description,
+                u.UnitType,
+                u.UnitType.ToString(),
+                u.IsActive
+            ))
+            .ToListAsync(cancellationToken);
 
-            return Result<PagedResult>.Success(pagedResult);
-        }
-        catch (Exception ex)
-        {
-            return Result<PagedResult>.Failure(ErrorType.Internal, ex.Message);
-        }
+        return Result<PagedResult>.Success(queryRequest.AsPagedResult(totalCount, units));
     }
 }

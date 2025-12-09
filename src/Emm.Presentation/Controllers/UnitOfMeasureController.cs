@@ -120,16 +120,4 @@ public class UnitOfMeasureController : ControllerBase
 
         return result.ToActionResult();
     }
-
-    /// <summary>
-    /// Get units of measure by type (e.g., Length, Mass, Energy)
-    /// </summary>
-    [HttpGet("by-type/{unitType}")]
-    public async Task<IActionResult> GetUnitOfMeasuresByType([FromRoute] UnitType unitType)
-    {
-        var query = new GetUnitOfMeasuresByTypeQuery(unitType);
-        var result = await _mediator.Send(query);
-
-        return result.ToActionResult();
-    }
 }

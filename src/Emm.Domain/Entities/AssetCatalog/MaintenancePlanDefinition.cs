@@ -42,6 +42,7 @@ public class MaintenancePlanDefinition: IAuditableEntity
         string? description,
         string rrule,
         IReadOnlyCollection<MaintenancePlanJobStepDefinitionSpec>? jobSteps = null,
+        IReadOnlyCollection<MaintenancePlanRequiredItemDefinitionSpec>? requiredItems = null,
         bool isActive = true)
     {
         _jobSteps = [];
@@ -69,6 +70,19 @@ public class MaintenancePlanDefinition: IAuditableEntity
                 );
             }
         }
+
+        if (requiredItems != null)
+        {
+            foreach (var item in requiredItems)
+            {
+                AddRequiredItem(
+                    itemId: item.ItemId,
+                    quantity: item.Quantity,
+                    isRequired: item.IsRequired,
+                    note: item.Note
+                );
+            }
+        }
     }
 
     // Constructor cho Parameter-based maintenance plan
@@ -82,6 +96,7 @@ public class MaintenancePlanDefinition: IAuditableEntity
         decimal maxValue,
         MaintenanceTriggerCondition triggerCondition = MaintenanceTriggerCondition.GreaterThanOrEqual,
         IReadOnlyCollection<MaintenancePlanJobStepDefinitionSpec>? jobSteps = null,
+        IReadOnlyCollection<MaintenancePlanRequiredItemDefinitionSpec>? requiredItems = null,
         bool isActive = true)
     {
         _jobSteps = [];
@@ -113,6 +128,19 @@ public class MaintenancePlanDefinition: IAuditableEntity
                     organizationUnitId: step.OrganizationUnitId,
                     note: step.Note,
                     order: step.Order
+                );
+            }
+        }
+
+        if (requiredItems != null)
+        {
+            foreach (var item in requiredItems)
+            {
+                AddRequiredItem(
+                    itemId: item.ItemId,
+                    quantity: item.Quantity,
+                    isRequired: item.IsRequired,
+                    note: item.Note
                 );
             }
         }
@@ -348,6 +376,13 @@ public record MaintenancePlanJobStepDefinitionSpec(
     long? OrganizationUnitId,
     string? Note,
     int Order
+);
+
+public record MaintenancePlanRequiredItemDefinitionSpec(
+    long ItemId,
+    decimal Quantity,
+    bool IsRequired,
+    string? Note
 );
 
 public record JobStepSpec(

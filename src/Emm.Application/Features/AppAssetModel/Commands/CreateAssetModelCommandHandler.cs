@@ -1,5 +1,4 @@
 ﻿using Emm.Application.Abstractions;
-using Emm.Domain.Abstractions;
 using Emm.Domain.Entities;
 using Emm.Domain.Entities.AssetCatalog;
 using Microsoft.EntityFrameworkCore;
@@ -12,21 +11,25 @@ public class CreateAssetModelCommandHandler : IRequestHandler<CreateAssetModelCo
     private readonly IAssetModelRepository _repository;
     private readonly IQueryContext _qq;
     private readonly IFileStorage _fileStorage;
+    private readonly IUserContextService _userContextService;
 
     public CreateAssetModelCommandHandler(
         IUnitOfWork unitOfWork,
         IAssetModelRepository repository,
         IQueryContext queryContext,
-        IFileStorage fileStorage)
+        IFileStorage fileStorage,
+        IUserContextService userContextService)
     {
         ArgumentNullException.ThrowIfNull(unitOfWork);
         ArgumentNullException.ThrowIfNull(repository);
         ArgumentNullException.ThrowIfNull(queryContext);
+        ArgumentNullException.ThrowIfNull(userContextService);
 
         _unitOfWork = unitOfWork;
         _repository = repository;
         _fileStorage = fileStorage;
         _qq = queryContext;
+        _userContextService = userContextService;
     }
 
     public async Task<Result<object>> Handle(CreateAssetModelCommand request, CancellationToken cancellationToken)
@@ -35,8 +38,21 @@ public class CreateAssetModelCommandHandler : IRequestHandler<CreateAssetModelCo
 
         return await _unitOfWork.ExecuteInTransactionAsync(async () =>
         {
-            var code = await _unitOfWork.GenerateNextCodeAsync("DTS", "AssetModels", 6, cancellationToken);
+            var code = request.Code;
+            if (request.IsCodeGenerated)
+            {
+                code = await _unitOfWork.GenerateNextCodeAsync("DTB", "AssetModels", 6, cancellationToken);
+            }
+            var existsCode = await _qq.Query<AssetModel>()
+                .AnyAsync(am => am.Code == code, cancellationToken);
+
+            if (existsCode)
+            {
+                return Result<object>.Failure(ErrorType.Conflict, $"Asset model with code {code} already exists.");
+            }
+
             var assetModel = new AssetModel(
+                isCodeGenerated: request.IsCodeGenerated,
                 code: code,
                 name: request.Name,
                 description: request.Description,
@@ -47,6 +63,9 @@ public class CreateAssetModelCommandHandler : IRequestHandler<CreateAssetModelCo
                 isActive: request.IsActive
             );
 
+            var currentUserId = _userContextService.GetCurrentUserId();
+            assetModel.SetAuditInfo(currentUserId, currentUserId);
+
             // Add parameters from AssetType if AssetTypeId is provided
             if (request.AssetTypeId.HasValue)
             {
@@ -55,12 +74,6 @@ public class CreateAssetModelCommandHandler : IRequestHandler<CreateAssetModelCo
                     .Select(at => at.ParameterId).ToArrayAsync(cancellationToken);
 
                 assetModel.AddParameters(assetParameterIds);
-            }
-
-            // Add additional parameters if provided
-            if (request.ParameterIds?.Count > 0)
-            {
-                assetModel.AddParameters([.. request.ParameterIds]);
             }
 
             // Add maintenance plan definitions
@@ -110,6 +123,12 @@ public class CreateAssetModelCommandHandler : IRequestHandler<CreateAssetModelCo
                 Note: js.Note,
                 Order: js.Order)).ToList() ?? [];
 
+            var requiredItems = definition.RequiredItems?.Select(ri => new MaintenancePlanRequiredItemDefinitionSpec(
+                ItemId: ri.ItemId,
+                Quantity: ri.Quantity,
+                IsRequired: ri.IsRequired,
+                Note: ri.Note)).ToList() ?? [];
+
             switch (definition.PlanType)
             {
                 case MaintenancePlanType.TimeBased:
@@ -118,6 +137,7 @@ public class CreateAssetModelCommandHandler : IRequestHandler<CreateAssetModelCo
                         description: definition.Description,
                         rrule: definition.RRule ?? string.Empty,
                         jobSteps: jobSteps,
+                        requiredItems: requiredItems,
                         isActive: definition.IsActive
                     );
                     break;
@@ -138,18 +158,13 @@ public class CreateAssetModelCommandHandler : IRequestHandler<CreateAssetModelCo
                         maxValue: definition.MaxValue.Value,
                         triggerCondition: definition.TriggerCondition ?? MaintenanceTriggerCondition.GreaterThanOrEqual,
                         jobSteps: jobSteps,
+                        requiredItems: requiredItems,
                         isActive: definition.IsActive
                     );
                     break;
 
                 default:
                     // For general maintenance plans with job steps
-                    assetModel.AddMaintenancePlanWithJobSteps(
-                        name: definition.Name,
-                        description: definition.Description,
-                        planType: definition.PlanType,
-                        jobSteps: jobSteps,
-                        isActive: definition.IsActive);
                     break;
             }
         }

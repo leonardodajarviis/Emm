@@ -14,22 +14,19 @@ public class UserRegisterCommandHandler : IRequestHandler<UserRegisterCommand, R
     private readonly IPasswordHasher _passwordHasher;
     private readonly IUserSessionRepository _userSessionRepository;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly ILogger<UserRegisterCommandHandler> _logger;
 
     public UserRegisterCommandHandler(
         IUserRepository userRepository,
         IJwtService jwtService,
         IPasswordHasher passwordHasher,
         IUserSessionRepository userSessionRepository,
-        IUnitOfWork unitOfWork,
-        ILogger<UserRegisterCommandHandler> logger)
+        IUnitOfWork unitOfWork)
     {
         _userRepository = userRepository;
         _jwtService = jwtService;
         _passwordHasher = passwordHasher;
         _userSessionRepository = userSessionRepository;
         _unitOfWork = unitOfWork;
-        _logger = logger;
     }
 
     public async Task<Result<UserAuthResponse>> Handle(UserRegisterCommand request, CancellationToken cancellationToken)
@@ -75,8 +72,6 @@ public class UserRegisterCommandHandler : IRequestHandler<UserRegisterCommand, R
 
         await _userRepository.AddAsync(user, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-        _logger.LogInformation("User {Username} registered successfully with ID {UserId}", user.Username, user.Id);
 
         // Generate tokens
         var tokens = _jwtService.GenerateTokens(user.Id, user.Username, identity =>

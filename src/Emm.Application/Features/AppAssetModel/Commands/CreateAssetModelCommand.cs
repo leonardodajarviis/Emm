@@ -3,13 +3,14 @@ using Emm.Domain.Entities.AssetCatalog;
 namespace Emm.Application.Features.AppAssetModel.Commands;
 
 public record CreateAssetModelCommand(
+    bool IsCodeGenerated,
+    string Code,
     string Name,
     string? Description,
     string? Notes,
     long? ParentId,
     long? AssetCategoryId,
     long? AssetTypeId,
-    IReadOnlyCollection<long>? ParameterIds,
     IReadOnlyCollection<CreateMaintenancePlanDefinitionCommand>? MaintenancePlanDefinitions,
     IReadOnlyCollection<CreateAssetModelImageCommand>? Images,
     Guid? ThumbnailFileId,
@@ -32,7 +33,8 @@ public sealed record CreateMaintenancePlanDefinitionCommand(
     decimal? MaxValue,
     MaintenanceTriggerCondition? TriggerCondition,
     // Job steps (common for both types)
-    IReadOnlyCollection<MaintenancePlanJobStepDefinitionCommand>? JobSteps
+    IReadOnlyCollection<MaintenancePlanJobStepDefinitionCommand>? JobSteps,
+    IReadOnlyCollection<MaintenancePlanRequiredItemDefinitionCommand>? RequiredItems
 );
 
 public sealed record MaintenancePlanJobStepDefinitionCommand(
@@ -40,6 +42,13 @@ public sealed record MaintenancePlanJobStepDefinitionCommand(
     long? OrganizationUnitId,
     string? Note,
     int Order
+);
+
+public sealed record MaintenancePlanRequiredItemDefinitionCommand(
+    long ItemId,
+    decimal Quantity,
+    bool IsRequired,
+    string? Note
 );
 
 public sealed record CreateAssetModelImageCommand(

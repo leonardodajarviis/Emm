@@ -46,12 +46,6 @@ public class UnitOfMeasureConfiguration : IEntityTypeConfiguration<UnitOfMeasure
             .IsRequired()
             .HasDefaultValue(true);
 
-        builder.Property(x => x.CreatedAt)
-            .IsRequired();
-
-        builder.Property(x => x.UpdatedAt)
-            .IsRequired();
-
         // Indexes
         builder.HasIndex(x => x.Code)
             .IsUnique();
@@ -62,10 +56,12 @@ public class UnitOfMeasureConfiguration : IEntityTypeConfiguration<UnitOfMeasure
 
         builder.HasIndex(x => new { x.IsActive, x.UnitType });
 
-        // Relationships
-        builder.HasOne(x => x.BaseUnit)
-            .WithMany(x => x.DerivedUnits)
+        builder.HasMany(x => x.DerivedUnits)
+            .WithOne()
             .HasForeignKey(x => x.BaseUnitId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.NoAction);
+
+        builder.Navigation(x => x.DerivedUnits)
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }

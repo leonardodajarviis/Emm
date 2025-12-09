@@ -11,6 +11,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();
 builder.Services.AddControllers();
 
+builder.AddObservability();
+
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddProblemDetails();
@@ -31,6 +33,7 @@ builder.Services
     .AddApplication()
     .AddInfrastructure(builder.Configuration);
 
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
@@ -46,6 +49,9 @@ builder.Services.AddCors(options =>
 
 
 var app = builder.Build();
+
+// Seed database with initial data
+// await app.SeedDatabaseAsync();
 
 // Global exception handler - must be first in pipeline
 app.UseGlobalExceptionHandler();
