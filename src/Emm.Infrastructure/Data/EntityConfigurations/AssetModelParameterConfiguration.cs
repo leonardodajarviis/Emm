@@ -18,6 +18,8 @@ public class AssetModelParameterConfiguration : IEntityTypeConfiguration<AssetMo
         builder.Property(x => x.ParameterId)
             .IsRequired();
 
+        builder.Property(x => x.IsMaintenanceParameter);
+
         builder.HasOne<ParameterCatalog>()
             .WithMany()
             .HasForeignKey(x => x.ParameterId)

@@ -7,6 +7,6 @@ public record AssetParameterResponse
     public required string Name { get; set; }
     public long UnitOfMeasureId { get; set; }
     public string? Description { get; set; }
-
     public string? UnitOfMeasureName { get; set; }
+    public bool IsMaintenanceParameter { get; set; }
 }

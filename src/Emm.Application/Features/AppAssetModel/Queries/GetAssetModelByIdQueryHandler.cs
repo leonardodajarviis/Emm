@@ -37,6 +37,16 @@ public class GetAssetModelByIdQueryHandler : IRequestHandler<GetAssetModelByIdQu
                 IsActive = root.IsActive,
                 CreatedAt = root.Audit.CreatedAt,
                 ModifiedAt = root.Audit.ModifiedAt,
+
+                CreatedBy = _qq.Query<User>()
+                    .Where(u => u.Id == root.Audit.CreatedByUserId)
+                    .Select(u => u.DisplayName)
+                    .FirstOrDefault() ?? "System",
+                ModifiedBy = _qq.Query<User>()
+                    .Where(u => u.Id == root.Audit.ModifiedByUserId)
+                    .Select(u => u.DisplayName)
+                    .FirstOrDefault() ?? "System",
+
                 ThumbnailFileId = root.ThumbnailFileId,
 
                 Parameters = _qq.Query<AssetModelParameter>()
@@ -48,6 +58,7 @@ public class GetAssetModelByIdQueryHandler : IRequestHandler<GetAssetModelByIdQu
                         Name = p.Name,
                         Description = p.Description,
                         UnitOfMeasureId = p.UnitOfMeasureId,
+                        IsMaintenanceParameter = mp.IsMaintenanceParameter,
                         UnitOfMeasureName = _qq.Query<UnitOfMeasure>()
                             .Where(uom => uom.Id == p.UnitOfMeasureId)
                             .Select(uom => uom.Name)

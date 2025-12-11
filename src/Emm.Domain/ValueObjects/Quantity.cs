@@ -11,52 +11,27 @@ namespace Emm.Domain.ValueObjects;
 public sealed class Quantity : IEquatable<Quantity>, IComparable<Quantity>
 {
     public decimal Value { get; }
-    public string Unit { get; }
-
-    public Quantity(decimal value, string unit)
+    public Quantity(decimal value)
     {
         if (value < 0)
             throw new DomainException("Quantity value cannot be negative");
 
-        if (string.IsNullOrWhiteSpace(unit))
-            throw new DomainException("Unit of measure cannot be empty");
-
-        if (unit.Length > 20)
-            throw new DomainException("Unit of measure cannot exceed 20 characters");
-
         Value = value;
-        Unit = unit.Trim().ToLowerInvariant();
     }
 
-    public static Quantity Zero(string unit) => new(0, unit);
-
-    public static Quantity FromPieces(decimal value) => new(value, "pcs");
-
-    public static Quantity FromKilograms(decimal value) => new(value, "kg");
-
-    public static Quantity FromLiters(decimal value) => new(value, "l");
-
-    public static Quantity FromMeters(decimal value) => new(value, "m");
-
-    public static Quantity FromHours(decimal value) => new(value, "h");
+    public static Quantity Zero() => new(0);
 
     public Quantity Add(Quantity other)
     {
-        if (!IsSameUnit(other))
-            throw new DomainException($"Cannot add quantities with different units: {Unit} and {other.Unit}");
-
-        return new Quantity(Value + other.Value, Unit);
+        return new Quantity(Value + other.Value);
     }
 
     public Quantity Subtract(Quantity other)
     {
-        if (!IsSameUnit(other))
-            throw new DomainException($"Cannot subtract quantities with different units: {Unit} and {other.Unit}");
-
         if (Value < other.Value)
             throw new DomainException("Cannot subtract to negative quantity");
 
-        return new Quantity(Value - other.Value, Unit);
+        return new Quantity(Value - other.Value);
     }
 
     public Quantity Multiply(decimal factor)
@@ -64,7 +39,7 @@ public sealed class Quantity : IEquatable<Quantity>, IComparable<Quantity>
         if (factor < 0)
             throw new DomainException("Cannot multiply quantity by negative factor");
 
-        return new Quantity(Value * factor, Unit);
+        return new Quantity(Value * factor);
     }
 
     public Quantity Divide(decimal divisor)
@@ -72,13 +47,7 @@ public sealed class Quantity : IEquatable<Quantity>, IComparable<Quantity>
         if (divisor <= 0)
             throw new DomainException("Cannot divide quantity by zero or negative number");
 
-        return new Quantity(Value / divisor, Unit);
-    }
-
-    public bool IsSameUnit(Quantity other)
-    {
-        if (other is null) return false;
-        return Unit.Equals(other.Unit, StringComparison.OrdinalIgnoreCase);
+        return new Quantity(Value / divisor);
     }
 
     public bool IsZero => Value == 0;
@@ -90,18 +59,16 @@ public sealed class Quantity : IEquatable<Quantity>, IComparable<Quantity>
     {
         if (other is null) return false;
         if (ReferenceEquals(this, other)) return true;
-        return Value == other.Value && Unit.Equals(other.Unit, StringComparison.OrdinalIgnoreCase);
+        return Value == other.Value;
     }
 
     public override bool Equals(object? obj) => obj is Quantity other && Equals(other);
 
-    public override int GetHashCode() => HashCode.Combine(Value, Unit.ToLowerInvariant());
+    public override int GetHashCode() => HashCode.Combine(Value);
 
     public int CompareTo(Quantity? other)
     {
         if (other is null) return 1;
-        if (!IsSameUnit(other))
-            throw new DomainException($"Cannot compare quantities with different units: {Unit} and {other.Unit}");
 
         return Value.CompareTo(other.Value);
     }
@@ -119,7 +86,5 @@ public sealed class Quantity : IEquatable<Quantity>, IComparable<Quantity>
     public static Quantity operator *(decimal factor, Quantity quantity) => quantity.Multiply(factor);
     public static Quantity operator /(Quantity quantity, decimal divisor) => quantity.Divide(divisor);
 
-    public override string ToString() => $"{Value:N2} {Unit}";
-
-    public string ToString(string format) => $"{Value.ToString(format)} {Unit}";
+    public override string ToString() => Value.ToString();
 }

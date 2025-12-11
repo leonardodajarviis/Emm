@@ -19,6 +19,8 @@ public record AssetModelDetailResponse
     public bool IsActive { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? ModifiedAt { get; set; }
+    public string CreatedBy { get; set; } = null!;
+    public string? ModifiedBy { get; set; }
 
     // Navigation properties with full details
     public AssetModelParentResponse? Parent { get; set; }

@@ -121,17 +121,6 @@ public class AssetModel : AggregateRoot, IAuditableEntity
         ValidateForeignKey(assetCategoryId, nameof(AssetCategoryId));
         ValidateForeignKey(assetTypeId, nameof(AssetTypeId));
 
-        var hasChanges = Name != name
-            || Description != description
-            || Notes != notes
-            || ParentId != parentId
-            || AssetCategoryId != assetCategoryId
-            || AssetTypeId != assetTypeId
-            || IsActive != isActive;
-
-        if (!hasChanges)
-            return;
-
         Name = name;
         Description = description;
         Notes = notes;
@@ -145,14 +134,16 @@ public class AssetModel : AggregateRoot, IAuditableEntity
 
     public void AddParameter(long parameterId)
     {
-        if (parameterId <= 0)
-            throw new DomainException("Parameter ID must be greater than zero");
-
-        if (_parameters.Count >= MaxParametersPerModel)
-            throw new DomainException($"Cannot exceed {MaxParametersPerModel} parameters per asset model");
-
-        if (_parameters.Any(p => p.ParameterId == parameterId))
-            throw new DomainException($"Parameter {parameterId} already exists in this asset model");
+        DomainGuard.AgainstNegativeOrZero(parameterId, nameof(parameterId));
+        DomainGuard.AgainstBusinessRule(
+            _parameters.Count >= MaxParametersPerModel,
+            "MaxParametersLimit",
+            $"Cannot exceed {MaxParametersPerModel} parameters per asset model");
+        DomainGuard.AgainstDuplicate(
+            _parameters.Any(p => p.ParameterId == parameterId),
+            nameof(AssetModelParameter),
+            nameof(parameterId),
+            parameterId);
 
         var parameter = new AssetModelParameter(parameterId);
         _parameters.Add(parameter);
@@ -170,14 +161,15 @@ public class AssetModel : AggregateRoot, IAuditableEntity
         // Validate all IDs first
         foreach (var id in distinctIds)
         {
-            if (id <= 0)
-                throw new DomainException("Parameter ID must be greater than zero");
+            DomainGuard.AgainstNegativeOrZero(id, "ParameterId");
         }
 
         // Check limit
         var newParametersCount = distinctIds.Count(id => !_parameters.Any(p => p.ParameterId == id));
-        if (_parameters.Count + newParametersCount > MaxParametersPerModel)
-            throw new DomainException($"Cannot exceed {MaxParametersPerModel} parameters per asset model");
+        DomainGuard.AgainstBusinessRule(
+            _parameters.Count + newParametersCount > MaxParametersPerModel,
+            "MaxParametersLimit",
+            $"Cannot exceed {MaxParametersPerModel} parameters per asset model");
 
         // Add parameters by reusing AddParameter logic
         foreach (var id in distinctIds)
@@ -191,15 +183,12 @@ public class AssetModel : AggregateRoot, IAuditableEntity
 
     public void RemoveParameter(long parameterId)
     {
-        if (parameterId <= 0)
-            throw new DomainException("Parameter ID must be greater than zero");
+        DomainGuard.AgainstNegativeOrZero(parameterId, nameof(parameterId));
 
         var parameter = _parameters.FirstOrDefault(x => x.ParameterId == parameterId);
+        DomainGuard.AgainstNotFound(parameter, nameof(AssetModelParameter), parameterId);
 
-        if (parameter == null)
-            throw new DomainException($"Parameter {parameterId} not found in this asset model");
-
-        _parameters.Remove(parameter);
+        _parameters.Remove(parameter!);
 
         // RaiseDomainEvent(new AssetModelParameterRemovedEvent(Id, parameterId));
     }
@@ -211,15 +200,14 @@ public class AssetModel : AggregateRoot, IAuditableEntity
 
         foreach (var parameterId in parameterIds)
         {
-            if (parameterId <= 0)
-                throw new DomainException("Parameter ID must be greater than zero");
+            DomainGuard.AgainstNegativeOrZero(parameterId, nameof(parameterId));
 
             var parameter = _parameters.FirstOrDefault(x => x.ParameterId == parameterId);
 
             if (parameter == null)
             {
                 if (throwIfNotFound)
-                    throw new DomainException($"Parameter {parameterId} not found in this asset model");
+                    DomainGuard.AgainstNotFound(parameter, nameof(AssetModelParameter), parameterId);
                 continue;
             }
 
@@ -271,6 +259,14 @@ public class AssetModel : AggregateRoot, IAuditableEntity
         ValidateMaintenancePlanLimit();
         ValidateMaintenancePlanName(name);
 
+        var existParameter = _parameters.FirstOrDefault(p => p.ParameterId == parameterId);
+        if (existParameter == null)
+        {
+            throw new DomainException($"Parameter {parameterId} is not associated with this AssetModel");
+        }
+
+        existParameter.MarkAsMaintenanceParameter();
+
         var maintenancePlan = new MaintenancePlanDefinition(
             assetModelId: Id,
             name: name,
@@ -294,11 +290,22 @@ public class AssetModel : AggregateRoot, IAuditableEntity
     public void RemoveMaintenancePlan(long maintenancePlanId)
     {
         var maintenancePlan = _maintenancePlanDefinitions.FirstOrDefault(mp => mp.Id == maintenancePlanId);
+        DomainGuard.AgainstNotFound(maintenancePlan, nameof(MaintenancePlanDefinition), maintenancePlanId);
 
-        if (maintenancePlan == null)
-            throw new DomainException($"Maintenance plan {maintenancePlanId} not found in this asset model");
+        if (maintenancePlan!.PlanType == MaintenancePlanType.ParameterBased)
+        {
+            if (maintenancePlan.ParameterBasedTrigger == null)
+            {
+                throw new DomainException("ParameterBasedTrigger is null for a parameter-based maintenance plan");
+            }
 
-        _maintenancePlanDefinitions.Remove(maintenancePlan);
+            var parameterId = maintenancePlan.ParameterBasedTrigger.ParameterId;
+            var associatedParameter = _parameters.FirstOrDefault(p => p.ParameterId == parameterId);
+
+            associatedParameter?.UnmarkAsMaintenanceParameter();
+        }
+
+        _maintenancePlanDefinitions.Remove(maintenancePlan!);
 
         // RaiseDomainEvent(new MaintenancePlanRemovedEvent(Id, maintenancePlanId));
     }
@@ -312,11 +319,9 @@ public class AssetModel : AggregateRoot, IAuditableEntity
         ValidateMaintenancePlanName(name);
 
         var maintenancePlan = _maintenancePlanDefinitions.FirstOrDefault(mp => mp.Id == maintenancePlanId);
+        DomainGuard.AgainstNotFound(maintenancePlan, nameof(MaintenancePlanDefinition), maintenancePlanId);
 
-        if (maintenancePlan == null)
-            throw new DomainException($"Maintenance plan {maintenancePlanId} not found in this asset model");
-
-        maintenancePlan.Update(name, description, isActive);
+        maintenancePlan!.Update(name, description, isActive);
 
         // RaiseDomainEvent(new MaintenancePlanUpdatedEvent(Id, maintenancePlanId, name));
     }
@@ -331,11 +336,9 @@ public class AssetModel : AggregateRoot, IAuditableEntity
         ValidateMaintenancePlanName(name);
 
         var maintenancePlan = _maintenancePlanDefinitions.FirstOrDefault(mp => mp.Id == maintenancePlanId);
+        DomainGuard.AgainstNotFound(maintenancePlan, nameof(MaintenancePlanDefinition), maintenancePlanId);
 
-        if (maintenancePlan == null)
-            throw new DomainException($"Maintenance plan {maintenancePlanId} not found in this asset model");
-
-        maintenancePlan.UpdateTimeBasedPlan(name, description, rrule, isActive);
+        maintenancePlan!.UpdateTimeBasedPlan(name, description, rrule, isActive);
 
         // RaiseDomainEvent(new MaintenancePlanUpdatedEvent(Id, maintenancePlanId, name));
     }
@@ -353,11 +356,9 @@ public class AssetModel : AggregateRoot, IAuditableEntity
         ValidateMaintenancePlanName(name);
 
         var maintenancePlan = _maintenancePlanDefinitions.FirstOrDefault(mp => mp.Id == maintenancePlanId);
+        DomainGuard.AgainstNotFound(maintenancePlan, nameof(MaintenancePlanDefinition), maintenancePlanId);
 
-        if (maintenancePlan == null)
-            throw new DomainException($"Maintenance plan {maintenancePlanId} not found in this asset model");
-
-        maintenancePlan.UpdateParameterBasedPlan(
+        maintenancePlan!.UpdateParameterBasedPlan(
             name,
             description,
             triggerValue,
@@ -381,11 +382,9 @@ public class AssetModel : AggregateRoot, IAuditableEntity
         ValidateMaintenancePlanName(stepName);
 
         var maintenancePlan = _maintenancePlanDefinitions.FirstOrDefault(mp => mp.Id == maintenancePlanId);
+        DomainGuard.AgainstNotFound(maintenancePlan, nameof(MaintenancePlanDefinition), maintenancePlanId);
 
-        if (maintenancePlan == null)
-            throw new DomainException($"Maintenance plan {maintenancePlanId} not found in this asset model");
-
-        maintenancePlan.AddJobStep(stepName, organizationUnitId, note, order);
+        maintenancePlan!.AddJobStep(stepName, organizationUnitId, note, order);
 
         // RaiseDomainEvent(new MaintenancePlanJobStepAddedEvent(Id, maintenancePlanId, stepName));
     }
@@ -395,11 +394,9 @@ public class AssetModel : AggregateRoot, IAuditableEntity
         long jobStepId)
     {
         var maintenancePlan = _maintenancePlanDefinitions.FirstOrDefault(mp => mp.Id == maintenancePlanId);
+        DomainGuard.AgainstNotFound(maintenancePlan, nameof(MaintenancePlanDefinition), maintenancePlanId);
 
-        if (maintenancePlan == null)
-            throw new DomainException($"Maintenance plan {maintenancePlanId} not found in this asset model");
-
-        maintenancePlan.RemoveJobStep(jobStepId);
+        maintenancePlan!.RemoveJobStep(jobStepId);
 
         // RaiseDomainEvent(new MaintenancePlanJobStepRemovedEvent(Id, maintenancePlanId, jobStepId));
     }
@@ -414,12 +411,10 @@ public class AssetModel : AggregateRoot, IAuditableEntity
         ValidateMaintenancePlanName(stepName);
 
         var maintenancePlan = _maintenancePlanDefinitions.FirstOrDefault(mp => mp.Id == maintenancePlanId);
-
-        if (maintenancePlan == null)
-            throw new DomainException($"Maintenance plan {maintenancePlanId} not found in this asset model");
+        DomainGuard.AgainstNotFound(maintenancePlan, nameof(MaintenancePlanDefinition), maintenancePlanId);
 
         // Delegate to MaintenancePlanDefinition to respect aggregate boundaries
-        maintenancePlan.UpdateJobStep(jobStepId, stepName, note, order);
+        maintenancePlan!.UpdateJobStep(jobStepId, stepName, note, order);
 
         // RaiseDomainEvent(new MaintenancePlanJobStepUpdatedEvent(Id, maintenancePlanId, jobStepId, stepName));
     }
@@ -432,18 +427,13 @@ public class AssetModel : AggregateRoot, IAuditableEntity
         bool isRequired,
         string? note = null)
     {
-        if (itemId <= 0)
-            throw new DomainException("Item ID must be greater than zero");
-
-        if (quantity <= 0)
-            throw new DomainException("Quantity must be greater than zero");
+        DomainGuard.AgainstNegativeOrZero(itemId, nameof(itemId));
+        DomainGuard.AgainstNegative(quantity, nameof(quantity));
 
         var maintenancePlan = _maintenancePlanDefinitions.FirstOrDefault(mp => mp.Id == maintenancePlanId);
+        DomainGuard.AgainstNotFound(maintenancePlan, nameof(MaintenancePlanDefinition), maintenancePlanId);
 
-        if (maintenancePlan == null)
-            throw new DomainException($"Maintenance plan {maintenancePlanId} not found in this asset model");
-
-        maintenancePlan.AddRequiredItem(itemId, quantity, isRequired, note);
+        maintenancePlan!.AddRequiredItem(itemId, quantity, isRequired, note);
 
         // RaiseDomainEvent(new MaintenancePlanRequiredItemAddedEvent(Id, maintenancePlanId, itemId));
     }
@@ -452,15 +442,12 @@ public class AssetModel : AggregateRoot, IAuditableEntity
         long maintenancePlanId,
         long requiredItemId)
     {
-        if (requiredItemId <= 0)
-            throw new DomainException("Required item ID must be greater than zero");
+        DomainGuard.AgainstNegativeOrZero(requiredItemId, nameof(requiredItemId));
 
         var maintenancePlan = _maintenancePlanDefinitions.FirstOrDefault(mp => mp.Id == maintenancePlanId);
+        DomainGuard.AgainstNotFound(maintenancePlan, nameof(MaintenancePlanDefinition), maintenancePlanId);
 
-        if (maintenancePlan == null)
-            throw new DomainException($"Maintenance plan {maintenancePlanId} not found in this asset model");
-
-        maintenancePlan.RemoveRequiredItem(requiredItemId);
+        maintenancePlan!.RemoveRequiredItem(requiredItemId);
 
         // RaiseDomainEvent(new MaintenancePlanRequiredItemRemovedEvent(Id, maintenancePlanId, requiredItemId));
     }
@@ -472,18 +459,13 @@ public class AssetModel : AggregateRoot, IAuditableEntity
         bool isRequired,
         string? note)
     {
-        if (requiredItemId <= 0)
-            throw new DomainException("Required item ID must be greater than zero");
-
-        if (quantity <= 0)
-            throw new DomainException("Quantity must be greater than zero");
+        DomainGuard.AgainstNegativeOrZero(requiredItemId, nameof(requiredItemId));
+        DomainGuard.AgainstNegative(quantity, nameof(quantity));
 
         var maintenancePlan = _maintenancePlanDefinitions.FirstOrDefault(mp => mp.Id == maintenancePlanId);
+        DomainGuard.AgainstNotFound(maintenancePlan, nameof(MaintenancePlanDefinition), maintenancePlanId);
 
-        if (maintenancePlan == null)
-            throw new DomainException($"Maintenance plan {maintenancePlanId} not found in this asset model");
-
-        maintenancePlan.UpdateRequiredItem(requiredItemId, quantity, isRequired, note);
+        maintenancePlan!.UpdateRequiredItem(requiredItemId, quantity, isRequired, note);
 
         // RaiseDomainEvent(new MaintenancePlanRequiredItemUpdatedEvent(Id, maintenancePlanId, requiredItemId));
     }
@@ -492,15 +474,12 @@ public class AssetModel : AggregateRoot, IAuditableEntity
         long maintenancePlanId,
         IReadOnlyCollection<RequiredItemSpec> requiredItemSpecs)
     {
-        if (requiredItemSpecs == null)
-            throw new DomainException("Required items specs cannot be null");
+        DomainGuard.AgainstNull(requiredItemSpecs, nameof(requiredItemSpecs));
 
         var maintenancePlan = _maintenancePlanDefinitions.FirstOrDefault(mp => mp.Id == maintenancePlanId);
+        DomainGuard.AgainstNotFound(maintenancePlan, nameof(MaintenancePlanDefinition), maintenancePlanId);
 
-        if (maintenancePlan == null)
-            throw new DomainException($"Maintenance plan {maintenancePlanId} not found in this asset model");
-
-        maintenancePlan.SyncRequiredItems(requiredItemSpecs);
+        maintenancePlan!.SyncRequiredItems(requiredItemSpecs);
 
         // RaiseDomainEvent(new MaintenancePlanRequiredItemsSyncedEvent(Id, maintenancePlanId));
     }
@@ -510,11 +489,15 @@ public class AssetModel : AggregateRoot, IAuditableEntity
         ValidateFileId(fileId);
         ValidateFilePath(filePath);
 
-        if (_images.Count >= MaxImagesPerModel)
-            throw new DomainException($"Cannot exceed {MaxImagesPerModel} images per asset model");
-
-        if (_images.Any(img => img.FileId == fileId))
-            throw new DomainException($"Image with file ID {fileId} already exists in this asset model");
+        DomainGuard.AgainstBusinessRule(
+            _images.Count >= MaxImagesPerModel,
+            "MaxImagesLimit",
+            $"Cannot exceed {MaxImagesPerModel} images per asset model");
+        DomainGuard.AgainstDuplicate(
+            _images.Any(img => img.FileId == fileId),
+            nameof(AssetModelImage),
+            nameof(fileId),
+            fileId);
 
         var image = new AssetModelImage(fileId, filePath);
         _images.Add(image);
@@ -527,11 +510,9 @@ public class AssetModel : AggregateRoot, IAuditableEntity
         ValidateFileId(fileId);
 
         var image = _images.FirstOrDefault(img => img.FileId == fileId);
+        DomainGuard.AgainstNotFound(image, nameof(AssetModelImage), fileId);
 
-        if (image == null)
-            throw new DomainException($"Image with file ID {fileId} not found in this asset model");
-
-        _images.Remove(image);
+        _images.Remove(image!);
 
         // RaiseDomainEvent(new AssetModelImageRemovedEvent(Id, fileId));
     }
@@ -539,53 +520,43 @@ public class AssetModel : AggregateRoot, IAuditableEntity
     // Validation methods
     private static void ValidateCode(string code)
     {
-        if (string.IsNullOrWhiteSpace(code))
-            throw new DomainException("Asset model code cannot be empty");
-
-        if (code.Length > 50)
-            throw new DomainException("Asset model code cannot exceed 50 characters");
+        DomainGuard.AgainstNullOrEmpty(code, nameof(Code));
+        DomainGuard.AgainstTooLong(code, 50, nameof(Code));
     }
 
     private static void ValidateName(string name)
     {
-        if (string.IsNullOrWhiteSpace(name))
-            throw new DomainException("Asset model name cannot be empty");
-
-        if (name.Length > 200)
-            throw new DomainException("Asset model name cannot exceed 200 characters");
+        DomainGuard.AgainstNullOrEmpty(name, nameof(Name));
+        DomainGuard.AgainstTooLong(name, 200, nameof(Name));
     }
 
     private static void ValidateFileId(Guid fileId)
     {
-        if (fileId == Guid.Empty)
-            throw new DomainException("File ID cannot be empty");
+        DomainGuard.AgainstDefault(fileId, "FileId");
     }
 
     private static void ValidateFileUrl(string fileUrl)
     {
-        if (string.IsNullOrWhiteSpace(fileUrl))
-            throw new DomainException("File URL cannot be empty");
+        DomainGuard.AgainstNullOrEmpty(fileUrl, "FileUrl");
     }
 
     private static void ValidateFilePath(string filePath)
     {
-        if (string.IsNullOrWhiteSpace(filePath))
-            throw new DomainException("File path cannot be empty");
+        DomainGuard.AgainstNullOrEmpty(filePath, "FilePath");
     }
 
     private void ValidateMaintenancePlanLimit()
     {
-        if (_maintenancePlanDefinitions.Count >= MaxMaintenancePlansPerModel)
-            throw new DomainException($"Cannot exceed {MaxMaintenancePlansPerModel} maintenance plans per asset model");
+        DomainGuard.AgainstBusinessRule(
+            _maintenancePlanDefinitions.Count >= MaxMaintenancePlansPerModel,
+            "MaintenancePlanLimit",
+            $"Cannot exceed {MaxMaintenancePlansPerModel} maintenance plans per asset model");
     }
 
     private static void ValidateMaintenancePlanName(string name)
     {
-        if (string.IsNullOrWhiteSpace(name))
-            throw new DomainException("Maintenance plan name cannot be empty");
-
-        if (name.Length > 200)
-            throw new DomainException("Maintenance plan name cannot exceed 200 characters");
+        DomainGuard.AgainstNullOrEmpty(name, "MaintenancePlanName");
+        DomainGuard.AgainstTooLong(name, 200, "MaintenancePlanName");
     }
 
     private void ValidateParentId(long? parentId)
@@ -593,11 +564,12 @@ public class AssetModel : AggregateRoot, IAuditableEntity
         if (!parentId.HasValue)
             return;
 
-        if (parentId.Value <= 0)
-            throw new DomainException("Parent ID must be greater than zero");
-
-        if (parentId.Value == Id)
-            throw new DomainException("Asset model cannot be its own parent");
+        DomainGuard.AgainstNegativeOrZero(parentId.Value, nameof(ParentId));
+        DomainGuard.AgainstInvalidState(
+            parentId.Value == Id,
+            nameof(AssetModel),
+            $"ParentId={parentId.Value}",
+            "Asset model cannot be its own parent");
     }
 
     private static void ValidateForeignKey(long? foreignKeyId, string fieldName)
@@ -605,24 +577,8 @@ public class AssetModel : AggregateRoot, IAuditableEntity
         if (!foreignKeyId.HasValue)
             return;
 
-        if (foreignKeyId.Value <= 0)
-            throw new DomainException($"{fieldName} must be greater than zero");
+        DomainGuard.AgainstNegativeOrZero(foreignKeyId.Value, fieldName);
     }
-}
-
-public class AssetModelParameter
-{
-    public long AssetModelId { get; private set; }
-    public long ParameterId { get; private set; }
-
-    public AssetModelParameter(long parameterId)
-    {
-        ParameterId = parameterId;
-    }
-
-    private AssetModelParameter()
-    {
-    } // EF Core constructor
 }
 
 public class AssetModelImage
