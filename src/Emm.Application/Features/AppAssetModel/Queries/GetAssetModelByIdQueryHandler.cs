@@ -45,7 +45,7 @@ public class GetAssetModelByIdQueryHandler : IRequestHandler<GetAssetModelByIdQu
                 ModifiedBy = _qq.Query<User>()
                     .Where(u => u.Id == root.Audit.ModifiedByUserId)
                     .Select(u => u.DisplayName)
-                    .FirstOrDefault() ?? "System",
+                    .FirstOrDefault(),
 
                 ThumbnailFileId = root.ThumbnailFileId,
 

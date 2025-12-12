@@ -33,9 +33,7 @@ public class AddRequiredItemToMaintenancePlanCommandHandler : IRequestHandler<Ad
 
         return Result<object>.Success(new
         {
-            AssetModelId = request.AssetModelId,
-            MaintenancePlanId = request.MaintenancePlanId,
-            Message = "Required item added successfully"
+            request.AssetModelId,
         });
     }
 }

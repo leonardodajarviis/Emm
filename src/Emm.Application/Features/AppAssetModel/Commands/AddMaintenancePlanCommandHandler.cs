@@ -27,12 +27,12 @@ public class AddMaintenancePlanCommandHandler : IRequestHandler<AddMaintenancePl
         IReadOnlyCollection<MaintenancePlanJobStepDefinitionSpec>? jobSteps = null;
         if (request.JobSteps != null && request.JobSteps.Count > 0)
         {
-            jobSteps = request.JobSteps.Select(js => new MaintenancePlanJobStepDefinitionSpec(
+            jobSteps = [.. request.JobSteps.Select(js => new MaintenancePlanJobStepDefinitionSpec(
                 Name: js.Name,
                 OrganizationUnitId: js.OrganizationUnitId,
                 Note: js.Note,
                 Order: js.Order
-            )).ToList();
+            ))];
         }
 
         // Add maintenance plan based on plan type
@@ -105,8 +105,7 @@ public class AddMaintenancePlanCommandHandler : IRequestHandler<AddMaintenancePl
 
         return Result<object>.Success(new
         {
-            AssetModelId = request.AssetModelId,
-            Message = "Maintenance plan added successfully"
+            request.AssetModelId,
         });
     }
 }
