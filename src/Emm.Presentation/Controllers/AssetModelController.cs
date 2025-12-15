@@ -100,42 +100,12 @@ public class AssetModelController : ControllerBase
         return result.ToActionResult();
     }
 
-    [HttpPost("{id:long}/parameters")]
-    public async Task<IActionResult> AddParametersToAssetModel(
-        [FromRoute] long id,
-        [FromBody] List<long> parameterIds)
-    {
-        var command = new AddParametersToAssetModelCommand(
-            AssetModelId: id,
-            ParameterIds: parameterIds
-        );
-
-        var result = await _mediator.Send(command);
-
-        return result.ToActionResult();
-    }
-
-
-    [HttpDelete("{id:long}/parameters")]
-    public async Task<IActionResult> RemoveParametersFromAssetModel(
-        [FromRoute] long id,
-        [FromBody] List<long> parameterIds)
-    {
-        var command = new RemoveParametersFromAssetModelCommand(
-            AssetModelId: id,
-            ParameterIds: parameterIds
-        );
-
-        var result = await _mediator.Send(command);
-
-        return result.ToActionResult();
-    }
 
     [HttpPut("{id:long}/maintenance-plans/{maintenancePlanId:long}")]
     public async Task<IActionResult> UpdateMaintenancePlan(
         [FromRoute] long id,
         [FromRoute] long maintenancePlanId,
-        [FromBody] UpdateMaintenancePlan updateMaintenancePlan)
+        [FromBody] UpdateMaintenancePlanDto updateMaintenancePlan)
     {
         var command = new UpdateMaintenancePlanCommand(
             AssetModelId: id,

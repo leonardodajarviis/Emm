@@ -2,7 +2,7 @@ using Emm.Domain.Entities.AssetCatalog;
 
 namespace Emm.Application.Features.AppAssetModel.Dtos;
 
-public record UpdateMaintenancePlan
+public record UpdateMaintenancePlanDto
 {
     public required string Name { get; set; }
     public string? Description { get; set; }

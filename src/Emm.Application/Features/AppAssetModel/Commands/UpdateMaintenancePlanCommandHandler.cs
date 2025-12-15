@@ -108,8 +108,8 @@ public class UpdateMaintenancePlanCommandHandler : IRequestHandler<UpdateMainten
 
         return Result<object>.Success(new
         {
-            AssetModelId = request.AssetModelId,
-            MaintenancePlanId = request.MaintenancePlanId
+            request.AssetModelId,
+            request.MaintenancePlanId
         });
     }
 }
