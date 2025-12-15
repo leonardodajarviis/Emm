@@ -1949,7 +1949,7 @@ namespace Emm.Infrastructure.Migrations
 
                             b1.HasIndex("ModifiedByUserId");
 
-                            b1.ToTable("Assets");
+                            b1.ToTable("Assets", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("AssetId");
@@ -1999,7 +1999,7 @@ namespace Emm.Infrastructure.Migrations
 
                             b1.HasIndex("ModifiedByUserId");
 
-                            b1.ToTable("AssetCategories");
+                            b1.ToTable("AssetCategories", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("AssetCategoryId");
@@ -2064,7 +2064,7 @@ namespace Emm.Infrastructure.Migrations
 
                             b1.HasIndex("ModifiedByUserId");
 
-                            b1.ToTable("AssetModels");
+                            b1.ToTable("AssetModels", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("AssetModelId");
@@ -2159,7 +2159,7 @@ namespace Emm.Infrastructure.Migrations
 
                             b1.HasIndex("ModifiedByUserId");
 
-                            b1.ToTable("AssetTypes");
+                            b1.ToTable("AssetTypes", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("AssetTypeId");
@@ -2230,7 +2230,7 @@ namespace Emm.Infrastructure.Migrations
 
                             b1.HasIndex("ModifiedByUserId");
 
-                            b1.ToTable("MaintenancePlanDefinitions");
+                            b1.ToTable("MaintenancePlanDefinitions", (string)null);
 
                             b1.HasOne("Emm.Domain.Entities.User", null)
                                 .WithMany()
@@ -2324,7 +2324,7 @@ namespace Emm.Infrastructure.Migrations
 
                             b1.HasIndex("ModifiedByUserId");
 
-                            b1.ToTable("AssetAdditions");
+                            b1.ToTable("AssetAdditions", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("AssetAdditionId");
@@ -2391,7 +2391,7 @@ namespace Emm.Infrastructure.Migrations
 
                             b1.HasIndex("ModifiedByUserId");
 
-                            b1.ToTable("Permissions");
+                            b1.ToTable("Permissions", (string)null);
 
                             b1.HasOne("Emm.Domain.Entities.User", null)
                                 .WithMany()
@@ -2441,7 +2441,7 @@ namespace Emm.Infrastructure.Migrations
 
                             b1.HasIndex("ModifiedByUserId");
 
-                            b1.ToTable("Policies");
+                            b1.ToTable("Policies", (string)null);
 
                             b1.HasOne("Emm.Domain.Entities.User", null)
                                 .WithMany()
@@ -2483,7 +2483,7 @@ namespace Emm.Infrastructure.Migrations
 
                             b1.HasKey("RoleId");
 
-                            b1.ToTable("Roles");
+                            b1.ToTable("Roles", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("RoleId");
@@ -2585,7 +2585,7 @@ namespace Emm.Infrastructure.Migrations
 
                             b1.HasIndex("ModifiedByUserId");
 
-                            b1.ToTable("Items");
+                            b1.ToTable("Items", (string)null);
 
                             b1.HasOne("Emm.Domain.Entities.User", null)
                                 .WithMany()
@@ -2641,7 +2641,7 @@ namespace Emm.Infrastructure.Migrations
 
                             b1.HasIndex("ModifiedByUserId");
 
-                            b1.ToTable("IncidentReports");
+                            b1.ToTable("IncidentReports", (string)null);
 
                             b1.HasOne("Emm.Domain.Entities.User", null)
                                 .WithMany()
@@ -2691,7 +2691,7 @@ namespace Emm.Infrastructure.Migrations
 
                             b1.HasIndex("ModifiedByUserId");
 
-                            b1.ToTable("OperationShifts");
+                            b1.ToTable("OperationShifts", (string)null);
 
                             b1.HasOne("Emm.Domain.Entities.User", null)
                                 .WithMany()
@@ -2759,7 +2759,7 @@ namespace Emm.Infrastructure.Migrations
 
                             b1.HasIndex("ModifiedByUserId");
 
-                            b1.ToTable("ShiftLogs");
+                            b1.ToTable("ShiftLogs", (string)null);
 
                             b1.HasOne("Emm.Domain.Entities.User", null)
                                 .WithMany()
@@ -2853,7 +2853,7 @@ namespace Emm.Infrastructure.Migrations
 
                             b1.HasIndex("ModifiedByUserId");
 
-                            b1.ToTable("Locations");
+                            b1.ToTable("Locations", (string)null);
 
                             b1.HasOne("Emm.Domain.Entities.User", null)
                                 .WithMany()
@@ -2918,7 +2918,7 @@ namespace Emm.Infrastructure.Migrations
 
                             b1.HasIndex("ModifiedByUserId");
 
-                            b1.ToTable("ParameterCatalogs");
+                            b1.ToTable("ParameterCatalogs", (string)null);
 
                             b1.HasOne("Emm.Domain.Entities.User", null)
                                 .WithMany()

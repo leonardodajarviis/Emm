@@ -28,7 +28,7 @@ public class GetAssetAdditionsQueryHandler : IRequestHandler<GetAssetAdditionsQu
 
         var items = await query
             .ApplyOrderingAndPaging(queryRequest)
-            .Select(x => new AssetAdditionResponse
+            .Select(x => new AssetAdditionSummaryResponse
             {
                 Id = x.Id,
                 Code = x.Code,
@@ -45,15 +45,7 @@ public class GetAssetAdditionsQueryHandler : IRequestHandler<GetAssetAdditionsQu
                 DecisionNumber = x.DecisionNumber,
                 DecisionDate = x.DecisionDate,
                 Reason = x.Reason,
-                CreatedAt = x.Audit.CreatedAt,
-                AssetAdditionLines = x.AssetAdditionLines.Select(line => new AssetAdditionLineResponse
-                {
-                    Id = line.Id,
-                    AssetAdditionId = line.AssetAdditionId,
-                    AssetModelId = line.AssetModelId,
-                    AssetCode = line.AssetCode,
-                    UnitPrice = line.UnitPrice
-                }).ToList()
+                CreatedAt = x.Audit.CreatedAt
             })
             .ToListAsync(cancellationToken);
 

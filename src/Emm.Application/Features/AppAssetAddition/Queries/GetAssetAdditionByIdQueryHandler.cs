@@ -27,14 +27,17 @@ public class GetAssetAdditionByIdQueryHandler : IRequestHandler<GetAssetAddition
                 DecisionDate = x.DecisionDate,
                 Reason = x.Reason,
                 CreatedAt = x.Audit.CreatedAt,
-                AssetAdditionLines = x.AssetAdditionLines.Select(line => new AssetAdditionLineResponse
-                {
-                    Id = line.Id,
-                    AssetAdditionId = line.AssetAdditionId,
-                    AssetModelId = line.AssetModelId,
-                    AssetCode = line.AssetCode,
-                    UnitPrice = line.UnitPrice
-                }).ToList()
+                AssetAdditionLines = _queryContext.Query<AssetAdditionLine>()
+                    .Where(line => line.AssetAdditionId == x.Id)
+                    .Select(line => new AssetAdditionLineResponse
+                    {
+                        Id = line.Id,
+                        AssetAdditionId = line.AssetAdditionId,
+                        AssetModelId = line.AssetModelId,
+                        AssetCode = line.AssetCode,
+                        UnitPrice = line.UnitPrice
+                    })
+                    .ToList()
             })
             .FirstOrDefaultAsync(cancellationToken);
 
