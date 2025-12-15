@@ -35,4 +35,4 @@ public class AssetAdditionLine
     {
         AssetAddition = assetAddition ?? throw new ArgumentNullException(nameof(assetAddition));
     }
-}   
+}

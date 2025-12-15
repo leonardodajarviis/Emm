@@ -1,5 +1,7 @@
 using Emm.Application.Features.AppAssetAddition.Dtos;
 using Emm.Domain.Entities.AssetTransaction;
+using Emm.Domain.Entities.Organization;
+using Gridify;
 using Microsoft.EntityFrameworkCore;
 
 namespace Emm.Application.Features.AppAssetAddition.Queries;
@@ -15,21 +17,31 @@ public class GetAssetAdditionsQueryHandler : IRequestHandler<GetAssetAdditionsQu
 
     public async Task<Result<PagedResult>> Handle(GetAssetAdditionsQuery request, CancellationToken cancellationToken)
     {
+        var queryRequest = request.QueryRequest;
+
         var query = _queryContext.Query<AssetAddition>()
+            .ApplyFiltering(queryRequest)
             .AsQueryable()
             .OrderByDescending(x => x.Audit.CreatedAt);
 
         var totalCount = await query.CountAsync(cancellationToken);
 
         var items = await query
-            .Skip((request.QueryRequest.Page - 1) * request.QueryRequest.PageSize)
-            .Take(request.QueryRequest.PageSize)
+            .ApplyOrderingAndPaging(queryRequest)
             .Select(x => new AssetAdditionResponse
             {
                 Id = x.Id,
                 Code = x.Code,
                 OrganizationUnitId = x.OrganizationUnitId,
+                OrganizationUnitName = _queryContext.Query<OrganizationUnit>()
+                    .Where(ou => ou.Id == x.OrganizationUnitId)
+                    .Select(ou => ou.Name)
+                    .FirstOrDefault() ?? string.Empty,
                 LocationId = x.LocationId,
+                LocationName = _queryContext.Query<Location>()
+                    .Where(ou => ou.Id == x.LocationId)
+                    .Select(ou => ou.Name)
+                    .FirstOrDefault() ?? string.Empty,
                 DecisionNumber = x.DecisionNumber,
                 DecisionDate = x.DecisionDate,
                 Reason = x.Reason,

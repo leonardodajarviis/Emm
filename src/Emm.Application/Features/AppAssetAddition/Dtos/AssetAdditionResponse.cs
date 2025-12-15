@@ -5,7 +5,9 @@ public class AssetAdditionResponse
     public required long Id { get; set; }
     public required string Code { get; set; }
     public required long OrganizationUnitId { get; set; }
+    public string OrganizationUnitName { get; set; } = null!;
     public required long LocationId { get; set; }
+    public string LocationName { get; set; } = null!;
     public string? DecisionNumber { get; set; }
     public DateTime? DecisionDate { get; set; }
     public string? Reason { get; set; }
