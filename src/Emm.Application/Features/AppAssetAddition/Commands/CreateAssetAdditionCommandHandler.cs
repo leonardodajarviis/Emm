@@ -44,9 +44,10 @@ public class CreateAssetAdditionCommandHandler : IRequestHandler<CreateAssetAddi
 
             await _repository.AddAsync(assetAddition);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
-
             // Raise domain event after save to ensure Id is populated
             assetAddition.RegisterEvent();
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+
 
             return Result<object>.Success(new
             {
