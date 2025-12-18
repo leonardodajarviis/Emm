@@ -4,5 +4,5 @@ namespace Emm.Application.Features.AppOperationShift.Commands;
 
 public class CompleteShiftCommand : IRequest<Result<object>>
 {
-    public long ShiftId { get; set; }
+    public Guid ShiftId { get; set; }
 }

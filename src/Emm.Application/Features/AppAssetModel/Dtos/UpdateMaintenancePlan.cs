@@ -27,17 +27,17 @@ public record UpdateMaintenancePlanDto
 
 public record UpdateJobStepDto
 {
-    public long? Id { get; set; }  // null = thêm mới, có giá trị = update
+    public Guid? Id { get; set; }  // null = thêm mới, có giá trị = update
     public required string Name { get; set; }
-    public long? OrganizationUnitId { get; set; }
+    public Guid? OrganizationUnitId { get; set; }
     public string? Note { get; set; }
     public int Order { get; set; }
 }
 
 public record UpdateRequiredItemDto
 {
-    public long? Id { get; set; }  // null = thêm mới, có giá trị = update
-    public required long ItemId { get; set; }
+    public Guid? Id { get; set; }  // null = thêm mới, có giá trị = update
+    public required Guid ItemId { get; set; }
     public required decimal Quantity { get; set; }
     public required bool IsRequired { get; set; }
     public string? Note { get; set; }

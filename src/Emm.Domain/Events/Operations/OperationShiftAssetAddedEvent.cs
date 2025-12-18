@@ -7,15 +7,15 @@ namespace Emm.Domain.Events.Operations;
 /// </summary>
 public sealed record OperationShiftAssetAddedEvent : IDomainEvent
 {
-    public long ShiftId { get; init; }
-    public long AssetId { get; init; }
+    public Guid ShiftId { get; init; }
+    public Guid AssetId { get; init; }
     public string AssetCode { get; init; }
     public bool IsPrimary { get; init; }
     public DateTime OccurredOn { get; init; }
 
     public OperationShiftAssetAddedEvent(
-        long shiftId,
-        long assetId,
+        Guid shiftId,
+        Guid assetId,
         string assetCode,
         bool isPrimary)
     {

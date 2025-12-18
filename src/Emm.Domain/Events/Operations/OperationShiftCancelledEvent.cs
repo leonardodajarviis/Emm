@@ -7,12 +7,12 @@ namespace Emm.Domain.Events.Operations;
 /// </summary>
 public sealed record OperationShiftCancelledEvent : IDomainEvent
 {
-    public long ShiftId { get; init; }
+    public Guid ShiftId { get; init; }
     public string Reason { get; init; }
     public DateTime OccurredOn { get; init; }
 
     public OperationShiftCancelledEvent(
-        long shiftId,
+        Guid shiftId,
         string reason)
     {
         ShiftId = shiftId;

@@ -6,11 +6,11 @@ namespace Emm.Application.Features.AppAsset.Commands;
 public class CreateAssetCommandHandler : IRequestHandler<CreateAssetCommand, Result<object>>
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IRepository<Asset, long> _repository;
+    private readonly IRepository<Asset, Guid> _repository;
 
     public CreateAssetCommandHandler(
         IUnitOfWork unitOfWork,
-        IRepository<Asset, long> repository)
+        IRepository<Asset, Guid> repository)
     {
         ArgumentNullException.ThrowIfNull(unitOfWork);
         ArgumentNullException.ThrowIfNull(repository);
@@ -25,8 +25,10 @@ public class CreateAssetCommandHandler : IRequestHandler<CreateAssetCommand, Res
             code: request.Code,
             displayName: request.DisplayName,
             assetModelId: request.AssetModelId,
-            organizationUnitId: 1, // TODO: get from user context
-            locationId: 1, // TODO: get from user context
+            assetCategoryId: null, // TODO: get from AssetModel
+            assetTypeId: null, // TODO: get from AssetModel
+            organizationUnitId: Guid.Empty, // TODO: get from user context
+            locationId: Guid.Empty, // TODO: get from user context
             assetAdditionId: null,
             description: request.Description
         );

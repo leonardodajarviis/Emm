@@ -4,7 +4,6 @@ namespace Emm.Domain.Entities.Organization;
 
 public class OrganizationUnitLevel : AggregateRoot
 {
-    public long Id { get; private set; }
     public string Name { get; private set; } = null!;
     public string? Description { get; private set; }
     public int Level { get; private set; }

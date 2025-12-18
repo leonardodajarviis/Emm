@@ -5,15 +5,14 @@ namespace Emm.Domain.Entities;
 
 public class ParameterCatalog : AggregateRoot, IAuditableEntity
 {
-    public long Id { get; private set; }
     public string Code { get; private set; } = null!;
     public string Name { get; private set; } = null!;
-    public long UnitOfMeasureId { get; private set; }
+    public Guid UnitOfMeasureId { get; private set; }
     public string? Description { get; private set; }
     public bool IsCodeGenerated { get; private set; }
     public AuditMetadata Audit { get; private set; } = null!;
     public void SetAudit(AuditMetadata audit) => Audit = audit;
-    public ParameterCatalog(string code, string name, long unitOfMeasureId, string? description = null)
+    public ParameterCatalog(string code, string name, Guid unitOfMeasureId, string? description = null)
     {
         Code = code;
         Name = name;

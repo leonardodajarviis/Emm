@@ -11,7 +11,7 @@ public static class ApplicationExtensions
     {
         var assembly = Assembly.GetExecutingAssembly();
         services.AddMediator(assembly)
-            .AddPipelineBehavior(typeof(DomainExceptionHandlerBehavior<,>))
+            .AddPipelineBehavior(typeof(ApplicationExceptionHandlerBehavior<,>))
             .AddPipelineBehavior(typeof(AuthorizationBehavior<,>)); // Authorization at Application layer
 
         // Register validation services

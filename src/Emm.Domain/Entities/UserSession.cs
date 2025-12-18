@@ -4,8 +4,7 @@ namespace Emm.Domain.Entities;
 
 public class UserSession : AggregateRoot
 {
-    public long Id { get; private set; }
-    public long UserId { get; private set; }
+    public Guid UserId { get; private set; }
     public string AccessTokenJti { get; private set; } = null!;
     public string RefreshTokenJti { get; private set; } = null!;
     public DateTime AccessTokenExpiresAt { get; private set; }
@@ -22,7 +21,7 @@ public class UserSession : AggregateRoot
     private UserSession() { } // For EF Core
 
     public UserSession(
-        long userId,
+        Guid userId,
         string accessTokenJti,
         string refreshTokenJti,
         DateTime accessTokenExpiresAt,

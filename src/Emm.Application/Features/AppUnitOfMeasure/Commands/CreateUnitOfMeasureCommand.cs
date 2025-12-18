@@ -8,6 +8,6 @@ public record CreateUnitOfMeasureCommand(
     string Symbol,
     UnitType UnitType,
     string? Description = null,
-    long? BaseUnitId = null,
+    Guid? BaseUnitId = null,
     decimal? ConversionFactor = null
 ) : IRequest<Result<object>>;

@@ -10,7 +10,7 @@ public class SequenceNumberConfiguration : IEntityTypeConfiguration<SequenceNumb
         builder.ToTable("SequenceNumbers");
 
         builder.HasKey(x => x.Id);
-        builder.Property(x => x.Id).ValueGeneratedOnAdd();
+        builder.Property(x => x.Id).ValueGeneratedNever();
 
         builder.Property(x => x.Prefix)
             .IsRequired()

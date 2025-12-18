@@ -15,17 +15,17 @@ public class CancelShiftRequest
 
 public class AddAssetsRequest
 {
-    public IReadOnlyCollection<long> AssetIds { get; set; } = [];
+    public IReadOnlyCollection<Guid> AssetIds { get; set; } = [];
 }
 
 public class AssetToAddRequest
 {
-    public long AssetId { get; set; }
+    public Guid AssetId { get; set; }
     public string AssetCode { get; set; } = null!;
     public string AssetName { get; set; } = null!;
     public string AssetType { get; set; } = null!;
     public bool IsPrimary { get; set; } = false;
-    public long? AssetGroupId { get; set; }
+    public Guid? AssetGroupId { get; set; }
 }
 
 public class CreateAssetGroupRequest
@@ -46,6 +46,6 @@ public class UpdateAssetGroupRequest
 
 public class AssignAssetToGroupRequest
 {
-    public required long AssetId { get; set; }
-    public long? AssetGroupId { get; set; }
+    public required Guid AssetId { get; set; }
+    public Guid? AssetGroupId { get; set; }
 }

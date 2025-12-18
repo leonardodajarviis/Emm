@@ -3,6 +3,6 @@ using Emm.Application.Common;
 namespace Emm.Application.Features.AppOperationShift.Commands;
 
 public record AssignAssetToBoxCommand(
-    long OperationShiftId,
-    long AssetId,
-    long? AssetBoxId) : IRequest<Result<object>>;
+    Guid OperationShiftId,
+    Guid AssetId,
+    Guid? AssetBoxId) : IRequest<Result<object>>;

@@ -1,6 +1,6 @@
 namespace Emm.Application.Features.AppAssetModel.Commands;
 
 public record RemoveImagesFromAssetModelCommand(
-    long AssetModelId,
+    Guid AssetModelId,
     List<Guid> FileIds
 ) : IRequest<Result<object>>;

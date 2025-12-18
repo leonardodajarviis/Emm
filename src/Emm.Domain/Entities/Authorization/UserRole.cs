@@ -5,16 +5,16 @@ namespace Emm.Domain.Entities.Authorization;
 /// </summary>
 public class UserRole
 {
-    public long UserId { get; private set; }
-    public long RoleId { get; private set; }
+    public Guid UserId { get; private set; }
+    public Guid RoleId { get; private set; }
     public DateTime AssignedAt { get; private set; }
-    public long? AssignedBy { get; private set; }
+    public Guid? AssignedBy { get; private set; }
 
     // Navigation properties
     public User User { get; private set; } = null!;
     public Role Role { get; private set; } = null!;
 
-    public UserRole(long userId, long roleId, long? assignedBy = null)
+    public UserRole(Guid userId, Guid roleId, Guid? assignedBy = null)
     {
         UserId = userId;
         RoleId = roleId;

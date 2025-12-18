@@ -2,15 +2,15 @@ using Emm.Domain.Abstractions;
 
 namespace Emm.Domain.Events.AssetAddition;
 
-public record AssetAdditionCreatedEvent : IImmediateDomainEvent
+public record AssetAdditionCreatedEvent : IDomainEvent
 {
-    public long AssetAdditionId { get; }
-    public long LocationId { get; }
-    public long OrganizationUnitId { get; }
+    public Guid AssetAdditionId { get; }
+    public Guid LocationId { get; }
+    public Guid OrganizationUnitId { get; }
     public IReadOnlyCollection<AssetAdditionCreatedEventAssetLine> AssetLines { get; } = [];
     public DateTime OccurredOn { get; } = DateTime.UtcNow;
 
-    public AssetAdditionCreatedEvent(long assetAdditionId, long locationId, long organizationUnitId, IReadOnlyCollection<AssetAdditionCreatedEventAssetLine> assetLines)
+    public AssetAdditionCreatedEvent(Guid assetAdditionId, Guid locationId, Guid organizationUnitId, IReadOnlyCollection<AssetAdditionCreatedEventAssetLine> assetLines)
     {
         AssetAdditionId = assetAdditionId;
         LocationId = locationId;
@@ -21,10 +21,10 @@ public record AssetAdditionCreatedEvent : IImmediateDomainEvent
 
 public sealed record AssetAdditionCreatedEventAssetLine
 {
-    public long AssetModelId { get; }
+    public Guid AssetModelId { get; }
     public string AssetCode { get; }
 
-    public AssetAdditionCreatedEventAssetLine(long assetModelId, string assetCode)
+    public AssetAdditionCreatedEventAssetLine(Guid assetModelId, string assetCode)
     {
         AssetModelId = assetModelId;
         AssetCode = assetCode;

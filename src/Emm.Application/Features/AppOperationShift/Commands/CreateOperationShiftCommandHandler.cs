@@ -58,7 +58,7 @@ public class CreateOperationShiftCommandHandler : IRequestHandler<CreateOperatio
             var operationShift = new OperationShift(
                 code: code,
                 name: request.Name,
-                primaryEmployeeId: userId.Value,
+                primaryUserId: userId.Value,
                 organizationUnitId: organizationUnitId.Value,
                 scheduledStartTime: _dateTimeProvider.Now,
                 scheduledEndTime: _dateTimeProvider.Now.AddHours(12),
@@ -66,7 +66,7 @@ public class CreateOperationShiftCommandHandler : IRequestHandler<CreateOperatio
             );
 
             // === PHASE 1: Create Boxes and save to get IDs ===
-            var boxNameToAssetIdsMap = new Dictionary<string, List<long>>();
+            var boxNameToAssetIdsMap = new Dictionary<string, List<Guid>>();
 
             if (request.AssetBoxes?.Count > 0)
             {
@@ -93,7 +93,7 @@ public class CreateOperationShiftCommandHandler : IRequestHandler<CreateOperatio
 
             // === PHASE 2: Add Assets with Box IDs ===
             // Collect all asset IDs from both direct assets and box assets
-            var allAssetIds = new HashSet<long>();
+            var allAssetIds = new HashSet<Guid>();
             if (request.Assets?.Count > 0)
             {
                 foreach (var asset in request.Assets)

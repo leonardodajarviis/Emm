@@ -4,5 +4,5 @@ using LazyNet.Symphony.Interfaces;
 namespace Emm.Application.Features.AppRole.Queries;
 
 public record GetRoleByIdQuery(
-    long Id
+    Guid Id
 ) : IRequest<Result<RoleResponse>>;

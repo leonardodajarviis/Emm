@@ -9,11 +9,10 @@ namespace Emm.Domain.Entities.Maintenance;
 /// </summary>
 public class IncidentReport : AggregateRoot, IAuditableEntity
 {
-    public long Id { get; private set; }
     public string Code { get; private set; } = null!;
     public string Title { get; private set; } = null!;
     public string Description { get; private set; } = null!;
-    public long AssetId { get; private set; }
+    public Guid AssetId { get; private set; }
     public DateTime ReportedAt { get; private set; }
     public IncidentPriority Priority { get; private set; }
     public IncidentStatus Status { get; private set; }
@@ -26,14 +25,14 @@ public class IncidentReport : AggregateRoot, IAuditableEntity
         string code,
         string title,
         string description,
-        long assetId,
+        Guid assetId,
         IncidentPriority priority
     )
     {
         if (string.IsNullOrWhiteSpace(code)) throw new DomainException("Code is required");
         if (string.IsNullOrWhiteSpace(title)) throw new DomainException("Title is required");
         if (string.IsNullOrWhiteSpace(description)) throw new DomainException("Description is required");
-        if (assetId <= 0) throw new DomainException("AssetId is required");
+        DomainGuard.AgainstInvalidForeignKey(assetId, nameof(AssetId));
 
         Code = code;
         Title = title;

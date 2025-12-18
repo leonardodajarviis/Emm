@@ -27,8 +27,8 @@ public class ParameterCatalogController : ControllerBase
         return result.ToActionResult();
     }
 
-    [HttpPut("{id:long}")]
-    public async Task<IActionResult> UpdateParameterCatalog([FromRoute] long id, [FromBody] UpdateParameterCatalog updateParameterCatalog)
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateParameterCatalog([FromRoute] Guid id, [FromBody] UpdateParameterCatalog updateParameterCatalog)
     {
         var command = new UpdateParameterCatalogCommand(
             Id: id,
@@ -41,10 +41,10 @@ public class ParameterCatalogController : ControllerBase
         return result.ToActionResult();
     }
 
-    [HttpDelete("{id:long}")]
-    public async Task<IActionResult> DeleteParameterCatalog([FromRoute] long id)
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteParameterCatalog([FromRoute] Guid id)
     {
-        var command = new DeleteParameterCatalogCommand(Id: id);
+        var command = new DeleteParameterCatalogCommand(id);
         var result = await _mediator.Send(command);
 
         return result.ToActionResult();
@@ -59,8 +59,8 @@ public class ParameterCatalogController : ControllerBase
         return result.ToActionResult();
     }
 
-    [HttpGet("{id:long}")]
-    public async Task<IActionResult> GetParameterCatalogById([FromRoute] long id)
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetParameterCatalogById([FromRoute] Guid id)
     {
         var query = new GetParameterCatalogByIdQuery(id);
         var result = await _mediator.Send(query);

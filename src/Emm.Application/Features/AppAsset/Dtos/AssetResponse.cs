@@ -4,10 +4,10 @@ namespace Emm.Application.Features.AppAsset.Dtos;
 
 public class AssetSummaryResponse
 {
-    public required long Id { get; set; }
+    public required Guid Id { get; set; }
     public required string Code { get; set; }
     public required string DisplayName { get; set; }
-    public required long AssetModelId { get; set; }
+    public required Guid AssetModelId { get; set; }
     public string? Description { get; set; }
     public int Status { get; set; }
     public required DateTime CreatedAt { get; set; }
@@ -17,21 +17,21 @@ public class AssetSummaryResponse
 
 public class AssetResponse
 {
-    public required long Id { get; set; }
+    public required Guid Id { get; set; }
     public required string Code { get; set; }
     public required string DisplayName { get; set; }
-    public required long AssetCategoryId { get; set; }
+    public required Guid AssetCategoryId { get; set; }
     public string? AssetCategoryCode { get; set; }
     public string? AssetCategoryName { get; set; }
-    public required long AssetModelId { get; set; }
+    public required Guid AssetModelId { get; set; }
     public string? AssetModelCode { get; set; }
     public string? AssetModelName { get; set; }
-    public required long AssetTypeId { get; set; }
+    public required Guid AssetTypeId { get; set; }
     public string? AssetTypeCode { get; set; }
     public string? AssetTypeName { get; set; }
-    public long? OrganizationUnitId { get; set; }
+    public Guid? OrganizationUnitId { get; set; }
     public string? OrganizationUnitName { get; set; }
-    public long? LocationId { get; set; }
+    public Guid? LocationId { get; set; }
     public string? LocationName { get; set; }
     public string? Description { get; set; }
     public required DateTime CreatedAt { get; set; }

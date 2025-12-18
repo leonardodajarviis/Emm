@@ -7,12 +7,12 @@ namespace Emm.Application.Features.AppIncidentReport.Commands;
 public class UpdateIncidentReportCommandHandler : IRequestHandler<UpdateIncidentReportCommand, Result<object>>
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IRepository<IncidentReport, long> _repository;
+    private readonly IRepository<IncidentReport, Guid> _repository;
     private readonly ISecurityService _securityService;
 
     public UpdateIncidentReportCommandHandler(
         IUnitOfWork unitOfWork,
-        IRepository<IncidentReport, long> repository,
+        IRepository<IncidentReport, Guid> repository,
         ISecurityService securityService)
     {
         _unitOfWork = unitOfWork;

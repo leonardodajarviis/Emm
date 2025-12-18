@@ -1,10 +1,10 @@
 namespace Emm.Application.Features.AppOrganizationUnit.Commands;
 
 public record UpdateOrganizationUnitCommand(
-    long Id,
+    Guid Id,
     string Name,
-    long OrganizationUnitLevelId,
+    Guid OrganizationUnitLevelId,
     string? Description,
     bool IsActive,
-    long? ParentId
+    Guid? ParentId
 ) : IRequest<Result<object>>;

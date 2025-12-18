@@ -3,8 +3,8 @@ using Emm.Domain.Entities.AssetCatalog;
 namespace Emm.Application.Features.AppAssetModel.Commands;
 
 public record UpdateMaintenancePlanCommand(
-    long AssetModelId,
-    long MaintenancePlanId,
+    Guid AssetModelId,
+    Guid MaintenancePlanId,
     string Name,
     string? Description,
     bool IsActive,
@@ -23,16 +23,16 @@ public record UpdateMaintenancePlanCommand(
 ) : IRequest<Result<object>>;
 
 public record UpdateJobStepCommand(
-    long? Id,  // null = new, has value = update
+    Guid? Id,  // null = new, has value = update
     string Name,
-    long? OrganizationUnitId,
+    Guid? OrganizationUnitId,
     string? Note,
     int Order
 );
 
 public record UpdateRequiredItemCommand(
-    long? Id,  // null = new, has value = update
-    long ItemId,
+    Guid? Id,  // null = new, has value = update
+    Guid ItemId,
     decimal Quantity,
     bool IsRequired,
     string? Note

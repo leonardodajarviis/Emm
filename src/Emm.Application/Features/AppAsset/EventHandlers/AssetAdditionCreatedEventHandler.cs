@@ -47,6 +47,8 @@ public class AssetAdditionCreatedEventHandler : IEventHandler<AssetAdditionCreat
                 code: line.AssetCode,
                 displayName: assetModel.Name,
                 assetModelId: line.AssetModelId,
+                assetCategoryId: assetModel.AssetCategoryId,
+                assetTypeId: assetModel.AssetTypeId,
                 organizationUnitId: @event.OrganizationUnitId,
                 locationId: @event.LocationId,
                 assetAdditionId: @event.AssetAdditionId,
@@ -61,7 +63,7 @@ public class AssetAdditionCreatedEventHandler : IEventHandler<AssetAdditionCreat
             assets.Add(asset);
         }
 
+        // Only add to repository - SaveChanges will be called by the outbox processor
         _assetRepository.AddRange(assets);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 }

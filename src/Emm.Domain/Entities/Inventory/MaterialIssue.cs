@@ -12,21 +12,20 @@ public class MaterialIssue : AggregateRoot, IAuditableEntity
 {
     private const int MaxLinesPerIssue = 100;
 
-    public long Id { get; private set; }
     public string Code { get; private set; } = null!;
-    public long? MaterialRequestId { get; private set; }
+    public Guid? MaterialRequestId { get; private set; }
     public string? MaterialRequestCode { get; private set; }
-    public long WarehouseId { get; private set; }
-    public long OrganizationUnitId { get; private set; }
-    public long IssuedByUserId { get; private set; }
-    public long ReceivedByUserId { get; private set; }
+    public Guid WarehouseId { get; private set; }
+    public Guid OrganizationUnitId { get; private set; }
+    public Guid IssuedByUserId { get; private set; }
+    public Guid ReceivedByUserId { get; private set; }
     public MaterialIssueStatus Status { get; private set; }
 
     public DateTime IssueDate { get; private set; }
     public string? Remarks { get; private set; }
 
     public DateTime? ConfirmedAt { get; private set; }
-    public long? ConfirmedByUserId { get; private set; }
+    public Guid? ConfirmedByUserId { get; private set; }
 
     public AuditMetadata Audit { get; private set; } = null!;
     public void SetAudit(AuditMetadata audit) => Audit = audit;
@@ -41,20 +40,20 @@ public class MaterialIssue : AggregateRoot, IAuditableEntity
 
     public MaterialIssue(
         string code,
-        long warehouseId,
-        long organizationUnitId,
-        long issuedByUserId,
-        long receivedByUserId,
+        Guid warehouseId,
+        Guid organizationUnitId,
+        Guid issuedByUserId,
+        Guid receivedByUserId,
         DateTime issueDate,
-        long? materialRequestId = null,
+        Guid? materialRequestId = null,
         string? materialRequestCode = null,
         string? remarks = null)
     {
         ValidateCode(code);
-        ValidateForeignKey(warehouseId, nameof(WarehouseId));
-        ValidateForeignKey(organizationUnitId, nameof(OrganizationUnitId));
-        ValidateForeignKey(issuedByUserId, nameof(IssuedByUserId));
-        ValidateForeignKey(receivedByUserId, nameof(ReceivedByUserId));
+        DomainGuard.AgainstInvalidForeignKey(warehouseId, nameof(WarehouseId));
+        DomainGuard.AgainstInvalidForeignKey(organizationUnitId, nameof(OrganizationUnitId));
+        DomainGuard.AgainstInvalidForeignKey(issuedByUserId, nameof(IssuedByUserId));
+        DomainGuard.AgainstInvalidForeignKey(receivedByUserId, nameof(ReceivedByUserId));
 
         _lines = [];
 
@@ -75,7 +74,7 @@ public class MaterialIssue : AggregateRoot, IAuditableEntity
     #region Line Management
 
     public void AddLine(
-        long itemId,
+        Guid itemId,
         string itemCode,
         string itemName,
         decimal quantity,
@@ -83,7 +82,7 @@ public class MaterialIssue : AggregateRoot, IAuditableEntity
         string? unit = null,
         string? lotNumber = null,
         string? serialNumber = null,
-        long? locationId = null,
+        Guid? locationId = null,
         string? remarks = null)
     {
         if (Status != MaterialIssueStatus.Draft)
@@ -111,7 +110,7 @@ public class MaterialIssue : AggregateRoot, IAuditableEntity
         // RaiseDomainEvent(new MaterialIssueLineAddedEvent(Id, itemId, quantity));
     }
 
-    public void UpdateLineQuantity(long itemId, decimal newQuantity)
+    public void UpdateLineQuantity(Guid itemId, decimal newQuantity)
     {
         if (Status != MaterialIssueStatus.Draft)
             throw new DomainException("Can only update lines in draft issues");
@@ -124,7 +123,7 @@ public class MaterialIssue : AggregateRoot, IAuditableEntity
         // RaiseDomainEvent(new MaterialIssueLineUpdatedEvent(Id, itemId, newQuantity));
     }
 
-    public void RemoveLine(long itemId)
+    public void RemoveLine(Guid itemId)
     {
         if (Status != MaterialIssueStatus.Draft)
             throw new DomainException("Can only remove lines from draft issues");
@@ -164,12 +163,12 @@ public class MaterialIssue : AggregateRoot, IAuditableEntity
         // RaiseDomainEvent(new MaterialIssueSubmittedEvent(Id, Code));
     }
 
-    public void Confirm(long confirmedByUserId)
+    public void Confirm(Guid confirmedByUserId)
     {
         if (Status != MaterialIssueStatus.Pending)
             throw new DomainException("Only pending issues can be confirmed");
 
-        ValidateForeignKey(confirmedByUserId, nameof(confirmedByUserId));
+        DomainGuard.AgainstInvalidForeignKey(confirmedByUserId, nameof(confirmedByUserId));
 
         Status = MaterialIssueStatus.Confirmed;
         ConfirmedByUserId = confirmedByUserId;
@@ -225,12 +224,6 @@ public class MaterialIssue : AggregateRoot, IAuditableEntity
             throw new DomainException("Material issue code cannot exceed 50 characters");
     }
 
-    private static void ValidateForeignKey(long foreignKeyId, string fieldName)
-    {
-        if (foreignKeyId <= 0)
-            throw new DomainException($"{fieldName} must be greater than zero");
-    }
-
     #endregion
 }
 
@@ -254,9 +247,9 @@ public enum MaterialIssueStatus
 /// </summary>
 public class MaterialIssueLine
 {
-    public long Id { get; private set; }
+    public Guid Id { get; private set; }
     public int LineNumber { get; private set; }
-    public long ItemId { get; private set; }
+    public Guid ItemId { get; private set; }
     public string ItemCode { get; private set; } = null!;
     public string ItemName { get; private set; } = null!;
     public decimal Quantity { get; private set; }
@@ -264,7 +257,7 @@ public class MaterialIssueLine
     public string? Unit { get; private set; }
     public string? LotNumber { get; private set; }
     public string? SerialNumber { get; private set; }
-    public long? LocationId { get; private set; }
+    public Guid? LocationId { get; private set; }
     public string? Remarks { get; private set; }
 
     public decimal TotalCost => Quantity * UnitCost;
@@ -273,7 +266,7 @@ public class MaterialIssueLine
 
     public MaterialIssueLine(
         int lineNumber,
-        long itemId,
+        Guid itemId,
         string itemCode,
         string itemName,
         decimal quantity,
@@ -281,11 +274,10 @@ public class MaterialIssueLine
         string? unit = null,
         string? lotNumber = null,
         string? serialNumber = null,
-        long? locationId = null,
+        Guid? locationId = null,
         string? remarks = null)
     {
-        if (itemId <= 0)
-            throw new DomainException("ItemId must be greater than zero");
+        DomainGuard.AgainstInvalidForeignKey(itemId, nameof(ItemId));
 
         if (string.IsNullOrWhiteSpace(itemCode))
             throw new DomainException("Item code cannot be empty");

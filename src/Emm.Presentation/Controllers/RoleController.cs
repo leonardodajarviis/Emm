@@ -33,7 +33,7 @@ public class RoleController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(long id, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
     {
         var role = await _roleRepository.GetByIdWithPermissionsAsync(id, cancellationToken);
         if (role == null)
@@ -74,7 +74,7 @@ public class RoleController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(long id, [FromBody] UpdateRoleRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateRoleRequest request, CancellationToken cancellationToken)
     {
         var role = await _roleRepository.GetByIdAsync(id, cancellationToken);
         if (role == null)
@@ -88,7 +88,7 @@ public class RoleController : ControllerBase
     }
 
     [HttpPost("{id}/permissions")]
-    public async Task<IActionResult> AddPermission(long id, [FromBody] AddPermissionToRoleRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> AddPermission(Guid id, [FromBody] AddPermissionToRoleRequest request, CancellationToken cancellationToken)
     {
         var role = await _roleRepository.GetByIdWithPermissionsAsync(id, cancellationToken);
         if (role == null)
@@ -106,7 +106,7 @@ public class RoleController : ControllerBase
     }
 
     [HttpDelete("{id}/permissions/{permissionId}")]
-    public async Task<IActionResult> RemovePermission(long id, long permissionId, CancellationToken cancellationToken)
+    public async Task<IActionResult> RemovePermission(Guid id, Guid permissionId, CancellationToken cancellationToken)
     {
         var role = await _roleRepository.GetByIdWithPermissionsAsync(id, cancellationToken);
         if (role == null)
@@ -120,7 +120,7 @@ public class RoleController : ControllerBase
     }
 
     [HttpPost("{id}/activate")]
-    public async Task<IActionResult> Activate(long id, CancellationToken cancellationToken)
+    public async Task<IActionResult> Activate(Guid id, CancellationToken cancellationToken)
     {
         var role = await _roleRepository.GetByIdAsync(id, cancellationToken);
         if (role == null)
@@ -134,7 +134,7 @@ public class RoleController : ControllerBase
     }
 
     [HttpPost("{id}/deactivate")]
-    public async Task<IActionResult> Deactivate(long id, CancellationToken cancellationToken)
+    public async Task<IActionResult> Deactivate(Guid id, CancellationToken cancellationToken)
     {
         var role = await _roleRepository.GetByIdAsync(id, cancellationToken);
         if (role == null)
@@ -148,7 +148,7 @@ public class RoleController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(long id, CancellationToken cancellationToken)
+    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
     {
         var role = await _roleRepository.GetByIdAsync(id, cancellationToken);
         if (role == null)
@@ -164,7 +164,7 @@ public class RoleController : ControllerBase
     }
 
     [HttpPost("users/{userId}/roles")]
-    public async Task<IActionResult> AssignRoleToUser(long userId, [FromBody] AssignRoleRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> AssignRoleToUser(Guid userId, [FromBody] AssignRoleRequest request, CancellationToken cancellationToken)
     {
         var role = await _roleRepository.GetByIdAsync(request.RoleId, cancellationToken);
         if (role == null)
@@ -175,7 +175,7 @@ public class RoleController : ControllerBase
             return BadRequest("User already has this role");
 
         var userIdClaim = User.FindFirst("userId");
-        long? assignedBy = userIdClaim != null && long.TryParse(userIdClaim.Value, out var id) ? id : null;
+        Guid? assignedBy = userIdClaim != null && Guid.TryParse(userIdClaim.Value, out var id) ? id : null;
 
         var userRole = new UserRole(userId, request.RoleId, assignedBy);
         await _userRoleRepository.AddAsync(userRole, cancellationToken);
@@ -185,7 +185,7 @@ public class RoleController : ControllerBase
     }
 
     [HttpDelete("users/{userId}/roles/{roleId}")]
-    public async Task<IActionResult> RemoveRoleFromUser(long userId, long roleId, CancellationToken cancellationToken)
+    public async Task<IActionResult> RemoveRoleFromUser(Guid userId, Guid roleId, CancellationToken cancellationToken)
     {
         var userRole = await _userRoleRepository.GetAsync(userId, roleId, cancellationToken);
         if (userRole == null)
@@ -200,5 +200,5 @@ public class RoleController : ControllerBase
 
 public record CreateRoleRequest(string Code, string Name, string? Description);
 public record UpdateRoleRequest(string Name, string? Description);
-public record AddPermissionToRoleRequest(long PermissionId);
-public record AssignRoleRequest(long RoleId);
+public record AddPermissionToRoleRequest(Guid PermissionId);
+public record AssignRoleRequest(Guid RoleId);

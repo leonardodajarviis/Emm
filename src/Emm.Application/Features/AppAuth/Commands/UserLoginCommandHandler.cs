@@ -58,7 +58,6 @@ public class UserLoginCommandHandler : IRequestHandler<UserLoginCommand, Result<
 
         var tokens = _jwtService.GenerateTokens(user.Id, user.Username, identity =>
         {
-            identity.AddClaim(new Claim("employeeId", user.EmployeeId?.ToString() ?? "no-employee"));
             identity.AddClaim(new Claim("organizationUnitId", user.OrganizationUnitId?.ToString() ?? "no-organization-unit"));
             // Add other claims as needed
         });

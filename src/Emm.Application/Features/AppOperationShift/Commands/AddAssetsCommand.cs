@@ -4,7 +4,7 @@ namespace Emm.Application.Features.AppOperationShift.Commands;
 
 public class AddAssetsCommand : IRequest<Result<object>>
 {
-    public long ShiftId { get; set; }
-    public IReadOnlyCollection<long> AssetIds { get; set; } = [];
-    public long? AssetBoxId { get; set; }
+    public Guid ShiftId { get; set; }
+    public IReadOnlyCollection<Guid> AssetIds { get; set; } = [];
+    public Guid? AssetBoxId { get; set; }
 }

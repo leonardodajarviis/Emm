@@ -2,11 +2,11 @@ namespace Emm.Application.Features.AppAssetAddition.Dtos;
 
 public class AssetAdditionSummaryResponse
 {
-    public required long Id { get; set; }
+    public required Guid Id { get; set; }
     public required string Code { get; set; }
-    public required long OrganizationUnitId { get; set; }
+    public required Guid OrganizationUnitId { get; set; }
     public string OrganizationUnitName { get; set; } = null!;
-    public required long LocationId { get; set; }
+    public required Guid LocationId { get; set; }
     public string LocationName { get; set; } = null!;
     public string? DecisionNumber { get; set; }
     public DateTime? DecisionDate { get; set; }
@@ -16,11 +16,11 @@ public class AssetAdditionSummaryResponse
 
 public class AssetAdditionResponse
 {
-    public required long Id { get; set; }
+    public required Guid Id { get; set; }
     public required string Code { get; set; }
-    public required long OrganizationUnitId { get; set; }
+    public required Guid OrganizationUnitId { get; set; }
     public string OrganizationUnitName { get; set; } = null!;
-    public required long LocationId { get; set; }
+    public required Guid LocationId { get; set; }
     public string LocationName { get; set; } = null!;
     public string? DecisionNumber { get; set; }
     public DateTime? DecisionDate { get; set; }
@@ -31,9 +31,9 @@ public class AssetAdditionResponse
 
 public class AssetAdditionLineResponse
 {
-    public required long Id { get; set; }
-    public required long AssetAdditionId { get; set; }
-    public required long AssetModelId { get; set; }
+    public required Guid Id { get; set; }
+    public required Guid AssetAdditionId { get; set; }
+    public required Guid AssetModelId { get; set; }
     public required string AssetCode { get; set; }
     public required decimal UnitPrice { get; set; }
 }

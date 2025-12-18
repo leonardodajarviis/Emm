@@ -10,13 +10,11 @@ namespace Emm.Domain.Entities.Operations;
 /// </summary>
 public class OperationShift : AggregateRoot, IAuditableEntity
 {
-    public long Id { get; private set; }
-
     public string Code { get; private set; } = null!;
     public string Name { get; private set; } = null!;
     public string? Description { get; private set; }
-    public long OrganizationUnitId { get; private set; }
-    public long PrimaryUserId { get; private set; }
+    public Guid OrganizationUnitId { get; private set; }
+    public Guid PrimaryUserId { get; private set; }
     public bool IsCheckpointLogEnabled { get; private set; }
     public DateTime ScheduledStartTime { get; private set; }
     public DateTime ScheduledEndTime { get; private set; }
@@ -37,8 +35,8 @@ public class OperationShift : AggregateRoot, IAuditableEntity
     public OperationShift(
         string code,
         string name,
-        long primaryEmployeeId,
-        long organizationUnitId,
+        Guid primaryUserId,
+        Guid organizationUnitId,
         DateTime scheduledStartTime,
         DateTime scheduledEndTime,
         string? notes = null)
@@ -54,7 +52,7 @@ public class OperationShift : AggregateRoot, IAuditableEntity
         Code = code;
         Name = name;
         Notes = notes;
-        PrimaryUserId = primaryEmployeeId;
+        PrimaryUserId = primaryUserId;
         OrganizationUnitId = organizationUnitId;
         ScheduledStartTime = scheduledStartTime;
         ScheduledEndTime = scheduledEndTime;
@@ -64,8 +62,8 @@ public class OperationShift : AggregateRoot, IAuditableEntity
     public OperationShift(
         string code,
         string name,
-        long primaryEmployeeId,
-        long organizationUnitId,
+        Guid primaryUserId,
+        Guid organizationUnitId,
         DateTime scheduledStartTime,
         DateTime scheduledEndTime,
         IEnumerable<OperationShiftAssetSpec> assets,
@@ -81,7 +79,7 @@ public class OperationShift : AggregateRoot, IAuditableEntity
 
         Code = code;
         Name = name;
-        PrimaryUserId = primaryEmployeeId;
+        PrimaryUserId = primaryUserId;
         OrganizationUnitId = organizationUnitId;
         ScheduledStartTime = scheduledStartTime;
         ScheduledEndTime = scheduledEndTime;
@@ -157,13 +155,13 @@ public class OperationShift : AggregateRoot, IAuditableEntity
     }
 
     public void AddAsset(
-        long assetId,
+        Guid assetId,
         string assetCode,
         string assetName,
         bool isPrimary = false,
-        long? assetBoxId = null)
+        Guid? assetBoxId = null)
     {
-        DomainGuard.AgainstNegativeOrZero(assetId, nameof(assetId));
+        DomainGuard.AgainstInvalidForeignKey(assetId, nameof(assetId));
         DomainGuard.AgainstNullOrEmpty(assetCode, nameof(assetCode));
         DomainGuard.AgainstNullOrEmpty(assetName, nameof(assetName));
 
@@ -199,7 +197,7 @@ public class OperationShift : AggregateRoot, IAuditableEntity
         Raise(new OperationShiftAssetAddedEvent(Id, assetId, assetCode, isPrimary));
     }
 
-    public void RemoveAsset(long assetId)
+    public void RemoveAsset(Guid assetId)
     {
         DomainGuard.AgainstInvalidState(
             Status != OperationShiftStatus.Scheduled,
@@ -216,7 +214,7 @@ public class OperationShift : AggregateRoot, IAuditableEntity
     public void Update(
         string name,
         string? description,
-        long locationId,
+        Guid locationId,
         DateTime scheduledStartTime,
         DateTime scheduledEndTime)
     {
@@ -237,7 +235,7 @@ public class OperationShift : AggregateRoot, IAuditableEntity
         ValidateName(name);
         ValidateScheduleTimes(scheduledStartTime, scheduledEndTime);
 
-        DomainGuard.AgainstNegativeOrZero(locationId, nameof(locationId));
+        DomainGuard.AgainstInvalidForeignKey(locationId, nameof(locationId));
 
         Name = name;
         Description = description;
@@ -250,17 +248,17 @@ public class OperationShift : AggregateRoot, IAuditableEntity
         Notes = notes;
     }
 
-    public void ChangePrimaryEmployee(long newPrimaryEmployeeId)
+    public void ChangePrimaryUser(Guid newPrimaryUserId)
     {
-        DomainGuard.AgainstNegativeOrZero(newPrimaryEmployeeId, nameof(newPrimaryEmployeeId));
+        DomainGuard.AgainstInvalidForeignKey(newPrimaryUserId, nameof(newPrimaryUserId));
 
         DomainGuard.AgainstInvalidState(
             Status == OperationShiftStatus.Completed || Status == OperationShiftStatus.Cancelled,
             nameof(OperationShift),
             Status.ToString(),
-            $"Cannot change primary employee for shift in {Status} status");
+            $"Cannot change primary User for shift in {Status} status");
 
-        PrimaryUserId = newPrimaryEmployeeId;
+        PrimaryUserId = newPrimaryUserId;
     }
 
     public void PauseShift(string reason)
@@ -405,7 +403,7 @@ public class OperationShift : AggregateRoot, IAuditableEntity
     }
 
     public void UpdateAssetBox(
-        long assetBoxId,
+        Guid assetBoxId,
         string boxName,
         BoxRole role,
         int displayOrder,
@@ -424,7 +422,7 @@ public class OperationShift : AggregateRoot, IAuditableEntity
         box!.Update(boxName, role, displayOrder, description);
     }
 
-    public void RemoveAssetBox(long assetBoxId)
+    public void RemoveAssetBox(Guid assetBoxId)
     {
         var box = _assetBoxes.FirstOrDefault(g => g.Id == assetBoxId);
         DomainGuard.AgainstNotFound(box, "OperationShiftAssetBox", assetBoxId);
@@ -438,7 +436,7 @@ public class OperationShift : AggregateRoot, IAuditableEntity
         _assetBoxes.Remove(box!);
     }
 
-    public void AssignAssetToBox(long assetId, long? assetBoxId)
+    public void AssignAssetToBox(Guid assetId, Guid? assetBoxId)
     {
         var asset = _assets.FirstOrDefault(a => a.AssetId == assetId);
         DomainGuard.AgainstNotFound(asset, "OperationShiftAsset", assetId);
@@ -453,7 +451,7 @@ public class OperationShift : AggregateRoot, IAuditableEntity
         asset!.AssignToGroup(assetBoxId);
     }
 
-    public IEnumerable<OperationShiftAsset> GetAssetsBybox(long assetBoxId)
+    public IEnumerable<OperationShiftAsset> GetAssetsBybox(Guid assetBoxId)
     {
         return _assets.Where(a => a.AssetBoxId == assetBoxId);
     }

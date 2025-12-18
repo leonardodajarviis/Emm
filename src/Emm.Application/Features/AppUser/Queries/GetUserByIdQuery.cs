@@ -4,5 +4,5 @@ using LazyNet.Symphony.Interfaces;
 namespace Emm.Application.Features.AppUser.Queries;
 
 public record GetUserByIdQuery(
-    long Id
+    Guid Id
 ) : IRequest<Result<UserResponse>>;

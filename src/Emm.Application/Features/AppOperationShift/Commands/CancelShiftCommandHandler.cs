@@ -9,12 +9,12 @@ namespace Emm.Application.Features.AppOperationShift.Commands;
 public class CancelShiftCommandHandler : IRequestHandler<CancelShiftCommand, Result<object>>
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IRepository<OperationShift, long> _repository;
+    private readonly IRepository<OperationShift, Guid> _repository;
     private readonly IUserContextService _userContextService;
 
     public CancelShiftCommandHandler(
         IUnitOfWork unitOfWork,
-        IRepository<OperationShift, long> repository,
+        IRepository<OperationShift, Guid> repository,
         IUserContextService userContextService)
     {
         _unitOfWork = unitOfWork;

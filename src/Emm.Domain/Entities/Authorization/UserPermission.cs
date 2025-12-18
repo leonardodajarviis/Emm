@@ -5,8 +5,8 @@ namespace Emm.Domain.Entities.Authorization;
 /// </summary>
 public class UserPermission
 {
-    public long UserId { get; private set; }
-    public long PermissionId { get; private set; }
+    public Guid UserId { get; private set; }
+    public Guid PermissionId { get; private set; }
 
     /// <summary>
     /// Grant (true) or Deny (false) permission
@@ -15,7 +15,7 @@ public class UserPermission
     public bool IsGranted { get; private set; }
 
     public DateTime AssignedAt { get; private set; }
-    public long? AssignedBy { get; private set; }
+    public Guid? AssignedBy { get; private set; }
     public string? Reason { get; private set; }
 
     // Navigation properties
@@ -23,10 +23,10 @@ public class UserPermission
     public Permission Permission { get; private set; } = null!;
 
     public UserPermission(
-        long userId,
-        long permissionId,
+        Guid userId,
+        Guid permissionId,
         bool isGranted = true,
-        long? assignedBy = null,
+        Guid? assignedBy = null,
         string? reason = null)
     {
         UserId = userId;

@@ -4,7 +4,7 @@ namespace Emm.Application.Features.AppOperationShift.Commands;
 
 public class AddShiftLogCommand : IRequest<Result<object>>
 {
-    public long OperationShiftId { get; set; }
+    public Guid OperationShiftId { get; set; }
     public string Name { get; set; } = null!;
     public DateTime StartTime { get; set; }
     public DateTime? EndTime { get; set; }
@@ -12,12 +12,12 @@ public class AddShiftLogCommand : IRequest<Result<object>>
     /// <summary>
     /// Asset ID cho trường hợp ghi log cho 1 asset cụ thể
     /// </summary>
-    public long? AssetId { get; set; }
+    public Guid? AssetId { get; set; }
 
     /// <summary>
     /// Box ID cho trường hợp ghi log cho nhiều assets theo group
     /// </summary>
-    public long? BoxId { get; set; }
+    public Guid? BoxId { get; set; }
 
     public IEnumerable<ParameterReadingRequest>? Readings { get; set; }
     public IEnumerable<CheckpointRequest>? Checkpoints { get; set; }
@@ -26,9 +26,9 @@ public class AddShiftLogCommand : IRequest<Result<object>>
 }
 public sealed record ParameterReadingRequest
 {
-    public long? Id { get; init; }
-    public long AssetId { get; init; }
-    public long ParameterId { get; init; }
+    public Guid? Id { get; init; }
+    public Guid AssetId { get; init; }
+    public Guid ParameterId { get; init; }
     public decimal Value { get; init; }
     public Guid? TaskCheckpointLinkedId { get; init; }
 }
@@ -39,12 +39,12 @@ public sealed record ParameterReadingRequest
 /// </summary>
 public sealed record CheckpointRequest
 {
-    public long? Id { get; init; }
+    public Guid? Id { get; init; }
     public Guid LinkedId { get; init; }
     public string Name { get; init; } = null!;
-    public long LocationId { get; init; }
+    public Guid LocationId { get; init; }
     public bool IsWithAttachedMaterial { get; init; }
-    public long? ItemId { get; init; }
+    public Guid? ItemId { get; init; }
 }
 
 /// <summary>
@@ -52,7 +52,7 @@ public sealed record CheckpointRequest
 /// </summary>
 public sealed record LogEventRequest
 {
-    public long? Id { get; init; }
+    public Guid? Id { get; init; }
     public ShiftLogEventType EventType { get; init; }
     public DateTime StartTime { get; init; }
     public DateTime? EndTime { get; init; }
@@ -63,9 +63,9 @@ public sealed record LogEventRequest
 /// </summary>
 public sealed record ShiftLogItemRequest
 {
-    public long? Id { get; init; }
-    public long ItemId { get; init; }
+    public Guid? Id { get; init; }
+    public Guid ItemId { get; init; }
     public string ItemName { get; init; } = null!;
     public decimal Quantity { get; init; }
-    public long AssetId { get; init; }
+    public Guid AssetId { get; init; }
 }

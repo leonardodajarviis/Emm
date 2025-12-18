@@ -2,7 +2,7 @@ namespace Emm.Application.Features.AppAssetCategory.Dtos;
 
 public record AssetCategoryResponse: AuditableEntityDtoResponse
 {
-    public required long Id { get; init; }
+    public required Guid Id { get; init; }
     public required string Name { get; init; }
     public required string Code {get; init;}
     public string? Description { get; init; }

@@ -5,13 +5,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Emm.Infrastructure.Repositories;
 
-public class OperationShiftRepository : GenericRepository<OperationShift, long>, IOperationShiftRepository
+public class OperationShiftRepository : GenericRepository<OperationShift, Guid>, IOperationShiftRepository
 {
     public OperationShiftRepository(XDbContext context) : base(context)
     {
     }
 
-    public override async Task<OperationShift?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
+    public override async Task<OperationShift?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return await DbSet
             .Include(s => s.Assets)

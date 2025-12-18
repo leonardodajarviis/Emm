@@ -5,17 +5,17 @@ namespace Emm.Application.Features.AppAssetModel.Dtos;
 
 public record AssetModelDetailResponse
 {
-    public required long Id { get; set; }
+    public required Guid Id { get; set; }
     public required string Code { get; set; }
     public required string Name { get; set; }
     public string? Description { get; set; }
     public string? Notes { get; set; }
-    public long? ParentId { get; set; }
-    public long? AssetCategoryId { get; set; }
+    public Guid? ParentId { get; set; }
+    public Guid? AssetCategoryId { get; set; }
     public string? AssetCategoryName => AssetCategory?.Name;
     public Guid? ThumbnailFileId { get; set; }
     public string? ThumbnailUrl { get; set; }
-    public long? AssetTypeId { get; set; }
+    public Guid? AssetTypeId { get; set; }
     public bool IsActive { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? ModifiedAt { get; set; }
@@ -33,39 +33,39 @@ public record AssetModelDetailResponse
 
 public record AssetModelParentResponse
 {
-    public required long Id { get; set; }
+    public required Guid Id { get; set; }
     public required string Code { get; set; }
     public required string Name { get; set; }
 }
 
 public record AssetCategoryResponse
 {
-    public required long Id { get; set; }
+    public required Guid Id { get; set; }
     public required string Code { get; set; }
     public required string Name { get; set; }
 }
 
 public record AssetTypeResponse
 {
-    public required long Id { get; set; }
+    public required Guid Id { get; set; }
     public required string Code { get; set; }
     public required string Name { get; set; }
 }
 
 public record AssetModelOperatingParameterResponse
 {
-    public required long AssetParameterId { get; set; }
+    public required Guid AssetParameterId { get; set; }
     public AssetParameterResponse? AssetParameter { get; set; }
 }
 
 public record MaintenancePlanDefinitionResponse
 {
-    public required long Id { get; set; }
+    public required Guid Id { get; set; }
     public required string Name { get; set; }
     public string? Description { get; set; }
     public required MaintenancePlanType PlanType { get; set; }
     public bool IsActive { get; set; }
-    public long AssetModelId { get; set; }
+    public Guid AssetModelId { get; set; }
     public string? RRule { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? ModifiedAt { get; set; }
@@ -82,8 +82,8 @@ public record MaintenancePlanDefinitionResponse
 
 public record ParameterBasedMaintenanceTriggerResponse
 {
-    public required long Id { get; set; }
-    public required long ParameterId { get; set; }
+    public required Guid Id { get; set; }
+    public required Guid ParameterId { get; set; }
     public required decimal TriggerValue { get; set; }
     public required decimal MinValue { get; set; }
     public required decimal MaxValue { get; set; }
@@ -93,14 +93,14 @@ public record ParameterBasedMaintenanceTriggerResponse
 
 public record OrganizationUnitResponse
 {
-    public required long Id { get; set; }
+    public required Guid Id { get; set; }
     public required string Code { get; set; }
     public required string Name { get; set; }
 }
 
 public record OrganizationUnitLevelResponse
 {
-    public required long Id { get; set; }
+    public required Guid Id { get; set; }
     public required string Name { get; set; }
     public string? Description { get; set; }
     public int Level { get; set; }
@@ -108,10 +108,10 @@ public record OrganizationUnitLevelResponse
 
 public record MaintenancePlanJobStepDefinitionResponse
 {
-    public required long Id { get; set; }
-    public long MaintenancePlanDefinitionId { get; set; }
+    public required Guid Id { get; set; }
+    public Guid MaintenancePlanDefinitionId { get; set; }
     public required string Name { get; set; }
-    public long? OrganizationUnitId { get; set; }
+    public Guid? OrganizationUnitId { get; set; }
     public OrganizationUnitResponse? OrganizationUnit { get; set; }
     public string? Note { get; set; }
     public int Order { get; set; }
@@ -126,9 +126,9 @@ public record AssetModelImageResponse
 
 public record MaintenancePlanRequiredItemResponse
 {
-    public required long Id { get; set; }
-    public long MaintenancePlanDefinitionId { get; set; }
-    public required long ItemId { get; set; }
+    public required Guid Id { get; set; }
+    public Guid MaintenancePlanDefinitionId { get; set; }
+    public required Guid ItemId { get; set; }
     public required decimal Quantity { get; set; }
     public required bool IsRequired { get; set; }
     public string? Note { get; set; }

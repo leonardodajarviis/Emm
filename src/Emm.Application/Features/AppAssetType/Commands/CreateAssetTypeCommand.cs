@@ -5,7 +5,7 @@ public record CreateAssetTypeCommand(
     string Code,
     string Name,
     string? Description,
-    long AssetCategoryId,
-    long[] ParameterIds,
+    Guid AssetCategoryId,
+    Guid[] ParameterIds,
     bool IsActive = true
 ) : IRequest<Result<object>>;

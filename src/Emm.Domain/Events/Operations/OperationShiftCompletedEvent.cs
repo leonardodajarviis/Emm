@@ -7,24 +7,24 @@ namespace Emm.Domain.Events.Operations;
 /// </summary>
 public sealed record OperationShiftCompletedEvent : IImmediateDomainEvent
 {
-    public long ShiftId { get; init; }
+    public Guid ShiftId { get; init; }
     public DateTime ActualEndTime { get; init; }
-    public long PrimaryEmployeeId { get; init; }
+    public Guid PrimaryUserId { get; init; }
     public string? Notes { get; init; }
     public DateTime OccurredOn { get; init; }
 
-    public IReadOnlyCollection<long> AssetIds { get; init; } = [];
+    public IReadOnlyCollection<Guid> AssetIds { get; init; } = [];
 
     public OperationShiftCompletedEvent(
-        long shiftId,
+        Guid shiftId,
         DateTime actualEndTime,
-        long primaryEmployeeId,
-        IReadOnlyCollection<long> assetIds,
+        Guid primaryUserId,
+        IReadOnlyCollection<Guid> assetIds,
         string? notes = null)
     {
         ShiftId = shiftId;
         ActualEndTime = actualEndTime;
-        PrimaryEmployeeId = primaryEmployeeId;
+        PrimaryUserId = primaryUserId;
         Notes = notes;
         OccurredOn = DateTime.UtcNow;
         AssetIds = assetIds;

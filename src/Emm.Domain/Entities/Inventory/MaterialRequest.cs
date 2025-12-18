@@ -12,14 +12,13 @@ public class MaterialRequest : AggregateRoot, IAuditableEntity
 {
     private const int MaxLinesPerRequest = 100;
 
-    public long Id { get; private set; }
     public string Code { get; private set; } = null!;
     public string Title { get; private set; } = null!;
     public string? Description { get; private set; }
-    public long RequestedByUserId { get; private set; }
-    public long OrganizationUnitId { get; private set; }
-    public long? WarehouseId { get; private set; }
-    public long? MaintenanceTicketId { get; private set; }
+    public Guid RequestedByUserId { get; private set; }
+    public Guid OrganizationUnitId { get; private set; }
+    public Guid? WarehouseId { get; private set; }
+    public Guid? MaintenanceTicketId { get; private set; }
     public MaterialRequestPurpose Purpose { get; private set; }
     public MaterialRequestStatus Status { get; private set; }
     public MaterialRequestPriority Priority { get; private set; }
@@ -27,7 +26,7 @@ public class MaterialRequest : AggregateRoot, IAuditableEntity
     public DateTime RequestedDate { get; private set; }
     public DateTime? RequiredByDate { get; private set; }
     public DateTime? ApprovedAt { get; private set; }
-    public long? ApprovedByUserId { get; private set; }
+    public Guid? ApprovedByUserId { get; private set; }
     public string? ApprovalNotes { get; private set; }
     public string? RejectionReason { get; private set; }
     public AuditMetadata Audit { get; private set; } = null!;
@@ -44,19 +43,19 @@ public class MaterialRequest : AggregateRoot, IAuditableEntity
     public MaterialRequest(
         string code,
         string title,
-        long requestedByUserId,
-        long organizationUnitId,
+        Guid requestedByUserId,
+        Guid organizationUnitId,
         MaterialRequestPurpose purpose,
         MaterialRequestPriority priority = MaterialRequestPriority.Normal,
         DateTime? requiredByDate = null,
-        long? warehouseId = null,
-        long? maintenanceTicketId = null,
+        Guid? warehouseId = null,
+        Guid? maintenanceTicketId = null,
         string? description = null)
     {
         ValidateCode(code);
         ValidateTitle(title);
-        ValidateForeignKey(requestedByUserId, nameof(RequestedByUserId));
-        ValidateForeignKey(organizationUnitId, nameof(OrganizationUnitId));
+        DomainGuard.AgainstInvalidForeignKey(requestedByUserId, nameof(RequestedByUserId));
+        DomainGuard.AgainstInvalidForeignKey(organizationUnitId, nameof(OrganizationUnitId));
 
         _lines = [];
 
@@ -79,7 +78,7 @@ public class MaterialRequest : AggregateRoot, IAuditableEntity
     #region Line Management
 
     public void AddLine(
-        long itemId,
+        Guid itemId,
         string itemCode,
         string itemName,
         decimal requestedQuantity,
@@ -102,7 +101,7 @@ public class MaterialRequest : AggregateRoot, IAuditableEntity
         // RaiseDomainEvent(new MaterialRequestLineAddedEvent(Id, itemId, requestedQuantity));
     }
 
-    public void UpdateLineQuantity(long itemId, decimal newQuantity)
+    public void UpdateLineQuantity(Guid itemId, decimal newQuantity)
     {
         if (Status != MaterialRequestStatus.Draft)
             throw new DomainException("Can only update lines in draft requests");
@@ -115,7 +114,7 @@ public class MaterialRequest : AggregateRoot, IAuditableEntity
         // RaiseDomainEvent(new MaterialRequestLineUpdatedEvent(Id, itemId, newQuantity));
     }
 
-    public void RemoveLine(long itemId)
+    public void RemoveLine(Guid itemId)
     {
         if (Status != MaterialRequestStatus.Draft)
             throw new DomainException("Can only remove lines from draft requests");
@@ -155,12 +154,12 @@ public class MaterialRequest : AggregateRoot, IAuditableEntity
         // RaiseDomainEvent(new MaterialRequestSubmittedEvent(Id, Code));
     }
 
-    public void Approve(long approvedByUserId, string? notes = null)
+    public void Approve(Guid approvedByUserId, string? notes = null)
     {
         if (Status != MaterialRequestStatus.Pending)
             throw new DomainException("Only pending requests can be approved");
 
-        ValidateForeignKey(approvedByUserId, nameof(approvedByUserId));
+        DomainGuard.AgainstInvalidForeignKey(approvedByUserId, nameof(approvedByUserId));
 
         Status = MaterialRequestStatus.Approved;
         ApprovedByUserId = approvedByUserId;
@@ -170,7 +169,7 @@ public class MaterialRequest : AggregateRoot, IAuditableEntity
         // RaiseDomainEvent(new MaterialRequestApprovedEvent(Id, Code, approvedByUserId));
     }
 
-    public void Reject(long rejectedByUserId, string reason)
+    public void Reject(Guid rejectedByUserId, string reason)
     {
         if (Status != MaterialRequestStatus.Pending)
             throw new DomainException("Only pending requests can be rejected");
@@ -239,7 +238,7 @@ public class MaterialRequest : AggregateRoot, IAuditableEntity
         string? description,
         MaterialRequestPriority priority,
         DateTime? requiredByDate,
-        long? warehouseId)
+        Guid? warehouseId)
     {
         if (Status != MaterialRequestStatus.Draft)
             throw new DomainException("Can only update draft requests");
@@ -295,12 +294,6 @@ public class MaterialRequest : AggregateRoot, IAuditableEntity
             throw new DomainException("Material request title cannot exceed 200 characters");
     }
 
-    private static void ValidateForeignKey(long foreignKeyId, string fieldName)
-    {
-        if (foreignKeyId <= 0)
-            throw new DomainException($"{fieldName} must be greater than zero");
-    }
-
     #endregion
 }
 
@@ -344,9 +337,9 @@ public enum MaterialRequestPriority
 /// </summary>
 public class MaterialRequestLine
 {
-    public long Id { get; private set; }
+    public Guid Id { get; private set; }
     public int LineNumber { get; private set; }
-    public long ItemId { get; private set; }
+    public Guid ItemId { get; private set; }
     public string ItemCode { get; private set; } = null!;
     public string ItemName { get; private set; } = null!;
     public decimal RequestedQuantity { get; private set; }
@@ -359,15 +352,14 @@ public class MaterialRequestLine
 
     public MaterialRequestLine(
         int lineNumber,
-        long itemId,
+        Guid itemId,
         string itemCode,
         string itemName,
         decimal requestedQuantity,
         string? unit = null,
         string? remarks = null)
     {
-        if (itemId <= 0)
-            throw new DomainException("ItemId must be greater than zero");
+        DomainGuard.AgainstInvalidForeignKey(itemId, nameof(ItemId));
 
         if (string.IsNullOrWhiteSpace(itemCode))
             throw new DomainException("Item code cannot be empty");

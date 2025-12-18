@@ -11,7 +11,7 @@ public class ShiftLogCheckpointConfiguration : IEntityTypeConfiguration<ShiftLog
         builder.ToTable("ShiftLogCheckpoints");
 
         builder.Property(x => x.Id)
-            .ValueGeneratedOnAdd()
+            .ValueGeneratedNever()
             .IsRequired();
 
         builder.HasKey(x => x.Id);

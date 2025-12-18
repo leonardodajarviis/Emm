@@ -27,8 +27,8 @@ public class AssetModelController : ControllerBase
         return result.ToActionResult();
     }
 
-    [HttpPut("{id:long}")]
-    public async Task<IActionResult> UpdateAssetModel([FromRoute] long id, [FromBody] UpdateAssetModel updateAssetModel)
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateAssetModel([FromRoute] Guid id, [FromBody] UpdateAssetModel updateAssetModel)
     {
         var command = new UpdateAssetModelCommand(
             Id: id,
@@ -55,8 +55,8 @@ public class AssetModelController : ControllerBase
         return result.ToActionResult();
     }
 
-    [HttpGet("{id:long}")]
-    public async Task<IActionResult> GetAssetModelById([FromRoute] long id)
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetAssetModelById([FromRoute] Guid id)
     {
         var query = new GetAssetModelByIdQuery(id);
         var result = await _mediator.Send(query);
@@ -64,9 +64,9 @@ public class AssetModelController : ControllerBase
         return result.ToActionResult();
     }
 
-    [HttpPost("{id:long}/maintenance-plans")]
+    [HttpPost("{id}/maintenance-plans")]
     public async Task<IActionResult> AddMaintenancePlan(
-        [FromRoute] long id,
+        [FromRoute] Guid id,
         [FromBody] AddMaintenancePlan addMaintenancePlan)
     {
         var command = new AddMaintenancePlanCommand(
@@ -101,10 +101,10 @@ public class AssetModelController : ControllerBase
     }
 
 
-    [HttpPut("{id:long}/maintenance-plans/{maintenancePlanId:long}")]
+    [HttpPut("{id:long}/maintenance-plans/{maintenancePlanId}")]
     public async Task<IActionResult> UpdateMaintenancePlan(
-        [FromRoute] long id,
-        [FromRoute] long maintenancePlanId,
+        [FromRoute] Guid id,
+        [FromRoute] Guid maintenancePlanId,
         [FromBody] UpdateMaintenancePlanDto updateMaintenancePlan)
     {
         var command = new UpdateMaintenancePlanCommand(
@@ -142,8 +142,8 @@ public class AssetModelController : ControllerBase
 
     [HttpDelete("{id:long}/maintenance-plans/{maintenancePlanId:long}")]
     public async Task<IActionResult> RemoveMaintenancePlan(
-        [FromRoute] long id,
-        [FromRoute] long maintenancePlanId)
+        [FromRoute] Guid id,
+        [FromRoute] Guid maintenancePlanId)
     {
         var command = new RemoveMaintenancePlanCommand(
             AssetModelId: id,
@@ -155,9 +155,9 @@ public class AssetModelController : ControllerBase
         return result.ToActionResult();
     }
 
-    [HttpPost("{id:long}/images")]
+    [HttpPost("{id}/images")]
     public async Task<IActionResult> AddImagesToAssetModel(
-        [FromRoute] long id,
+        [FromRoute] Guid id,
         [FromBody] List<Guid> fileIds)
     {
         var command = new AddImagesToAssetModelCommand(
@@ -170,9 +170,9 @@ public class AssetModelController : ControllerBase
         return result.ToActionResult();
     }
 
-    [HttpDelete("{id:long}/images")]
+    [HttpDelete("{id}/images")]
     public async Task<IActionResult> RemoveImagesFromAssetModel(
-        [FromRoute] long id,
+        [FromRoute] Guid id,
         [FromBody] List<Guid> fileIds)
     {
         var command = new RemoveImagesFromAssetModelCommand(
@@ -188,9 +188,9 @@ public class AssetModelController : ControllerBase
     /// <summary>
     /// Change thumbnail for an asset model. If the fileId exists in images, it will be removed from images.
     /// </summary>
-    [HttpPatch("{id:long}/thumbnail")]
+    [HttpPatch("{id}/thumbnail")]
     public async Task<IActionResult> ChangeThumbnail(
-        [FromRoute] long id,
+        [FromRoute] Guid id,
         [FromBody] ChangeThumbnail changeThumbnail)
     {
         var command = new ChangeThumbnailCommand(

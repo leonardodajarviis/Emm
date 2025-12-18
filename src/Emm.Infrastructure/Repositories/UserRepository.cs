@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Emm.Infrastructure.Repositories;
 
 
-public class UserRepository : GenericRepository<User, long>, IUserRepository
+public class UserRepository : GenericRepository<User, Guid>, IUserRepository
 {
     public UserRepository(XDbContext context) : base(context)
     {

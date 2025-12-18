@@ -7,7 +7,7 @@ namespace Emm.Domain.Events.Operations;
 /// </summary>
 public sealed record OperationShiftRescheduledEvent : IDomainEvent
 {
-    public long ShiftId { get; init; }
+    public Guid ShiftId { get; init; }
     public DateTime OldScheduledStartTime { get; init; }
     public DateTime OldScheduledEndTime { get; init; }
     public DateTime NewScheduledStartTime { get; init; }
@@ -16,7 +16,7 @@ public sealed record OperationShiftRescheduledEvent : IDomainEvent
     public DateTime OccurredOn { get; init; }
 
     public OperationShiftRescheduledEvent(
-        long shiftId,
+        Guid shiftId,
         DateTime oldScheduledStartTime,
         DateTime oldScheduledEndTime,
         DateTime newScheduledStartTime,

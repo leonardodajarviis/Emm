@@ -10,7 +10,6 @@ namespace Emm.Domain.Entities.Authorization;
 /// </summary>
 public class Policy : AggregateRoot, IAuditableEntity
 {
-    public long Id { get; private set; }
 
     /// <summary>
     /// Policy code (VD: ORG_UNIT_RESTRICTION, WORKING_HOURS_ONLY)

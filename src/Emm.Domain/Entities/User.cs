@@ -4,13 +4,11 @@ namespace Emm.Domain.Entities;
 
 public class User : AggregateRoot
 {
-    public long Id { get; private set; }
     public string Username { get; private set; } = null!;
     public string DisplayName { get; private set; } = null!;
     public string PasswordHash { get; private set; } = null!;
     public string Email { get; private set; } = null!;
-    public long? EmployeeId { get; private set; }
-    public long? OrganizationUnitId { get; private set; }
+    public Guid? OrganizationUnitId { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public DateTime UpdatedAt { get; private set; }
     public bool IsActive { get; private set; }
@@ -33,13 +31,7 @@ public class User : AggregateRoot
         UpdatedAt = DateTime.UtcNow;
     }
 
-    public void SetEmployeeId(long employeeId)
-    {
-        EmployeeId = employeeId;
-        UpdatedAt = DateTime.UtcNow;
-    }
-
-    public void SetOrganizationUnitId(long organizationUnitId)
+    public void SetOrganizationUnitId(Guid organizationUnitId)
     {
         OrganizationUnitId = organizationUnitId;
         UpdatedAt = DateTime.UtcNow;

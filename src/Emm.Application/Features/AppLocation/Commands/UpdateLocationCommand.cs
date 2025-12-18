@@ -1,7 +1,7 @@
 namespace Emm.Application.Features.AppLocation.Commands;
 
 public record UpdateLocationCommand(
-    long Id,
+    Guid Id,
     string Name,
     string? Description,
     bool IsActive

@@ -6,11 +6,11 @@ namespace Emm.Application.Features.AppIncidentReport.Commands;
 public class ResolveIncidentReportCommandHandler : IRequestHandler<ResolveIncidentReportCommand, Result<object>>
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IRepository<IncidentReport, long> _repository;
+    private readonly IRepository<IncidentReport, Guid> _repository;
 
     public ResolveIncidentReportCommandHandler(
         IUnitOfWork unitOfWork,
-        IRepository<IncidentReport, long> repository)
+        IRepository<IncidentReport, Guid> repository)
     {
         _unitOfWork = unitOfWork;
         _repository = repository;

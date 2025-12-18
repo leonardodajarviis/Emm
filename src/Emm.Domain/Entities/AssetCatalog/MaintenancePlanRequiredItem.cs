@@ -5,13 +5,13 @@ namespace Emm.Domain.Entities.AssetCatalog;
 /// </summary>
 public class MaintenancePlanRequiredItem
 {
-    public long Id { get; private set; }
-    public long MaintenancePlanDefinitionId { get; private set; }
+    public Guid Id { get; private set; } = Guid.CreateVersion7();
+    public Guid MaintenancePlanDefinitionId { get; private set; }
 
     /// <summary>
     /// ID của vật tư/phụ tùng
     /// </summary>
-    public long ItemId { get; private set; }
+    public Guid ItemId { get; private set; }
 
     /// <summary>
     /// Số lượng cần thiết
@@ -28,7 +28,7 @@ public class MaintenancePlanRequiredItem
     /// </summary>
     public string? Note { get; private set; }
 
-    public MaintenancePlanRequiredItem(long itemId, decimal quantity, bool isRequired, string? note = null)
+    public MaintenancePlanRequiredItem(Guid itemId, decimal quantity, bool isRequired, string? note = null)
     {
         if (quantity <= 0)
             throw new ArgumentException("Quantity must be greater than zero", nameof(quantity));

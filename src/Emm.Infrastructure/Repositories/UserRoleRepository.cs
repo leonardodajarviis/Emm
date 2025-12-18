@@ -14,7 +14,7 @@ public class UserRoleRepository : IUserRoleRepository
         _context = context;
     }
 
-    public async Task<IReadOnlyList<UserRole>> GetByUserIdAsync(long userId, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<UserRole>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
     {
         return await _context.Set<UserRole>()
             .Include(ur => ur.Role)
@@ -22,7 +22,7 @@ public class UserRoleRepository : IUserRoleRepository
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<IReadOnlyList<UserRole>> GetByRoleIdAsync(long roleId, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<UserRole>> GetByRoleIdAsync(Guid roleId, CancellationToken cancellationToken = default)
     {
         return await _context.Set<UserRole>()
             .Include(ur => ur.User)
@@ -30,7 +30,7 @@ public class UserRoleRepository : IUserRoleRepository
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<UserRole?> GetAsync(long userId, long roleId, CancellationToken cancellationToken = default)
+    public async Task<UserRole?> GetAsync(Guid userId, Guid roleId, CancellationToken cancellationToken = default)
     {
         return await _context.Set<UserRole>()
             .FirstOrDefaultAsync(ur => ur.UserId == userId && ur.RoleId == roleId, cancellationToken);
@@ -47,7 +47,7 @@ public class UserRoleRepository : IUserRoleRepository
         return Task.CompletedTask;
     }
 
-    public async Task<bool> ExistsAsync(long userId, long roleId, CancellationToken cancellationToken = default)
+    public async Task<bool> ExistsAsync(Guid userId, Guid roleId, CancellationToken cancellationToken = default)
     {
         return await _context.Set<UserRole>()
             .AnyAsync(ur => ur.UserId == userId && ur.RoleId == roleId, cancellationToken);

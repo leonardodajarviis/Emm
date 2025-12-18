@@ -4,8 +4,8 @@ using Emm.Domain.Entities.Operations;
 namespace Emm.Application.Features.AppOperationShift.Commands;
 
 public record UpdateAssetBoxCommand(
-    long OperationShiftId,
-    long AssetBoxId,
+    Guid OperationShiftId,
+    Guid AssetBoxId,
     string BoxName,
     BoxRole Role,
     int DisplayOrder,

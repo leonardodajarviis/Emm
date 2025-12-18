@@ -13,7 +13,7 @@ public class ParameterBasedMaintenanceTriggerConfiguration : IEntityTypeConfigur
         // Primary Key
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Id)
-            .ValueGeneratedOnAdd();
+            .ValueGeneratedNever();
 
         // Foreign Keys
         builder.Property(x => x.MaintenancePlanDefinitionId)

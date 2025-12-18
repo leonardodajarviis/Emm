@@ -11,7 +11,7 @@ public class RoleConfiguration : IEntityTypeConfiguration<Role>
         builder.ToTable("Roles");
 
         builder.HasKey(r => r.Id);
-        builder.Property(r => r.Id).ValueGeneratedOnAdd();
+        builder.Property(r => r.Id).ValueGeneratedNever();
 
         builder.Property(r => r.Code)
             .IsRequired()

@@ -12,25 +12,24 @@ public class MaterialReturn : AggregateRoot, IAuditableEntity
 {
     private const int MaxLinesPerReturn = 100;
 
-    public long Id { get; private set; }
     public string Code { get; private set; } = null!;
-    public long? MaterialReturnRequestId { get; private set; }
+    public Guid? MaterialReturnRequestId { get; private set; }
     public string? MaterialReturnRequestCode { get; private set; }
-    public long WarehouseId { get; private set; }
-    public long OrganizationUnitId { get; private set; }
-    public long ReturnedByUserId { get; private set; }
-    public long ReceivedByUserId { get; private set; }
+    public Guid WarehouseId { get; private set; }
+    public Guid OrganizationUnitId { get; private set; }
+    public Guid ReturnedByUserId { get; private set; }
+    public Guid ReceivedByUserId { get; private set; }
     public MaterialReturnStatus Status { get; private set; }
 
     public DateTime ReturnDate { get; private set; }
     public string? Remarks { get; private set; }
 
     public DateTime? InspectedAt { get; private set; }
-    public long? InspectedByUserId { get; private set; }
+    public Guid? InspectedByUserId { get; private set; }
     public string? InspectionNotes { get; private set; }
 
     public DateTime? ConfirmedAt { get; private set; }
-    public long? ConfirmedByUserId { get; private set; }
+    public Guid? ConfirmedByUserId { get; private set; }
 
     public AuditMetadata Audit { get; private set; } = null!;
     public void SetAudit(AuditMetadata audit) => Audit = audit;
@@ -45,20 +44,20 @@ public class MaterialReturn : AggregateRoot, IAuditableEntity
 
     public MaterialReturn(
         string code,
-        long warehouseId,
-        long organizationUnitId,
-        long returnedByUserId,
-        long receivedByUserId,
+        Guid warehouseId,
+        Guid organizationUnitId,
+        Guid returnedByUserId,
+        Guid receivedByUserId,
         DateTime returnDate,
-        long? materialReturnRequestId = null,
+        Guid? materialReturnRequestId = null,
         string? materialReturnRequestCode = null,
         string? remarks = null)
     {
         ValidateCode(code);
-        ValidateForeignKey(warehouseId, nameof(WarehouseId));
-        ValidateForeignKey(organizationUnitId, nameof(OrganizationUnitId));
-        ValidateForeignKey(returnedByUserId, nameof(ReturnedByUserId));
-        ValidateForeignKey(receivedByUserId, nameof(ReceivedByUserId));
+        DomainGuard.AgainstInvalidForeignKey(warehouseId, nameof(WarehouseId));
+        DomainGuard.AgainstInvalidForeignKey(organizationUnitId, nameof(OrganizationUnitId));
+        DomainGuard.AgainstInvalidForeignKey(returnedByUserId, nameof(ReturnedByUserId));
+        DomainGuard.AgainstInvalidForeignKey(receivedByUserId, nameof(ReceivedByUserId));
 
         _lines = [];
 
@@ -79,7 +78,7 @@ public class MaterialReturn : AggregateRoot, IAuditableEntity
     #region Line Management
 
     public void AddLine(
-        long itemId,
+        Guid itemId,
         string itemCode,
         string itemName,
         decimal quantity,
@@ -87,7 +86,7 @@ public class MaterialReturn : AggregateRoot, IAuditableEntity
         string? unit = null,
         string? lotNumber = null,
         string? serialNumber = null,
-        long? locationId = null,
+        Guid? locationId = null,
         MaterialCondition condition = MaterialCondition.Good,
         string? remarks = null)
     {
@@ -181,12 +180,12 @@ public class MaterialReturn : AggregateRoot, IAuditableEntity
         // RaiseDomainEvent(new MaterialReturnSubmittedEvent(Id, Code));
     }
 
-    public void Inspect(long inspectedByUserId, string? notes = null)
+    public void Inspect(Guid inspectedByUserId, string? notes = null)
     {
         if (Status != MaterialReturnStatus.PendingInspection)
             throw new DomainException("Only pending inspection returns can be inspected");
 
-        ValidateForeignKey(inspectedByUserId, nameof(inspectedByUserId));
+        DomainGuard.AgainstInvalidForeignKey(inspectedByUserId, nameof(inspectedByUserId));
 
         Status = MaterialReturnStatus.Inspected;
         InspectedByUserId = inspectedByUserId;
@@ -209,12 +208,12 @@ public class MaterialReturn : AggregateRoot, IAuditableEntity
         // RaiseDomainEvent(new MaterialReturnInspectedEvent(Id, Code, inspectedByUserId));
     }
 
-    public void InspectWithDetails(long inspectedByUserId, Dictionary<int, (decimal acceptedQty, decimal rejectedQty)> lineInspections, string? notes = null)
+    public void InspectWithDetails(Guid inspectedByUserId, Dictionary<int, (decimal acceptedQty, decimal rejectedQty)> lineInspections, string? notes = null)
     {
         if (Status != MaterialReturnStatus.PendingInspection)
             throw new DomainException("Only pending inspection returns can be inspected");
 
-        ValidateForeignKey(inspectedByUserId, nameof(inspectedByUserId));
+        DomainGuard.AgainstInvalidForeignKey(inspectedByUserId, nameof(inspectedByUserId));
 
         Status = MaterialReturnStatus.Inspected;
         InspectedByUserId = inspectedByUserId;
@@ -233,12 +232,12 @@ public class MaterialReturn : AggregateRoot, IAuditableEntity
         // RaiseDomainEvent(new MaterialReturnInspectedEvent(Id, Code, inspectedByUserId));
     }
 
-    public void Confirm(long confirmedByUserId)
+    public void Confirm(Guid confirmedByUserId)
     {
         if (Status != MaterialReturnStatus.Inspected)
             throw new DomainException("Only inspected returns can be confirmed");
 
-        ValidateForeignKey(confirmedByUserId, nameof(confirmedByUserId));
+        DomainGuard.AgainstInvalidForeignKey(confirmedByUserId, nameof(confirmedByUserId));
 
         Status = MaterialReturnStatus.Confirmed;
         ConfirmedByUserId = confirmedByUserId;
@@ -308,12 +307,6 @@ public class MaterialReturn : AggregateRoot, IAuditableEntity
             throw new DomainException("Material return code cannot exceed 50 characters");
     }
 
-    private static void ValidateForeignKey(long foreignKeyId, string fieldName)
-    {
-        if (foreignKeyId <= 0)
-            throw new DomainException($"{fieldName} must be greater than zero");
-    }
-
     #endregion
 }
 
@@ -338,9 +331,9 @@ public enum MaterialReturnStatus
 /// </summary>
 public class MaterialReturnLine
 {
-    public long Id { get; private set; }
+    public Guid Id { get; private set; }
     public int LineNumber { get; private set; }
-    public long ItemId { get; private set; }
+    public Guid ItemId { get; private set; }
     public string ItemCode { get; private set; } = null!;
     public string ItemName { get; private set; } = null!;
     public decimal Quantity { get; private set; }
@@ -350,7 +343,7 @@ public class MaterialReturnLine
     public string? Unit { get; private set; }
     public string? LotNumber { get; private set; }
     public string? SerialNumber { get; private set; }
-    public long? LocationId { get; private set; }
+    public Guid? LocationId { get; private set; }
     public MaterialCondition Condition { get; private set; }
     public string? Remarks { get; private set; }
     public string? InspectionRemarks { get; private set; }
@@ -361,7 +354,7 @@ public class MaterialReturnLine
 
     public MaterialReturnLine(
         int lineNumber,
-        long itemId,
+        Guid itemId,
         string itemCode,
         string itemName,
         decimal quantity,
@@ -369,12 +362,11 @@ public class MaterialReturnLine
         string? unit = null,
         string? lotNumber = null,
         string? serialNumber = null,
-        long? locationId = null,
+        Guid? locationId = null,
         MaterialCondition condition = MaterialCondition.Good,
         string? remarks = null)
     {
-        if (itemId <= 0)
-            throw new DomainException("ItemId must be greater than zero");
+        DomainGuard.AgainstInvalidForeignKey(itemId, nameof(ItemId));
 
         if (string.IsNullOrWhiteSpace(itemCode))
             throw new DomainException("Item code cannot be empty");

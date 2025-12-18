@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Emm.Infrastructure.Repositories;
 
-public class PermissionRepository : GenericRepository<Permission, long>, IPermissionRepository
+public class PermissionRepository : GenericRepository<Permission, Guid>, IPermissionRepository
 {
     public PermissionRepository(XDbContext context) : base(context)
     {

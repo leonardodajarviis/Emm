@@ -5,11 +5,11 @@ namespace Emm.Application.Features.AppUnitOfMeasure.Commands;
 
 public class ActivateUnitOfMeasureCommandHandler : IRequestHandler<ActivateUnitOfMeasureCommand, Result<object>>
 {
-    private readonly IRepository<UnitOfMeasure, long> _repository;
+    private readonly IRepository<UnitOfMeasure, Guid> _repository;
     private readonly IUnitOfWork _unitOfWork;
 
     public ActivateUnitOfMeasureCommandHandler(
-        IRepository<UnitOfMeasure, long> repository,
+        IRepository<UnitOfMeasure, Guid> repository,
         IUnitOfWork unitOfWork)
     {
         _repository = repository;

@@ -251,7 +251,7 @@ public class LocalFileStorage : IFileStorage
 
         // Save file info to database
         var uploadedFile = new UploadedFile(
-            fileId,
+            // fileId,
             fileName,
             relativePath,
             contentType,

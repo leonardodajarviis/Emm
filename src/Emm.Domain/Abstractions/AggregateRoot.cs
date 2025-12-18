@@ -6,6 +6,12 @@ namespace Emm.Domain.Abstractions;
 /// </summary>
 public abstract class AggregateRoot : IAggregateRoot
 {
+    /// <summary>
+    /// Gets the unique identifier for this aggregate root.
+    /// Uses UUID v7 which is time-ordered and database-friendly.
+    /// </summary>
+    public Guid Id { get; protected set; } = Guid.CreateVersion7();
+
     private readonly List<IDomainEvent> _domainEvents = [];
     private readonly List<IImmediateDomainEvent> _immediateEvents = [];
 

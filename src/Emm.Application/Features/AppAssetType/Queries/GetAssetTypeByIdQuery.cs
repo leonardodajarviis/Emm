@@ -3,5 +3,5 @@ using Emm.Application.Features.AppAssetType.Dtos;
 namespace Emm.Application.Features.AppAssetType.Queries;
 
 public record GetAssetTypeByIdQuery(
-    long Id
+    Guid Id
 ) : IRequest<Result<AssetTypeResponse>>;

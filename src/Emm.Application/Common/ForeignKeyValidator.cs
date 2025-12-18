@@ -5,13 +5,13 @@ namespace Emm.Application.Common;
 
 public interface IForeignKeyValidator
 {
-    Task<Result> ValidateAsync<TEntity>(long id, string? entityName = null, CancellationToken cancellationToken = default)
+    Task<Result> ValidateAsync<TEntity>(Guid id, string? entityName = null, CancellationToken cancellationToken = default)
         where TEntity : class;
 
-    Task<Result> ValidateAsync<TEntity>(long? id, string? entityName = null, CancellationToken cancellationToken = default)
+    Task<Result> ValidateAsync<TEntity>(Guid? id, string? entityName = null, CancellationToken cancellationToken = default)
         where TEntity : class;
 
-    Task<Result> ValidateManyAsync<TEntity>(IEnumerable<long> ids, string? entityName = null, CancellationToken cancellationToken = default)
+    Task<Result> ValidateManyAsync<TEntity>(IEnumerable<Guid> ids, string? entityName = null, CancellationToken cancellationToken = default)
         where TEntity : class;
 }
 
@@ -24,12 +24,12 @@ public class ForeignKeyValidator : IForeignKeyValidator
         _queryContext = queryContext;
     }
 
-    public async Task<Result> ValidateAsync<TEntity>(long id, string? entityName = null, CancellationToken cancellationToken = default)
+    public async Task<Result> ValidateAsync<TEntity>(Guid id, string? entityName = null, CancellationToken cancellationToken = default)
         where TEntity : class
     {
         var name = entityName ?? typeof(TEntity).Name;
         var exists = await _queryContext.Query<TEntity>()
-            .Where(e => EF.Property<long>(e, "Id") == id)
+            .Where(e => EF.Property<Guid>(e, "Id") == id)
             .AnyAsync(cancellationToken);
 
         return exists
@@ -37,7 +37,7 @@ public class ForeignKeyValidator : IForeignKeyValidator
             : Result.NotFound($"{name} with ID {id} not found", $"{name.ToUpperInvariant()}_NOT_FOUND");
     }
 
-    public async Task<Result> ValidateAsync<TEntity>(long? id, string? entityName = null, CancellationToken cancellationToken = default)
+    public async Task<Result> ValidateAsync<TEntity>(Guid? id, string? entityName = null, CancellationToken cancellationToken = default)
         where TEntity : class
     {
         if (id == null)
@@ -48,7 +48,7 @@ public class ForeignKeyValidator : IForeignKeyValidator
         return await ValidateAsync<TEntity>(id.Value, entityName, cancellationToken);
     }
 
-    public async Task<Result> ValidateManyAsync<TEntity>(IEnumerable<long> ids, string? entityName = null, CancellationToken cancellationToken = default)
+    public async Task<Result> ValidateManyAsync<TEntity>(IEnumerable<Guid> ids, string? entityName = null, CancellationToken cancellationToken = default)
         where TEntity : class
     {
         var idList = ids.ToList();
@@ -59,8 +59,8 @@ public class ForeignKeyValidator : IForeignKeyValidator
 
         var name = entityName ?? typeof(TEntity).Name;
         var existingIds = await _queryContext.Query<TEntity>()
-            .Where(e => idList.Contains(EF.Property<long>(e, "Id")))
-            .Select(e => EF.Property<long>(e, "Id"))
+            .Where(e => idList.Contains(EF.Property<Guid>(e, "Id")))
+            .Select(e => EF.Property<Guid>(e, "Id"))
             .ToListAsync(cancellationToken);
 
         var missingIds = idList.Except(existingIds).ToList();

@@ -12,10 +12,10 @@ public class OrganizationUnitConfiguration : IEntityTypeConfiguration<Organizati
 
         // Primary Key
         builder.HasKey(x => x.Id);
-        
+
         // Properties Configuration
         builder.Property(x => x.Id)
-            .ValueGeneratedOnAdd()
+            .ValueGeneratedNever()
             .IsRequired();
 
         builder.Property(x => x.Code)
@@ -41,7 +41,7 @@ public class OrganizationUnitConfiguration : IEntityTypeConfiguration<Organizati
         builder.Property(x => x.UpdatedAt)
             .IsRequired()
             .HasDefaultValueSql("GETUTCDATE()");
-        
+
         builder.HasOne<OrganizationUnitLevel>()
             .WithMany()
             .HasForeignKey(x => x.OrganizationUnitLevelId)

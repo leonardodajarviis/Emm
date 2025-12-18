@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Emm.Infrastructure.Repositories;
 
-public class UserSessionRepository : GenericRepository<UserSession, long>, IUserSessionRepository
+public class UserSessionRepository : GenericRepository<UserSession, Guid>, IUserSessionRepository
 {
     public UserSessionRepository(XDbContext context) : base(context)
     {
@@ -23,14 +23,14 @@ public class UserSessionRepository : GenericRepository<UserSession, long>, IUser
             .FirstOrDefaultAsync(s => s.AccessTokenJti == jti && s.RevokedAt == null, cancellationToken);
     }
 
-    public async Task<IEnumerable<UserSession>> GetActiveSessionsByUserIdAsync(long userId, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<UserSession>> GetActiveSessionsByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
     {
         return await DbSet
             .Where(s => s.UserId == userId && s.RevokedAt == null && s.RefreshTokenExpiresAt > DateTime.UtcNow)
             .ToListAsync(cancellationToken);
     }
 
-    public async Task RevokeAllUserSessionsAsync(long userId, CancellationToken cancellationToken = default)
+    public async Task RevokeAllUserSessionsAsync(Guid userId, CancellationToken cancellationToken = default)
     {
         var sessions = await DbSet
             .Where(s => s.UserId == userId && s.RevokedAt == null)

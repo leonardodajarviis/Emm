@@ -5,13 +5,12 @@ namespace Emm.Domain.Entities;
 
 public class UnitOfMeasure : AggregateRoot
 {
-    public long Id { get; private set; }
     public string Code { get; private set; } = null!;
     public string Name { get; private set; } = null!;
     public string Symbol { get; private set; } = null!;
     public string? Description { get; private set; }
     public UnitType UnitType { get; private set; }
-    public long? BaseUnitId { get; private set; }
+    public Guid? BaseUnitId { get; private set; }
     public decimal? ConversionFactor { get; private set; }
     public bool IsActive { get; private set; }
     private readonly List<UnitOfMeasure> _derivedUnits;
@@ -23,7 +22,7 @@ public class UnitOfMeasure : AggregateRoot
         string symbol,
         UnitType unitType,
         string? description = null,
-        long? baseUnitId = null,
+        Guid? baseUnitId = null,
         decimal? conversionFactor = null)
     {
         _derivedUnits = [];
@@ -43,7 +42,7 @@ public class UnitOfMeasure : AggregateRoot
         string symbol,
         UnitType unitType,
         string? description = null,
-        long? baseUnitId = null,
+        Guid? baseUnitId = null,
         decimal? conversionFactor = null)
     {
         Name = name;

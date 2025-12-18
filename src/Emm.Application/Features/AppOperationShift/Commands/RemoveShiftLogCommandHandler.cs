@@ -6,12 +6,12 @@ namespace Emm.Application.Features.AppOperationShift.Commands;
 public class RemoveShiftLogCommandHandler : IRequestHandler<RemoveShiftLogCommand, Result<object>>
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IRepository<OperationShift, long> _shiftRepository;
+    private readonly IRepository<OperationShift, Guid> _shiftRepository;
     private readonly IShiftLogRepository _shiftLogRepository;
 
     public RemoveShiftLogCommandHandler(
         IUnitOfWork unitOfWork,
-        IRepository<OperationShift, long> shiftRepository,
+        IRepository<OperationShift, Guid> shiftRepository,
         IShiftLogRepository taskRepository)
     {
         _unitOfWork = unitOfWork;

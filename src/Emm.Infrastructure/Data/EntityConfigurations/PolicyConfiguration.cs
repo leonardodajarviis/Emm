@@ -12,7 +12,7 @@ public class PolicyConfiguration : IEntityTypeConfiguration<Policy>
         builder.ToTable("Policies");
 
         builder.HasKey(p => p.Id);
-        builder.Property(p => p.Id).ValueGeneratedOnAdd();
+        builder.Property(p => p.Id).ValueGeneratedNever();
 
         builder.Property(p => p.Code)
             .IsRequired()

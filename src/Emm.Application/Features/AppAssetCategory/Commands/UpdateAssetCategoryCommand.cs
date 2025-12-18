@@ -1,7 +1,7 @@
 namespace Emm.Application.Features.AppAssetCategory.Commands;
 
 public record UpdateAssetCategoryCommand(
-    long Id,
+    Guid Id,
     string Name,
     string? Description,
     bool IsActive

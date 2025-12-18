@@ -153,4 +153,52 @@ public static class DomainGuard
     }
 
     #endregion
+
+    #region Foreign Key Guards
+
+    /// <summary>
+    /// Validates that a required foreign key ID (long) is greater than zero.
+    /// </summary>
+    public static void AgainstInvalidForeignKey(long foreignKeyId, string fieldName)
+    {
+        if (foreignKeyId <= 0)
+        {
+            throw new InvalidValueException(fieldName, foreignKeyId, $"{fieldName} must be greater than zero");
+        }
+    }
+
+    /// <summary>
+    /// Validates that an optional foreign key ID (long) is greater than zero.
+    /// </summary>
+    public static void AgainstInvalidForeignKey(long? foreignKeyId, string fieldName)
+    {
+        if (foreignKeyId.HasValue && foreignKeyId.Value <= 0)
+        {
+            throw new InvalidValueException(fieldName, foreignKeyId, $"{fieldName} must be greater than zero");
+        }
+    }
+
+    /// <summary>
+    /// Validates that a required foreign key ID (Guid) is not empty.
+    /// </summary>
+    public static void AgainstInvalidForeignKey(Guid foreignKeyId, string fieldName)
+    {
+        if (foreignKeyId == Guid.Empty)
+        {
+            throw new InvalidValueException(fieldName, foreignKeyId, $"{fieldName} cannot be empty");
+        }
+    }
+
+    /// <summary>
+    /// Validates that an optional foreign key ID (Guid) is not empty if it has value.
+    /// </summary>
+    public static void AgainstInvalidForeignKey(Guid? foreignKeyId, string fieldName)
+    {
+        if (foreignKeyId.HasValue && foreignKeyId.Value == Guid.Empty)
+        {
+            throw new InvalidValueException(fieldName, foreignKeyId, $"{fieldName} cannot be empty");
+        }
+    }
+
+    #endregion
 }

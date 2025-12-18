@@ -8,8 +8,8 @@ namespace Emm.Domain.Entities.Operations;
 /// </summary>
 public class OperationShiftAssetBox
 {
-    public long Id { get; private set; }
-    public long OperationShiftId { get; private set; }
+    public Guid Id { get; private set; }
+    public Guid OperationShiftId { get; private set; }
     public string BoxName { get; private set; } = null!;
     public string? Description { get; private set; }
     public BoxRole Role { get; private set; }
@@ -17,7 +17,7 @@ public class OperationShiftAssetBox
     public DateTime CreatedAt { get; private set; }
 
     public OperationShiftAssetBox(
-        long operationShiftId,
+        Guid operationShiftId,
         string boxName,
         BoxRole role = BoxRole.Secondary,
         int displayOrder = 0,

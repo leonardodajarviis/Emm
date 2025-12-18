@@ -27,7 +27,7 @@ public class UserPermissionController : ControllerBase
     }
 
     [HttpGet("users/{userId}")]
-    public async Task<IActionResult> GetUserPermissions(long userId, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetUserPermissions(Guid userId, CancellationToken cancellationToken)
     {
         var permissions = await _authorizationService.GetUserPermissionsAsync(userId, cancellationToken);
         var roles = await _authorizationService.GetUserRolesAsync(userId, cancellationToken);
@@ -41,7 +41,7 @@ public class UserPermissionController : ControllerBase
 
     [HttpPost("users/{userId}/permissions")]
     public async Task<IActionResult> GrantPermission(
-        long userId,
+        Guid userId,
         [FromBody] GrantPermissionRequest request,
         CancellationToken cancellationToken)
     {
@@ -61,7 +61,7 @@ public class UserPermissionController : ControllerBase
         }
 
         var userIdClaim = User.FindFirst("userId");
-        long? assignedBy = userIdClaim != null && long.TryParse(userIdClaim.Value, out var id) ? id : null;
+        Guid? assignedBy = userIdClaim != null && Guid.TryParse(userIdClaim.Value, out var id) ? id : null;
 
         var userPermission = new UserPermission(
             userId,
@@ -77,7 +77,7 @@ public class UserPermissionController : ControllerBase
     }
 
     [HttpDelete("users/{userId}/permissions/{permissionId}")]
-    public async Task<IActionResult> RevokePermission(long userId, long permissionId, CancellationToken cancellationToken)
+    public async Task<IActionResult> RevokePermission(Guid userId, Guid permissionId, CancellationToken cancellationToken)
     {
         var userPermission = await _userPermissionRepository.GetAsync(userId, permissionId, cancellationToken);
         if (userPermission == null)
@@ -97,5 +97,5 @@ public class UserPermissionController : ControllerBase
     }
 }
 
-public record GrantPermissionRequest(long PermissionId, bool IsGranted = true, string? Reason = null);
-public record CheckPermissionRequest(long UserId, string PermissionCode);
+public record GrantPermissionRequest(Guid PermissionId, bool IsGranted = true, string? Reason = null);
+public record CheckPermissionRequest(Guid UserId, string PermissionCode);

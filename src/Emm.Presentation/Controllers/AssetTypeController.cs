@@ -27,8 +27,8 @@ public class AssetTypeController : ControllerBase
         return result.ToActionResult();
     }
 
-    [HttpPut("{id:long}")]
-    public async Task<IActionResult> UpdateAssetType([FromRoute] long id, [FromBody] UpdateAssetType updateAssetType)
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateAssetType([FromRoute] Guid id, [FromBody] UpdateAssetType updateAssetType)
     {
         var command = new UpdateAssetTypeCommand(
             Id: id,
@@ -53,8 +53,8 @@ public class AssetTypeController : ControllerBase
         return result.ToActionResult();
     }
 
-    [HttpGet("{id:long}")]
-    public async Task<IActionResult> GetAssetTypeById([FromRoute] long id)
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetAssetTypeById([FromRoute] Guid id)
     {
         var query = new GetAssetTypeByIdQuery(id);
         var result = await _mediator.Send(query);

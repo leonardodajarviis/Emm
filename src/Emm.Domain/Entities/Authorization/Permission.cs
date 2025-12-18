@@ -9,7 +9,6 @@ namespace Emm.Domain.Entities.Authorization;
 /// </summary>
 public class Permission : AggregateRoot, IAuditableEntity
 {
-    public long Id { get; private set; }
 
     /// <summary>
     /// Resource type (VD: OperationShift, Asset, User)

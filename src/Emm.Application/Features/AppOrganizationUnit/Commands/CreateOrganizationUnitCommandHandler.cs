@@ -6,9 +6,9 @@ namespace Emm.Application.Features.AppOrganizationUnit.Commands;
 public class CreateOrganizationUnitCommandHandler : IRequestHandler<CreateOrganizationUnitCommand, Result<object>>
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IRepository<OrganizationUnit, long> _repository;
+    private readonly IRepository<OrganizationUnit, Guid> _repository;
 
-    public CreateOrganizationUnitCommandHandler(IUnitOfWork unitOfWork, IRepository<OrganizationUnit, long> repository)
+    public CreateOrganizationUnitCommandHandler(IUnitOfWork unitOfWork, IRepository<OrganizationUnit, Guid> repository)
     {
         _unitOfWork = unitOfWork;
         _repository = repository;

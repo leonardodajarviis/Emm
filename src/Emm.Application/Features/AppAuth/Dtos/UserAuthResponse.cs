@@ -10,7 +10,7 @@ public record UserAuthResponse(
     );
 
 public record UserAuthInfo(
-    long UserId,
+    Guid UserId,
     string Username,
     string DisplayName,
     string Email);

@@ -2,8 +2,8 @@ namespace Emm.Domain.Entities.AssetCatalog;
 
 public class AssetParameter
 {
-    public long AssetId { get; private set; }
-    public long ParameterId { get; private set; }
+    public Guid AssetId { get; private set; }
+    public Guid ParameterId { get; private set; }
     public string? ParameterCode { get; private set; }
     public string? ParameterName { get; private set; }
     public string? ParameterUnit { get; private set; }
@@ -11,7 +11,7 @@ public class AssetParameter
 
     public decimal ValueToMaintenance {get; private set;}
 
-    public AssetParameter(long parameterId, decimal value,decimal valueToMaintenance, string? parameterCode = null, string? parameterName = null, string? parameterUnit = null)
+    public AssetParameter(Guid parameterId, decimal value,decimal valueToMaintenance, string? parameterCode = null, string? parameterName = null, string? parameterUnit = null)
     {
         ParameterId = parameterId;
         CurrentValue = value;

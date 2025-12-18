@@ -2,8 +2,8 @@ using Emm.Domain.Entities.AssetCatalog;
 
 namespace Emm.Domain.Repositories;
 
-public interface IAssetRepository : IRepository<Asset, long>
+public interface IAssetRepository : IRepository<Asset, Guid>
 {
-    Task OperateMultiAsync(IEnumerable<long> assetIds, CancellationToken cancellationToken = default);
-    Task IdleMultiAsync(IEnumerable<long> assetIds, CancellationToken cancellationToken = default);
+    Task OperateMultiAsync(IEnumerable<Guid> assetIds, CancellationToken cancellationToken = default);
+    Task IdleMultiAsync(IEnumerable<Guid> assetIds, CancellationToken cancellationToken = default);
 }

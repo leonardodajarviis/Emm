@@ -4,7 +4,7 @@ namespace Emm.Domain.Repositories;
 
 public interface IPermissionRepository
 {
-    Task<Permission?> GetByIdAsync(long id, CancellationToken cancellationToken = default);
+    Task<Permission?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task<Permission?> GetByCodeAsync(string code, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<Permission>> GetAllAsync(CancellationToken cancellationToken = default);
     Task<IReadOnlyList<Permission>> GetByResourceAsync(string resource, CancellationToken cancellationToken = default);

@@ -18,7 +18,7 @@ public sealed record AssetAssignmentRequest
     /// <summary>
     /// ID của asset cần thêm vào ca
     /// </summary>
-    public long AssetId { get; init; }
+    public Guid AssetId { get; init; }
 
     /// <summary>
     /// Đánh dấu asset này là primary asset
@@ -36,7 +36,7 @@ public sealed record AssetBoxRequest
     /// </summary>
     public string BoxName { get; init; } = null!;
 
-    public IEnumerable<long>? AssetIds { get; init; }
+    public IEnumerable<Guid>? AssetIds { get; init; }
 
     /// <summary>
     /// Vai trò của nhóm

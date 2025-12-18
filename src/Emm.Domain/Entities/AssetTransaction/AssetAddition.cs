@@ -6,10 +6,9 @@ namespace Emm.Domain.Entities.AssetTransaction;
 
 public class AssetAddition : AggregateRoot, IAuditableEntity
 {
-    public long Id { get; private set; }
     public string Code { get; private set; } = null!;
-    public long OrganizationUnitId { get; private set; }
-    public long LocationId { get; private set; }
+    public Guid OrganizationUnitId { get; private set; }
+    public Guid LocationId { get; private set; }
     public string? DecisionNumber { get; private set; }
     public DateTime? DecisionDate { get; private set; }
     public string? Reason { get; private set; }
@@ -21,8 +20,8 @@ public class AssetAddition : AggregateRoot, IAuditableEntity
 
     public AssetAddition(
         string code,
-        long organizationUnitId,
-        long locationId,
+        Guid organizationUnitId,
+        Guid locationId,
         string? decisionNumber,
         DateTime? decisionDate,
         string? reason)
@@ -30,11 +29,11 @@ public class AssetAddition : AggregateRoot, IAuditableEntity
         if (string.IsNullOrWhiteSpace(code))
             throw new ArgumentException("Code cannot be empty", nameof(code));
 
-        if (organizationUnitId <= 0)
-            throw new ArgumentException("OrganizationUnitId must be greater than 0", nameof(organizationUnitId));
+        if (organizationUnitId == Guid.Empty)
+            throw new ArgumentException("OrganizationUnitId cannot be empty", nameof(organizationUnitId));
 
-        if (locationId <= 0)
-            throw new ArgumentException("LocationId must be greater than 0", nameof(locationId));
+        if (locationId == Guid.Empty)
+            throw new ArgumentException("LocationId cannot be empty", nameof(locationId));
 
         Code = code;
         OrganizationUnitId = organizationUnitId;
@@ -44,7 +43,7 @@ public class AssetAddition : AggregateRoot, IAuditableEntity
         Reason = reason;
     }
 
-    public void AddAssetAdditionLine(string assetCode, long assetModelId, decimal unitPrice)
+    public void AddAssetAdditionLine(string assetCode, Guid assetModelId, decimal unitPrice)
     {
         var line = new AssetAdditionLine(assetModelId, assetCode, unitPrice);
         line.SetAssetAddition(this);

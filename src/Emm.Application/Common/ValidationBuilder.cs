@@ -18,7 +18,7 @@ public class ValidationBuilder
     /// <summary>
     /// Add FK validation for single ID
     /// </summary>
-    public ValidationBuilder ValidateForeignKey<TEntity>(long id, string? entityName = null) where TEntity : class
+    public ValidationBuilder ValidateForeignKey<TEntity>(Guid id, string? entityName = null) where TEntity : class
     {
         _validations.Add(ct => _fkValidator.ValidateAsync<TEntity>(id, entityName, ct));
         return this;
@@ -27,7 +27,7 @@ public class ValidationBuilder
     /// <summary>
     /// Add FK validation for nullable ID
     /// </summary>
-    public ValidationBuilder ValidateForeignKey<TEntity>(long? id, string? entityName = null) where TEntity : class
+    public ValidationBuilder ValidateForeignKey<TEntity>(Guid? id, string? entityName = null) where TEntity : class
     {
         if (id.HasValue)
         {
@@ -39,7 +39,7 @@ public class ValidationBuilder
     /// <summary>
     /// Add FK validation for multiple IDs
     /// </summary>
-    public ValidationBuilder ValidateForeignKeys<TEntity>(IEnumerable<long>? ids, string? entityName = null) where TEntity : class
+    public ValidationBuilder ValidateForeignKeys<TEntity>(IEnumerable<Guid>? ids, string? entityName = null) where TEntity : class
     {
         if (ids?.Any() == true)
         {

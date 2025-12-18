@@ -4,10 +4,10 @@ namespace Emm.Application.Features.AppOperationShift.Commands;
 
 public record UpdateShiftLogCommand : IRequest<Result>
 {
-    public long OperationShiftId { get; set; }
+    public Guid OperationShiftId { get; set; }
 
     [JsonIgnore]
-    public long ShiftLogId { get; set; }
+    public Guid ShiftLogId { get; set; }
 
     public string? Name { get; set; }
     public DateTime? EndTime { get; set; }

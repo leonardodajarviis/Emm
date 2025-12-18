@@ -7,25 +7,25 @@ namespace Emm.Domain.Entities.Operations;
 /// </summary>
 public class OperationShiftAsset
 {
-    public long Id { get; private set; }
-    public long OperationShiftId { get; private set; }
-    public long AssetId { get; private set; }
+    public Guid Id { get; private set; }
+    public Guid OperationShiftId { get; private set; }
+    public Guid AssetId { get; private set; }
     public string AssetCode { get; private set; } = null!;
     public string AssetName { get; private set; } = null!;
     public bool IsPrimary { get; private set; }
-    public long? AssetBoxId { get; private set; }
+    public Guid? AssetBoxId { get; private set; }
     public AssetStatus Status { get; private set; }
     public DateTime? StartedAt { get; private set; }
     public DateTime? CompletedAt { get; private set; }
     public string? Notes { get; private set; }
 
     public OperationShiftAsset(
-        long operationShiftId,
-        long assetId,
+        Guid operationShiftId,
+        Guid assetId,
         string assetCode,
         string assetName,
         bool isPrimary = false,
-        long? assetBoxId = null)
+        Guid? assetBoxId = null)
     {
         OperationShiftId = operationShiftId;
         AssetId = assetId;
@@ -36,7 +36,7 @@ public class OperationShiftAsset
         Status = AssetStatus.Scheduled;
     }
 
-    public void AssignToGroup(long? assetBoxId)
+    public void AssignToGroup(Guid? assetBoxId)
     {
         AssetBoxId = assetBoxId;
     }
@@ -108,8 +108,8 @@ public class OperationShiftAsset
 
 public record OperationShiftAssetSpec
 {
-    public long OperationShiftId { get; init; }
-    public long AssetId { get; init; }
+    public Guid OperationShiftId { get; init; }
+    public Guid AssetId { get; init; }
     public string AssetCode { get; init; } = null!;
     public string AssetName { get; init; } = null!;
     public string AssetType { get; init; } = null!;

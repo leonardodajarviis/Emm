@@ -41,26 +41,26 @@ public class AuthorizationService : IAuthorizationService
         _cache = cache;
     }
 
-    public async Task<bool> HasPermissionAsync(long userId, string permissionCode, CancellationToken cancellationToken = default)
+    public async Task<bool> HasPermissionAsync(Guid userId, string permissionCode, CancellationToken cancellationToken = default)
     {
         var permissions = await GetUserPermissionsInternalAsync(userId, cancellationToken);
         return permissions.Contains(permissionCode);
     }
 
-    public async Task<bool> HasAnyPermissionAsync(long userId, IEnumerable<string> permissionCodes, CancellationToken cancellationToken = default)
+    public async Task<bool> HasAnyPermissionAsync(Guid userId, IEnumerable<string> permissionCodes, CancellationToken cancellationToken = default)
     {
         var userPermissions = await GetUserPermissionsInternalAsync(userId, cancellationToken);
         return permissionCodes.Any(code => userPermissions.Contains(code));
     }
 
-    public async Task<bool> HasAllPermissionsAsync(long userId, IEnumerable<string> permissionCodes, CancellationToken cancellationToken = default)
+    public async Task<bool> HasAllPermissionsAsync(Guid userId, IEnumerable<string> permissionCodes, CancellationToken cancellationToken = default)
     {
         var userPermissions = await GetUserPermissionsInternalAsync(userId, cancellationToken);
         return permissionCodes.All(code => userPermissions.Contains(code));
     }
 
     public async Task<bool> CanAccessAsync(
-        long userId,
+        Guid userId,
         string resource,
         string action,
         object? resourceContext = null,
@@ -96,12 +96,12 @@ public class AuthorizationService : IAuthorizationService
         return await _policyEvaluator.EvaluatePoliciesAsync(policies, context, cancellationToken);
     }
 
-    public async Task<IReadOnlyList<string>> GetUserPermissionsAsync(long userId, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<string>> GetUserPermissionsAsync(Guid userId, CancellationToken cancellationToken = default)
     {
-        return (await GetUserPermissionsInternalAsync(userId, cancellationToken)).ToList();
+        return [.. await GetUserPermissionsInternalAsync(userId, cancellationToken)];
     }
 
-    public async Task<IReadOnlyList<string>> GetUserRolesAsync(long userId, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<string>> GetUserRolesAsync(Guid userId, CancellationToken cancellationToken = default)
     {
         var cacheKey = $"user_roles_{userId}";
 
@@ -114,7 +114,7 @@ public class AuthorizationService : IAuthorizationService
         }) ?? new List<string>();
     }
 
-    private async Task<HashSet<string>> GetUserPermissionsInternalAsync(long userId, CancellationToken cancellationToken)
+    private async Task<HashSet<string>> GetUserPermissionsInternalAsync(Guid userId, CancellationToken cancellationToken)
     {
         var cacheKey = $"user_permissions_{userId}";
 

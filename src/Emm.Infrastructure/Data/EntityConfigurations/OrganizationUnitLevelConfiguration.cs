@@ -16,7 +16,7 @@ public class OrganizationUnitLevelConfiguration : IEntityTypeConfiguration<Organ
 
         // Properties Configuration
         builder.Property(x => x.Id)
-            .ValueGeneratedOnAdd()
+            .ValueGeneratedNever()
             .IsRequired();
 
         builder.Property(x => x.Name)
@@ -37,7 +37,7 @@ public class OrganizationUnitLevelConfiguration : IEntityTypeConfiguration<Organ
         builder.Property(x => x.UpdatedAt)
             .IsRequired()
             .HasDefaultValueSql("GETUTCDATE()");
-        
+
         builder.HasIndex(x => x.Name)
             .IsUnique()
             .HasDatabaseName("IX_OrganizationUnitLevels_Name");

@@ -3,4 +3,4 @@ using LazyNet.Symphony.Interfaces;
 
 namespace Emm.Application.Features.AppIncidentReport.Queries;
 
-public record GetIncidentReportByIdQuery(long Id) : IRequest<Result<IncidentReportResponse>>;
+public record GetIncidentReportByIdQuery(Guid Id) : IRequest<Result<IncidentReportResponse>>;

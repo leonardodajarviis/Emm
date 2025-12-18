@@ -7,9 +7,8 @@ namespace Emm.Domain.Entities.Operations;
 
 public class ShiftLog : AggregateRoot, IAuditableEntity
 {
-    public long Id { get; private set; }
     public int LogOrder { get; private set; }
-    public long OperationShiftId { get; private set; }
+    public Guid OperationShiftId { get; private set; }
     public string Name { get; private set; } = null!;
     public string Description { get; private set; } = null!;
     public DateTime? StartTime { get; private set; }
@@ -20,13 +19,13 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
     /// Asset ID cho trường hợp ghi log cho 1 asset cụ thể
     /// Null nếu là shift-level log hoặc ghi log theo group
     /// </summary>
-    public long? AssetId { get; private set; }
+    public Guid? AssetId { get; private set; }
 
     /// <summary>
     /// Group ID cho trường hợp ghi log cho nhiều assets theo group
     /// Null nếu là shift-level log hoặc ghi log cho 1 asset cụ thể
     /// </summary>
-    public long? BoxId { get; private set; }
+    public Guid? BoxId { get; private set; }
 
     private readonly List<ShiftLogParameterReading> _readings;
     public IReadOnlyCollection<ShiftLogParameterReading> Readings => _readings;
@@ -44,16 +43,15 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
     public void SetAudit(AuditMetadata audit) => Audit = audit;
 
     public ShiftLog(
-        long operationShiftId,
+        Guid operationShiftId,
         string name,
         string description,
         DateTime startTime,
         DateTime? endTime = null,
-        long? assetId = null,
-        long? boxId = null)
+        Guid? assetId = null,
+        Guid? boxId = null)
     {
-        if (operationShiftId <= 0)
-            throw new DomainException("Invalid operation shift ID");
+        DomainGuard.AgainstInvalidForeignKey(operationShiftId, nameof(operationShiftId));
 
         if (string.IsNullOrWhiteSpace(name))
             throw new DomainException("Task name is required");
@@ -97,10 +95,9 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
     /// <summary>
     /// Gán ShiftLog cho một asset cụ thể
     /// </summary>
-    public void AssignToAsset(long assetId)
+    public void AssignToAsset(Guid assetId)
     {
-        if (assetId <= 0)
-            throw new DomainException("Invalid asset ID");
+        DomainGuard.AgainstInvalidForeignKey(assetId, nameof(assetId));
 
         if (BoxId.HasValue)
             throw new DomainException("Cannot assign to asset when already assigned to a group");
@@ -111,10 +108,9 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
     /// <summary>
     /// Gán ShiftLog cho một group (nhiều assets)
     /// </summary>
-    public void AssignToBox(long boxId)
+    public void AssignToBox(Guid boxId)
     {
-        if (boxId <= 0)
-            throw new DomainException("Invalid group ID");
+        DomainGuard.AgainstInvalidForeignKey(boxId, nameof(boxId));
 
         if (AssetId.HasValue)
             throw new DomainException("Cannot assign to group when already assigned to an asset");
@@ -157,7 +153,7 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
 
     #endregion
 
-    public void LockReading(long readingId)
+    public void LockReading(Guid readingId)
     {
         var reading = _readings.FirstOrDefault(r => r.Id == readingId);
         if (reading == null)
@@ -175,21 +171,18 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
     }
 
     public void AddReading(
-        long assetId,
+        Guid assetId,
         string assetCode,
         string assetName,
-        long parameterId,
+        Guid parameterId,
         string parameterName,
         string parameterCode,
         decimal value,
         string unit,
         Guid? shiftLogCheckPointLinkedId = null)
     {
-        if (assetId <= 0)
-            throw new DomainException("Invalid asset ID");
-
-        if (parameterId <= 0)
-            throw new DomainException("Invalid parameter ID");
+        DomainGuard.AgainstInvalidForeignKey(assetId, nameof(assetId));
+        DomainGuard.AgainstInvalidForeignKey(parameterId, nameof(parameterId));
 
 
         var reading = new ShiftLogParameterReading(
@@ -214,7 +207,7 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
     /// <summary>
     /// Lấy reading theo ID
     /// </summary>
-    public ShiftLogParameterReading GetReading(long readingId)
+    public ShiftLogParameterReading GetReading(Guid readingId)
     {
         var reading = _readings.FirstOrDefault(r => r.Id == readingId);
         if (reading == null)
@@ -226,7 +219,7 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
     /// <summary>
     /// Xóa reading theo ID
     /// </summary>
-    public void RemoveReading(long readingId)
+    public void RemoveReading(Guid readingId)
     {
         var reading = _readings.FirstOrDefault(r => r.Id == readingId);
         if (reading == null)
@@ -235,13 +228,13 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
         _readings.Remove(reading);
     }
 
-    public void UpdateReadingValue(long readingId, decimal newValue)
+    public void UpdateReadingValue(Guid readingId, decimal newValue)
     {
         var reading = _readings.FirstOrDefault(r => r.Id == readingId) ?? throw new DomainException($"Reading with ID {readingId} not found");
         reading.UpdateValue(newValue);
     }
 
-    public void AddCheckpoint(Guid linkedId, string name, long locationId, string locationName, bool isWithAttachedMaterial = false, long? itemId = null, string? itemCode = null, string? itemName = null)
+    public void AddCheckpoint(Guid linkedId, string name, Guid locationId, string locationName, bool isWithAttachedMaterial = false, Guid? itemId = null, string? itemCode = null, string? itemName = null)
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new DomainException("Checkpoint name is required");
@@ -253,7 +246,7 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
     /// <summary>
     /// Thêm nhiều checkpoints cùng lúc
     /// </summary>
-    public void AddCheckpoints(IEnumerable<(Guid linkedId, string name, long locationId, string locationName, bool isWithAttachedMaterial, long? itemId, string? itemCode, string? itemName)> checkpoints)
+    public void AddCheckpoints(IEnumerable<(Guid linkedId, string name, Guid locationId, string locationName, bool isWithAttachedMaterial, Guid? itemId, string? itemCode, string? itemName)> checkpoints)
     {
         foreach (var (linkedId, name, locationId, locationName, isWithAttachedMaterial, itemId, itemCode, itemName) in checkpoints)
         {
@@ -264,7 +257,7 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
     /// <summary>
     /// Lấy checkpoint theo ID để thao tác
     /// </summary>
-    public ShiftLogCheckpoint GetCheckpoint(long checkpointId)
+    public ShiftLogCheckpoint GetCheckpoint(Guid checkpointId)
     {
         var checkpoint = _checkpoints.FirstOrDefault(c => c.Id == checkpointId);
         if (checkpoint == null)
@@ -276,7 +269,7 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
     /// <summary>
     /// Xóa checkpoint theo ID
     /// </summary>
-    public void RemoveCheckpoint(long checkpointId)
+    public void RemoveCheckpoint(Guid checkpointId)
     {
         var checkpoint = _checkpoints.FirstOrDefault(c => c.Id == checkpointId);
         if (checkpoint == null)
@@ -333,7 +326,7 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
     /// <summary>
     /// Kết thúc sự kiện đang mở (nghỉ ca, sự cố)
     /// </summary>
-    public void EndEvent(long eventId, DateTime endTime)
+    public void EndEvent(Guid eventId, DateTime endTime)
     {
         var statusHistory = _events.FirstOrDefault(h => h.Id == eventId);
         if (statusHistory == null)
@@ -345,7 +338,7 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
     /// <summary>
     /// Lấy event theo ID
     /// </summary>
-    public ShiftLogEvent GetEvent(long eventId)
+    public ShiftLogEvent GetEvent(Guid eventId)
     {
         var statusHistory = _events.FirstOrDefault(h => h.Id == eventId);
         if (statusHistory == null)
@@ -357,7 +350,7 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
     /// <summary>
     /// Xóa event theo ID
     /// </summary>
-    public void RemoveEvent(long eventId)
+    public void RemoveEvent(Guid eventId)
     {
         var statusHistory = _events.FirstOrDefault(h => h.Id == eventId);
         if (statusHistory == null)
@@ -370,17 +363,16 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
     /// Thêm item vào shift log
     /// </summary>
     public void AddItem(
-        long itemId,
+        Guid itemId,
         string itemName,
         decimal quantity,
-        long? assetId = null,
+        Guid? assetId = null,
         string? assetCode = null,
         string? assetName = null,
-        long? unitOfMeasureId = null,
+        Guid? unitOfMeasureId = null,
         string? unitOfMeasureName = null)
     {
-        if (itemId <= 0)
-            throw new DomainException("Invalid item ID");
+        DomainGuard.AgainstInvalidForeignKey(itemId, nameof(itemId));
 
         if (string.IsNullOrWhiteSpace(itemName))
             throw new DomainException("Item name is required");
@@ -399,7 +391,7 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
     /// <summary>
     /// Thêm nhiều items cùng lúc
     /// </summary>
-    public void AddItems(IEnumerable<(long itemId, string itemName, decimal quantity, long? assetId, string? assetCode, string? assetName, long? unitOfMeasureId, string? unitOfMeasureName)> items)
+    public void AddItems(IEnumerable<(Guid itemId, string itemName, decimal quantity, Guid? assetId, string? assetCode, string? assetName, Guid? unitOfMeasureId, string? unitOfMeasureName)> items)
     {
         foreach (var (itemId, itemName, quantity, assetId, assetCode, assetName, unitOfMeasureId, unitOfMeasureName) in items)
         {
@@ -410,7 +402,7 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
     /// <summary>
     /// Lấy item theo ID
     /// </summary>
-    public ShiftLogItem GetItem(long itemId)
+    public ShiftLogItem GetItem(Guid itemId)
     {
         var item = _items.FirstOrDefault(i => i.Id == itemId);
         if (item == null)
@@ -422,7 +414,7 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
     /// <summary>
     /// Xóa item theo ID
     /// </summary>
-    public void RemoveItem(long itemId)
+    public void RemoveItem(Guid itemId)
     {
         var item = _items.FirstOrDefault(i => i.Id == itemId);
         if (item == null)

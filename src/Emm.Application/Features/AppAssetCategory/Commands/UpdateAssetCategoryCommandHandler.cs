@@ -5,9 +5,9 @@ namespace Emm.Application.Features.AppAssetCategory.Commands;
 public class UpdateAssetCategoryCommandHandler : IRequestHandler<UpdateAssetCategoryCommand, Result>
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IRepository<AssetCategory, long> _repository;
+    private readonly IRepository<AssetCategory, Guid> _repository;
 
-    public UpdateAssetCategoryCommandHandler(IUnitOfWork unitOfWork, IRepository<AssetCategory, long> repository)
+    public UpdateAssetCategoryCommandHandler(IUnitOfWork unitOfWork, IRepository<AssetCategory, Guid> repository)
     {
         _unitOfWork = unitOfWork;
         _repository = repository;

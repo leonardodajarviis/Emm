@@ -8,13 +8,13 @@ namespace Emm.Application.Features.AppIncidentReport.Commands;
 public class CreateIncidentReportCommandHandler : IRequestHandler<CreateIncidentReportCommand, Result<object>>
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IRepository<IncidentReport, long> _repository;
+    private readonly IRepository<IncidentReport, Guid> _repository;
     private readonly IUserContextService _userContextService;
     private readonly IQueryContext _queryContext;
 
     public CreateIncidentReportCommandHandler(
         IUnitOfWork unitOfWork,
-        IRepository<IncidentReport, long> repository,
+        IRepository<IncidentReport, Guid> repository,
         IUserContextService userContextService,
         IQueryContext queryContext)
     {

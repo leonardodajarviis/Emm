@@ -7,14 +7,14 @@ namespace Emm.Domain.Events.Operations;
 /// </summary>
 public sealed record OperationShiftReactivatedEvent : IDomainEvent
 {
-    public long ShiftId { get; init; }
+    public Guid ShiftId { get; init; }
     public DateTime NewScheduledStartTime { get; init; }
     public DateTime NewScheduledEndTime { get; init; }
     public string Reason { get; init; }
     public DateTime OccurredOn { get; init; }
 
     public OperationShiftReactivatedEvent(
-        long shiftId,
+        Guid shiftId,
         DateTime newScheduledStartTime,
         DateTime newScheduledEndTime,
         string reason)

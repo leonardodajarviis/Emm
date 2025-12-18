@@ -7,21 +7,20 @@ namespace Emm.Domain.Entities.Operations;
 /// </summary>
 public class ShiftLogEvent
 {
-    public long Id { get; private set; }
-    public long ShiftLogId { get; private set; }
+    public Guid Id { get; private set; }
+    public Guid ShiftLogId { get; private set; }
     public ShiftLogEventType EventType { get; private set; }
     public DateTime StartTime { get; private set; }
     public DateTime? EndTime { get; private set; }
     public TimeSpan? Duration { get; private set; }
 
     public ShiftLogEvent(
-        long operationTaskId,
+        Guid operationTaskId,
         ShiftLogEventType eventType,
         DateTime startTime
         )
     {
-        if (operationTaskId <= 0)
-            throw new DomainException("Invalid operation task ID");
+        DomainGuard.AgainstInvalidForeignKey(operationTaskId, nameof(operationTaskId));
 
         ShiftLogId = operationTaskId;
         StartTime = startTime;

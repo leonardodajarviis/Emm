@@ -6,9 +6,9 @@ namespace Emm.Application.Features.AppOrganizationUnitLevel.Commands;
 public class UpdateOrganizationUnitLevelCommandHandler : IRequestHandler<UpdateOrganizationUnitLevelCommand, Result<object>>
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IRepository<OrganizationUnitLevel, long> _repository;
+    private readonly IRepository<OrganizationUnitLevel, Guid> _repository;
 
-    public UpdateOrganizationUnitLevelCommandHandler(IUnitOfWork unitOfWork, IRepository<OrganizationUnitLevel, long> repository)
+    public UpdateOrganizationUnitLevelCommandHandler(IUnitOfWork unitOfWork, IRepository<OrganizationUnitLevel, Guid> repository)
     {
         _unitOfWork = unitOfWork;
         _repository = repository;

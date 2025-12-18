@@ -12,22 +12,21 @@ public class MaterialReturnRequest : AggregateRoot, IAuditableEntity
 {
     private const int MaxLinesPerRequest = 100;
 
-    public long Id { get; private set; }
     public string Code { get; private set; } = null!;
     public string Title { get; private set; } = null!;
     public string? Description { get; private set; }
-    public long RequestedByUserId { get; private set; }
-    public long OrganizationUnitId { get; private set; }
-    public long? WarehouseId { get; private set; }
-    public long? OriginalMaterialIssueId { get; private set; }
+    public Guid RequestedByUserId { get; private set; }
+    public Guid OrganizationUnitId { get; private set; }
+    public Guid? WarehouseId { get; private set; }
+    public Guid? OriginalMaterialIssueId { get; private set; }
     public string? OriginalMaterialIssueCode { get; private set; }
-    public long? MaintenanceTicketId { get; private set; }
+    public Guid? MaintenanceTicketId { get; private set; }
     public MaterialReturnReason ReturnReason { get; private set; }
     public MaterialReturnRequestStatus Status { get; private set; }
 
     public DateTime RequestedDate { get; private set; }
     public DateTime? ApprovedAt { get; private set; }
-    public long? ApprovedByUserId { get; private set; }
+    public Guid? ApprovedByUserId { get; private set; }
     public string? ApprovalNotes { get; private set; }
     public string? RejectionReason { get; private set; }
 
@@ -45,19 +44,19 @@ public class MaterialReturnRequest : AggregateRoot, IAuditableEntity
     public MaterialReturnRequest(
         string code,
         string title,
-        long requestedByUserId,
-        long organizationUnitId,
+        Guid requestedByUserId,
+        Guid organizationUnitId,
         MaterialReturnReason returnReason,
-        long? warehouseId = null,
-        long? originalMaterialIssueId = null,
+        Guid? warehouseId = null,
+        Guid? originalMaterialIssueId = null,
         string? originalMaterialIssueCode = null,
-        long? maintenanceTicketId = null,
+        Guid? maintenanceTicketId = null,
         string? description = null)
     {
         ValidateCode(code);
         ValidateTitle(title);
-        ValidateForeignKey(requestedByUserId, nameof(RequestedByUserId));
-        ValidateForeignKey(organizationUnitId, nameof(OrganizationUnitId));
+        DomainGuard.AgainstInvalidForeignKey(requestedByUserId, nameof(RequestedByUserId));
+        DomainGuard.AgainstInvalidForeignKey(organizationUnitId, nameof(OrganizationUnitId));
 
         _lines = [];
 
@@ -80,7 +79,7 @@ public class MaterialReturnRequest : AggregateRoot, IAuditableEntity
     #region Line Management
 
     public void AddLine(
-        long itemId,
+        Guid itemId,
         string itemCode,
         string itemName,
         decimal requestedQuantity,
@@ -181,12 +180,12 @@ public class MaterialReturnRequest : AggregateRoot, IAuditableEntity
         // RaiseDomainEvent(new MaterialReturnRequestSubmittedEvent(Id, Code));
     }
 
-    public void Approve(long approvedByUserId, string? notes = null)
+    public void Approve(Guid approvedByUserId, string? notes = null)
     {
         if (Status != MaterialReturnRequestStatus.Pending)
             throw new DomainException("Only pending requests can be approved");
 
-        ValidateForeignKey(approvedByUserId, nameof(approvedByUserId));
+        DomainGuard.AgainstInvalidForeignKey(approvedByUserId, nameof(approvedByUserId));
 
         Status = MaterialReturnRequestStatus.Approved;
         ApprovedByUserId = approvedByUserId;
@@ -202,12 +201,12 @@ public class MaterialReturnRequest : AggregateRoot, IAuditableEntity
         // RaiseDomainEvent(new MaterialReturnRequestApprovedEvent(Id, Code, approvedByUserId));
     }
 
-    public void PartialApprove(long approvedByUserId, Dictionary<int, decimal> lineApprovals, string? notes = null)
+    public void PartialApprove(Guid approvedByUserId, Dictionary<int, decimal> lineApprovals, string? notes = null)
     {
         if (Status != MaterialReturnRequestStatus.Pending)
             throw new DomainException("Only pending requests can be approved");
 
-        ValidateForeignKey(approvedByUserId, nameof(approvedByUserId));
+        DomainGuard.AgainstInvalidForeignKey(approvedByUserId, nameof(approvedByUserId));
 
         Status = MaterialReturnRequestStatus.Approved;
         ApprovedByUserId = approvedByUserId;
@@ -225,7 +224,7 @@ public class MaterialReturnRequest : AggregateRoot, IAuditableEntity
         // RaiseDomainEvent(new MaterialReturnRequestPartiallyApprovedEvent(Id, Code, approvedByUserId));
     }
 
-    public void Reject(long rejectedByUserId, string reason)
+    public void Reject(Guid rejectedByUserId, string reason)
     {
         if (Status != MaterialReturnRequestStatus.Pending)
             throw new DomainException("Only pending requests can be rejected");
@@ -323,12 +322,6 @@ public class MaterialReturnRequest : AggregateRoot, IAuditableEntity
             throw new DomainException("Material return request title cannot exceed 200 characters");
     }
 
-    private static void ValidateForeignKey(long foreignKeyId, string fieldName)
-    {
-        if (foreignKeyId <= 0)
-            throw new DomainException($"{fieldName} must be greater than zero");
-    }
-
     #endregion
 }
 
@@ -373,9 +366,9 @@ public enum MaterialCondition
 /// </summary>
 public class MaterialReturnRequestLine
 {
-    public long Id { get; private set; }
+    public Guid Id { get; private set; } = Guid.CreateVersion7();
     public int LineNumber { get; private set; }
-    public long ItemId { get; private set; }
+    public Guid ItemId { get; private set; }
     public string ItemCode { get; private set; } = null!;
     public string ItemName { get; private set; } = null!;
     public decimal RequestedQuantity { get; private set; }
@@ -391,7 +384,7 @@ public class MaterialReturnRequestLine
 
     public MaterialReturnRequestLine(
         int lineNumber,
-        long itemId,
+        Guid itemId,
         string itemCode,
         string itemName,
         decimal requestedQuantity,
@@ -401,8 +394,8 @@ public class MaterialReturnRequestLine
         MaterialCondition condition = MaterialCondition.Good,
         string? remarks = null)
     {
-        if (itemId <= 0)
-            throw new DomainException("ItemId must be greater than zero");
+        if (itemId == Guid.Empty)
+            throw new DomainException("ItemId cannot be empty");
 
         if (string.IsNullOrWhiteSpace(itemCode))
             throw new DomainException("Item code cannot be empty");

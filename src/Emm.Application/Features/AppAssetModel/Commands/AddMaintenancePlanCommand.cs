@@ -3,7 +3,7 @@ using Emm.Domain.Entities.AssetCatalog;
 namespace Emm.Application.Features.AppAssetModel.Commands;
 
 public record AddMaintenancePlanCommand(
-    long AssetModelId,
+    Guid AssetModelId,
     string Name,
     string? Description,
     bool IsActive,
@@ -13,7 +13,7 @@ public record AddMaintenancePlanCommand(
     string? RRule,
 
     // For Parameter-based maintenance plans
-    long? ParameterId,
+    Guid? ParameterId,
     decimal? TriggerValue,
     decimal? MinValue,
     decimal? MaxValue,
@@ -28,13 +28,13 @@ public record AddMaintenancePlanCommand(
 
 public record AddMaintenancePlanJobStepCommand(
     string Name,
-    long? OrganizationUnitId,
+    Guid? OrganizationUnitId,
     string? Note,
     int Order
 );
 
 public record AddMaintenancePlanRequiredItemCommand(
-    long ItemId,
+    Guid ItemId,
     decimal Quantity,
     bool IsRequired,
     string? Note

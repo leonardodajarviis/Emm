@@ -8,9 +8,9 @@ public record CreateAssetModelCommand(
     string Name,
     string? Description,
     string? Notes,
-    long? ParentId,
-    long? AssetCategoryId,
-    long? AssetTypeId,
+    Guid? ParentId,
+    Guid? AssetCategoryId,
+    Guid? AssetTypeId,
     IReadOnlyCollection<CreateMaintenancePlanDefinitionCommand>? MaintenancePlanDefinitions,
     IReadOnlyCollection<CreateAssetModelImageCommand>? Images,
     Guid? ThumbnailFileId,
@@ -27,7 +27,7 @@ public sealed record CreateMaintenancePlanDefinitionCommand(
     string? RRule,
 
     // For Parameter-based maintenance plans
-    long? ParameterId,
+    Guid? ParameterId,
     decimal? TriggerValue,
     decimal? MinValue,
     decimal? MaxValue,
@@ -39,13 +39,13 @@ public sealed record CreateMaintenancePlanDefinitionCommand(
 
 public sealed record MaintenancePlanJobStepDefinitionCommand(
     string Name,
-    long? OrganizationUnitId,
+    Guid? OrganizationUnitId,
     string? Note,
     int Order
 );
 
 public sealed record MaintenancePlanRequiredItemDefinitionCommand(
-    long ItemId,
+    Guid ItemId,
     decimal Quantity,
     bool IsRequired,
     string? Note

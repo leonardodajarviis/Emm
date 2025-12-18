@@ -32,7 +32,7 @@ public class IncidentReportPolicy : IResourcePolicy<IncidentReport>
         };
     }
 
-    private Task<bool> CheckUpdatePermission(IncidentReport report, long userId)
+    private Task<bool> CheckUpdatePermission(IncidentReport report, Guid userId)
     {
         // Người tạo được sửa khi còn mới
         if (report.Audit.CreatedByUserId == userId && report.Status == IncidentStatus.New)
@@ -45,13 +45,13 @@ public class IncidentReportPolicy : IResourcePolicy<IncidentReport>
         return Task.FromResult(false);
     }
 
-    private Task<bool> CheckDeletePermission(IncidentReport report, long userId)
+    private Task<bool> CheckDeletePermission(IncidentReport report, Guid userId)
     {
         // Chỉ người tạo được xóa khi còn mới
         return Task.FromResult(report.Audit.CreatedByUserId == userId && report.Status == IncidentStatus.New);
     }
 
-    private Task<bool> CheckClosePermission(IncidentReport report, long userId)
+    private Task<bool> CheckClosePermission(IncidentReport report, Guid userId)
     {
         // Người tạo confirm đóng phiếu sau khi đã resolve
         return Task.FromResult(report.Audit.CreatedByUserId == userId && report.Status == IncidentStatus.Resolved);

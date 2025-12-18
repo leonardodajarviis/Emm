@@ -11,7 +11,7 @@ public class UserSessionConfiguration : IEntityTypeConfiguration<UserSession>
         builder.ToTable("UserSessions");
 
         builder.HasKey(s => s.Id);
-        builder.Property(s => s.Id).ValueGeneratedOnAdd();
+        builder.Property(s => s.Id).ValueGeneratedNever();
 
         builder.Property(s => s.UserId)
             .IsRequired();

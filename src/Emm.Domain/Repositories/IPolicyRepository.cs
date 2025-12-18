@@ -4,7 +4,7 @@ namespace Emm.Domain.Repositories;
 
 public interface IPolicyRepository
 {
-    Task<Policy?> GetByIdAsync(long id, CancellationToken cancellationToken = default);
+    Task<Policy?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task<Policy?> GetByCodeAsync(string code, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<Policy>> GetAllAsync(bool includeInactive = false, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<Policy>> GetByResourceTypeAsync(string resourceType, CancellationToken cancellationToken = default);

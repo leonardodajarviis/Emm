@@ -22,7 +22,7 @@ public class PolicyEvaluator : IPolicyEvaluator
             PolicyType.OrganizationUnit => EvaluateOrganizationUnitPolicy(policy, context),
             PolicyType.Time => EvaluateTimePolicy(policy, context),
             PolicyType.ResourceAttribute => EvaluateResourceAttributePolicy(policy, context),
-            PolicyType.Custom => EvaluateCustomPolicy(policy, context),
+            // PolicyType.Custom => EvaluateCustomPolicy(policy, context),
             _ => Task.FromResult(true)
         };
     }
@@ -75,7 +75,7 @@ public class PolicyEvaluator : IPolicyEvaluator
             return Task.FromResult(false);
 
         // Check if resource has OrganizationUnitId attribute
-        var resourceOrgUnitId = context.GetResourceAttribute<long?>("OrganizationUnitId");
+        var resourceOrgUnitId = context.GetResourceAttribute<Guid?>("OrganizationUnitId");
 
         if (conditions.RequireSameOrganizationUnit)
         {
@@ -145,19 +145,19 @@ public class PolicyEvaluator : IPolicyEvaluator
         return Task.FromResult(true);
     }
 
-    private Task<bool> EvaluateCustomPolicy(Policy policy, PolicyContext context)
-    {
-        // For custom policies, implement specific logic based on conditions
-        // This is a placeholder - implement based on your needs
-        return Task.FromResult(true);
-    }
+    // private Task<bool> EvaluateCustomPolicy(Policy policy, PolicyContext context)
+    // {
+    //     // For custom policies, implement specific logic based on conditions
+    //     // This is a placeholder - implement based on your needs
+    //     return Task.FromResult(true);
+    // }
 }
 
 // Policy condition models
 public class OrganizationUnitConditions
 {
     public bool RequireSameOrganizationUnit { get; set; }
-    public List<long>? AllowedOrganizationUnitIds { get; set; }
+    public List<Guid>? AllowedOrganizationUnitIds { get; set; }
 }
 
 public class TimeConditions

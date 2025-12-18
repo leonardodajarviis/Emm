@@ -3,9 +3,9 @@ namespace Emm.Domain.Entities.AssetTransaction;
 
 public class AssetAdditionLine
 {
-    public long Id { get; private set; }
-    public long AssetAdditionId { get; private set; }
-    public long AssetModelId { get; private set; }
+    public Guid Id { get; private set; } = Guid.CreateVersion7();
+    public Guid AssetAdditionId { get; private set; }
+    public Guid AssetModelId { get; private set; }
     public string AssetCode { get; private set; } = null!;
     public decimal UnitPrice { get; private set; }
 
@@ -13,7 +13,7 @@ public class AssetAdditionLine
     public AssetAddition AssetAddition { get; private set; } = null!;
 
     public AssetAdditionLine(
-        long assetModelId,
+        Guid assetModelId,
         string assetCode,
         decimal unitPrice)
     {

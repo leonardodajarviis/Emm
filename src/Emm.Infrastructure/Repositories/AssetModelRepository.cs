@@ -6,13 +6,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Emm.Infrastructure.Repositories;
 
-public class AssetModelRepository : GenericRepository<AssetModel, long>, IAssetModelRepository
+public class AssetModelRepository : GenericRepository<AssetModel, Guid>, IAssetModelRepository
 {
     public AssetModelRepository(XDbContext context) : base(context)
     {
     }
 
-    public override Task<AssetModel?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
+    public override Task<AssetModel?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var query = DbSet
             .Include(am => am.Parameters)

@@ -1,3 +1,3 @@
 namespace Emm.Application.Features.AppOperationShift.Commands;
 
-public record StartOperationShiftCommand(long ShiftId) : IRequest<Result<object>>;
+public record StartOperationShiftCommand(Guid ShiftId) : IRequest<Result<object>>;

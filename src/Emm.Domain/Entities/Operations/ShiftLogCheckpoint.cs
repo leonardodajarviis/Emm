@@ -5,26 +5,26 @@ namespace Emm.Domain.Entities.Operations;
 /// </summary>
 public class ShiftLogCheckpoint
 {
-    public long Id { get; private set; }
+    public Guid Id { get; private set; }
     public Guid LinkedId { get; private set; }
-    public long ShiftLogId { get; private set; }
+    public Guid ShiftLogId { get; private set; }
     public string Name { get; private set; } = null!;
-    public long LocationId { get; private set; }
+    public Guid LocationId { get; private set; }
     public string LocationName { get; private set; } = null!;
 
-    public long? ItemId { get; private set; }
+    public Guid? ItemId { get; private set; }
     public string? ItemCode { get; private set; }
     public string? ItemName { get; private set; }
     public bool IsWithAttachedMaterial { get; private set; }
 
     public ShiftLogCheckpoint(
-        long operationTaskId,
+        Guid operationTaskId,
         Guid linkedId,
         string name,
-        long locationId,
+        Guid locationId,
         string locationName,
         bool isWithAttachedMaterial = false,
-        long? itemId = null,
+        Guid? itemId = null,
         string? itemCode = null,
         string? itemName = null)
     {
@@ -43,7 +43,7 @@ public class ShiftLogCheckpoint
     /// <summary>
     /// Update checkpoint properties
     /// </summary>
-    public void Update(string name, long locationId, string locationName, bool isWithAttachedMaterial = false, long? itemId = null, string? itemCode = null, string? itemName = null)
+    public void Update(string name, Guid locationId, string locationName, bool isWithAttachedMaterial = false, Guid? itemId = null, string? itemCode = null, string? itemName = null)
     {
         Name = name;
         LocationId = locationId;

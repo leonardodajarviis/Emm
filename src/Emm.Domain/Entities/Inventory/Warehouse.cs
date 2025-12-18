@@ -8,7 +8,6 @@ namespace Emm.Domain.Entities.Inventory;
 /// </summary>
 public class Warehouse : AggregateRoot, IAuditableEntity
 {
-    public long Id { get; private set; }
     public string Code { get; private set; } = null!;
     public string Name { get; private set; } = null!;
     public string? Address { get; private set; }

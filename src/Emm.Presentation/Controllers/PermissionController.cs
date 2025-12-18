@@ -27,7 +27,7 @@ public class PermissionController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(long id, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
     {
         var permission = await _permissionRepository.GetByIdAsync(id, cancellationToken);
         if (permission == null)
@@ -64,7 +64,7 @@ public class PermissionController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(long id, [FromBody] UpdatePermissionRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> Update(Guid id, [FromBody] UpdatePermissionRequest request, CancellationToken cancellationToken)
     {
         var permission = await _permissionRepository.GetByIdAsync(id, cancellationToken);
         if (permission == null)
@@ -78,7 +78,7 @@ public class PermissionController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(long id, CancellationToken cancellationToken)
+    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
     {
         var permission = await _permissionRepository.GetByIdAsync(id, cancellationToken);
         if (permission == null)

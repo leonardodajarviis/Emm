@@ -7,6 +7,6 @@ public record UpdateUnitOfMeasure(
     string Symbol,
     UnitType UnitType,
     string? Description = null,
-    long? BaseUnitId = null,
+    Guid? BaseUnitId = null,
     decimal? ConversionFactor = null
 );

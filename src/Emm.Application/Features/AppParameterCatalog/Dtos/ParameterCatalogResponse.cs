@@ -1,7 +1,7 @@
 namespace Emm.Application.Features.AppParameterCatalog.Dtos;
 
 public record ParameterCatalogResponse(
-    long Id,
+    Guid Id,
     string Code,
     string Name,
     string? UnitOfMeasureName,

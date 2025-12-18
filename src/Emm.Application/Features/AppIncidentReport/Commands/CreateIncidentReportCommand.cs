@@ -6,6 +6,6 @@ namespace Emm.Application.Features.AppIncidentReport.Commands;
 public record CreateIncidentReportCommand(
     string Title,
     string Description,
-    long AssetId,
+    Guid AssetId,
     IncidentPriority Priority
 ) : IRequest<Result<object>>;

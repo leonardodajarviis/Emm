@@ -10,15 +10,14 @@ public class AssetModel : AggregateRoot, IAuditableEntity
     private const int MaxImagesPerModel = 50;
     private const int MaxParametersPerModel = 200;
 
-    public long Id { get; private set; }
     public bool IsCodeGenerated { get; private set; }
     public NaturalKey Code { get; private set; }
     public string Name { get; private set; } = null!;
     public string? Description { get; private set; }
     public string? Notes { get; private set; }
-    public long? ParentId { get; private set; }
-    public long? AssetCategoryId { get; private set; }
-    public long? AssetTypeId { get; private set; }
+    public Guid? ParentId { get; private set; }
+    public Guid? AssetCategoryId { get; private set; }
+    public Guid? AssetTypeId { get; private set; }
     public bool IsActive { get; private set; }
     public Guid? ThumbnailFileId { get; private set; }
     public string? ThumbnailUrl { get; private set; }
@@ -48,15 +47,15 @@ public class AssetModel : AggregateRoot, IAuditableEntity
         string name,
         string? description = null,
         string? notes = null,
-        long? parentId = null,
-        long? assetCategoryId = null,
-        long? assetTypeId = null,
+        Guid? parentId = null,
+        Guid? assetCategoryId = null,
+        Guid? assetTypeId = null,
         bool isActive = true)
     {
 
         ValidateName(name);
-        ValidateForeignKey(assetCategoryId, nameof(AssetCategoryId));
-        ValidateForeignKey(assetTypeId, nameof(AssetTypeId));
+        DomainGuard.AgainstInvalidForeignKey(assetCategoryId, nameof(AssetCategoryId));
+        DomainGuard.AgainstInvalidForeignKey(assetTypeId, nameof(AssetTypeId));
 
         _parameters = [];
         _maintenancePlanDefinitions = [];
@@ -111,15 +110,15 @@ public class AssetModel : AggregateRoot, IAuditableEntity
         string name,
         string? description,
         string? notes,
-        long? parentId,
-        long? assetCategoryId,
-        long? assetTypeId,
+        Guid? parentId,
+        Guid? assetCategoryId,
+        Guid? assetTypeId,
         bool isActive)
     {
         ValidateName(name);
         ValidateParentId(parentId);
-        ValidateForeignKey(assetCategoryId, nameof(AssetCategoryId));
-        ValidateForeignKey(assetTypeId, nameof(AssetTypeId));
+        DomainGuard.AgainstInvalidForeignKey(assetCategoryId, nameof(AssetCategoryId));
+        DomainGuard.AgainstInvalidForeignKey(assetTypeId, nameof(AssetTypeId));
 
         Name = name;
         Description = description;
@@ -132,9 +131,9 @@ public class AssetModel : AggregateRoot, IAuditableEntity
         // RaiseDomainEvent(new AssetModelUpdatedEvent(Id, Name));
     }
 
-    public void AddParameter(long parameterId)
+    public void AddParameter(Guid parameterId)
     {
-        DomainGuard.AgainstNegativeOrZero(parameterId, nameof(parameterId));
+        DomainGuard.AgainstInvalidForeignKey(parameterId, nameof(parameterId));
         DomainGuard.AgainstBusinessRule(
             _parameters.Count >= MaxParametersPerModel,
             "MaxParametersLimit",
@@ -151,7 +150,7 @@ public class AssetModel : AggregateRoot, IAuditableEntity
         // RaiseDomainEvent(new AssetModelParameterAddedEvent(Id, parameterId));
     }
 
-    public void AddParameters(params long[] parameterIds)
+    public void AddParameters(params Guid[] parameterIds)
     {
         if (parameterIds == null || parameterIds.Length == 0)
             return;
@@ -161,7 +160,7 @@ public class AssetModel : AggregateRoot, IAuditableEntity
         // Validate all IDs first
         foreach (var id in distinctIds)
         {
-            DomainGuard.AgainstNegativeOrZero(id, "ParameterId");
+            DomainGuard.AgainstInvalidForeignKey(id, "ParameterId");
         }
 
         // Check limit
@@ -181,9 +180,9 @@ public class AssetModel : AggregateRoot, IAuditableEntity
         }
     }
 
-    public void RemoveParameter(long parameterId)
+    public void RemoveParameter(Guid parameterId)
     {
-        DomainGuard.AgainstNegativeOrZero(parameterId, nameof(parameterId));
+        DomainGuard.AgainstInvalidForeignKey(parameterId, nameof(parameterId));
 
         var parameter = _parameters.FirstOrDefault(x => x.ParameterId == parameterId);
         DomainGuard.AgainstNotFound(parameter, nameof(AssetModelParameter), parameterId);
@@ -193,14 +192,14 @@ public class AssetModel : AggregateRoot, IAuditableEntity
         // RaiseDomainEvent(new AssetModelParameterRemovedEvent(Id, parameterId));
     }
 
-    public void RemoveParameters(IReadOnlyCollection<long> parameterIds, bool throwIfNotFound = false)
+    public void RemoveParameters(IReadOnlyCollection<Guid> parameterIds, bool throwIfNotFound = false)
     {
         if (parameterIds == null || parameterIds.Count == 0)
             return;
 
         foreach (var parameterId in parameterIds)
         {
-            DomainGuard.AgainstNegativeOrZero(parameterId, nameof(parameterId));
+            DomainGuard.AgainstInvalidForeignKey(parameterId, nameof(parameterId));
 
             var parameter = _parameters.FirstOrDefault(x => x.ParameterId == parameterId);
 
@@ -228,7 +227,7 @@ public class AssetModel : AggregateRoot, IAuditableEntity
         ValidateMaintenancePlanLimit();
         ValidateMaintenancePlanName(name);
 
-        var maintenancePlan = new MaintenancePlanDefinition(
+        var maintenancePlan = MaintenancePlanDefinition.CreateTimeBased(
             assetModelId: Id,
             name: name,
             description: description,
@@ -247,7 +246,7 @@ public class AssetModel : AggregateRoot, IAuditableEntity
     public void AddParameterBasedMaintenancePlan(
         string name,
         string? description,
-        long parameterId,
+        Guid parameterId,
         decimal triggerValue,
         decimal minValue,
         decimal maxValue,
@@ -267,7 +266,7 @@ public class AssetModel : AggregateRoot, IAuditableEntity
 
         existParameter.MarkAsMaintenanceParameter();
 
-        var maintenancePlan = new MaintenancePlanDefinition(
+        var maintenancePlan = MaintenancePlanDefinition.CreateParameterBased(
             assetModelId: Id,
             name: name,
             description: description,
@@ -287,7 +286,7 @@ public class AssetModel : AggregateRoot, IAuditableEntity
     }
 
     // General maintenance plan methods
-    public void RemoveMaintenancePlan(long maintenancePlanId)
+    public void RemoveMaintenancePlan(Guid maintenancePlanId)
     {
         var maintenancePlan = _maintenancePlanDefinitions.FirstOrDefault(mp => mp.Id == maintenancePlanId);
         DomainGuard.AgainstNotFound(maintenancePlan, nameof(MaintenancePlanDefinition), maintenancePlanId);
@@ -311,7 +310,7 @@ public class AssetModel : AggregateRoot, IAuditableEntity
     }
 
     public void UpdateMaintenancePlan(
-        long maintenancePlanId,
+        Guid maintenancePlanId,
         string name,
         string? description,
         bool isActive)
@@ -327,7 +326,7 @@ public class AssetModel : AggregateRoot, IAuditableEntity
     }
 
     public void UpdateTimeBasedMaintenancePlan(
-        long maintenancePlanId,
+        Guid maintenancePlanId,
         string name,
         string? description,
         string rrule,
@@ -344,7 +343,7 @@ public class AssetModel : AggregateRoot, IAuditableEntity
     }
 
     public void UpdateParameterBasedMaintenancePlan(
-        long maintenancePlanId,
+        Guid maintenancePlanId,
         string name,
         string? description,
         decimal triggerValue,
@@ -373,9 +372,9 @@ public class AssetModel : AggregateRoot, IAuditableEntity
 
     // Job steps management methods
     public void AddJobStepToMaintenancePlan(
-        long maintenancePlanId,
+        Guid maintenancePlanId,
         string stepName,
-        long? organizationUnitId,
+        Guid? organizationUnitId,
         string? note,
         int order)
     {
@@ -390,8 +389,8 @@ public class AssetModel : AggregateRoot, IAuditableEntity
     }
 
     public void RemoveJobStepFromMaintenancePlan(
-        long maintenancePlanId,
-        long jobStepId)
+        Guid maintenancePlanId,
+        Guid jobStepId)
     {
         var maintenancePlan = _maintenancePlanDefinitions.FirstOrDefault(mp => mp.Id == maintenancePlanId);
         DomainGuard.AgainstNotFound(maintenancePlan, nameof(MaintenancePlanDefinition), maintenancePlanId);
@@ -402,8 +401,8 @@ public class AssetModel : AggregateRoot, IAuditableEntity
     }
 
     public void UpdateJobStepInMaintenancePlan(
-        long maintenancePlanId,
-        long jobStepId,
+        Guid maintenancePlanId,
+        Guid jobStepId,
         string stepName,
         string? note,
         int order)
@@ -421,13 +420,13 @@ public class AssetModel : AggregateRoot, IAuditableEntity
 
     // Required items management methods
     public void AddRequiredItemToMaintenancePlan(
-        long maintenancePlanId,
-        long itemId,
+        Guid maintenancePlanId,
+        Guid itemId,
         decimal quantity,
         bool isRequired,
         string? note = null)
     {
-        DomainGuard.AgainstNegativeOrZero(itemId, nameof(itemId));
+        DomainGuard.AgainstInvalidForeignKey(itemId, nameof(itemId));
         DomainGuard.AgainstNegative(quantity, nameof(quantity));
 
         var maintenancePlan = _maintenancePlanDefinitions.FirstOrDefault(mp => mp.Id == maintenancePlanId);
@@ -439,10 +438,10 @@ public class AssetModel : AggregateRoot, IAuditableEntity
     }
 
     public void RemoveRequiredItemFromMaintenancePlan(
-        long maintenancePlanId,
-        long requiredItemId)
+        Guid maintenancePlanId,
+        Guid requiredItemId)
     {
-        DomainGuard.AgainstNegativeOrZero(requiredItemId, nameof(requiredItemId));
+        DomainGuard.AgainstInvalidForeignKey(requiredItemId, nameof(requiredItemId));
 
         var maintenancePlan = _maintenancePlanDefinitions.FirstOrDefault(mp => mp.Id == maintenancePlanId);
         DomainGuard.AgainstNotFound(maintenancePlan, nameof(MaintenancePlanDefinition), maintenancePlanId);
@@ -453,13 +452,13 @@ public class AssetModel : AggregateRoot, IAuditableEntity
     }
 
     public void UpdateRequiredItemInMaintenancePlan(
-        long maintenancePlanId,
-        long requiredItemId,
+        Guid maintenancePlanId,
+        Guid requiredItemId,
         decimal quantity,
         bool isRequired,
         string? note)
     {
-        DomainGuard.AgainstNegativeOrZero(requiredItemId, nameof(requiredItemId));
+        DomainGuard.AgainstInvalidForeignKey(requiredItemId, nameof(requiredItemId));
         DomainGuard.AgainstNegative(quantity, nameof(quantity));
 
         var maintenancePlan = _maintenancePlanDefinitions.FirstOrDefault(mp => mp.Id == maintenancePlanId);
@@ -471,7 +470,7 @@ public class AssetModel : AggregateRoot, IAuditableEntity
     }
 
     public void SyncRequiredItemsInMaintenancePlan(
-        long maintenancePlanId,
+        Guid maintenancePlanId,
         IReadOnlyCollection<RequiredItemSpec> requiredItemSpecs)
     {
         DomainGuard.AgainstNull(requiredItemSpecs, nameof(requiredItemSpecs));
@@ -559,31 +558,23 @@ public class AssetModel : AggregateRoot, IAuditableEntity
         DomainGuard.AgainstTooLong(name, 200, "MaintenancePlanName");
     }
 
-    private void ValidateParentId(long? parentId)
+    private void ValidateParentId(Guid? parentId)
     {
         if (!parentId.HasValue)
             return;
 
-        DomainGuard.AgainstNegativeOrZero(parentId.Value, nameof(ParentId));
+        DomainGuard.AgainstInvalidForeignKey(parentId.Value, nameof(ParentId));
         DomainGuard.AgainstInvalidState(
             parentId.Value == Id,
             nameof(AssetModel),
             $"ParentId={parentId.Value}",
             "Asset model cannot be its own parent");
     }
-
-    private static void ValidateForeignKey(long? foreignKeyId, string fieldName)
-    {
-        if (!foreignKeyId.HasValue)
-            return;
-
-        DomainGuard.AgainstNegativeOrZero(foreignKeyId.Value, fieldName);
-    }
 }
 
 public class AssetModelImage
 {
-    public long AssetModelId { get; private set; }
+    public Guid AssetModelId { get; private set; }
     public Guid FileId { get; private set; }
     public string FilePath { get; private set; } = null!;
 

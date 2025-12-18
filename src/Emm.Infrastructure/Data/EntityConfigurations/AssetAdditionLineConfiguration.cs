@@ -16,7 +16,7 @@ public class AssetAdditionLineConfiguration : IEntityTypeConfiguration<AssetAddi
 
         // Properties Configuration
         builder.Property(x => x.Id)
-            .ValueGeneratedOnAdd()
+            .ValueGeneratedNever()
             .IsRequired();
 
         builder.Property(x => x.AssetAdditionId)
@@ -48,7 +48,7 @@ public class AssetAdditionLineConfiguration : IEntityTypeConfiguration<AssetAddi
         builder.HasIndex(x => new { x.AssetAdditionId, x.AssetCode })
             .IsUnique()
             .HasDatabaseName("IX_AssetAdditionLines_AssetAdditionId_AssetCode");
-        
+
         builder.HasOne<AssetModel>()
             .WithMany()
             .HasForeignKey(e => e.AssetModelId)

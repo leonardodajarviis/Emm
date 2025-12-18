@@ -3,14 +3,13 @@ using Emm.Application.Common.ErrorCodes;
 using Emm.Domain.Exceptions;
 using LazyNet.Symphony.Core;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
 namespace Emm.Application.Behaviors
 {
-    public class DomainExceptionHandlerBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
+    public class ApplicationExceptionHandlerBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
         where TRequest : IRequest<TResponse>
     {
-        public DomainExceptionHandlerBehavior()
+        public ApplicationExceptionHandlerBehavior()
         {
         }
 

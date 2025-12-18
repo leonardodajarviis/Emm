@@ -11,7 +11,7 @@ public class ShiftLogItemConfiguration : IEntityTypeConfiguration<ShiftLogItem>
         builder.ToTable("ShiftLogItems");
 
         builder.Property(x => x.Id)
-            .ValueGeneratedOnAdd()
+            .ValueGeneratedNever()
             .IsRequired();
 
         builder.HasKey(x => x.Id);

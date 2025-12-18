@@ -2,14 +2,14 @@ namespace Emm.Domain.Entities.AssetCatalog;
 
 public class MaintenancePlanJobStepDefinition
 {
-    public long Id { get; private set; }
-    public long MaintenancePlanDefinitionId { get; private set; }
-    public long? OrganizationUnitId { get; private set; }
+    public Guid Id { get; private set; } = Guid.CreateVersion7();
+    public Guid MaintenancePlanDefinitionId { get; private set; }
+    public Guid? OrganizationUnitId { get; private set; }
     public string Name { get; private set; } = null!;
     public string? Note { get; private set; }
     public int Order { get; private set; }
 
-    public MaintenancePlanJobStepDefinition(string name, long? organizationUnitId, string? note, int order)
+    public MaintenancePlanJobStepDefinition(string name, Guid? organizationUnitId, string? note, int order)
     {
         Name = name;
         Note = note;

@@ -4,12 +4,12 @@ namespace Emm.Application.Features.AppAssetModel.Queries;
 
 public record GetAssetModelByIdQuery : IRequest<Result<AssetModelDetailResponse>>
 {
-    public long Id { get; set; }
+    public Guid Id { get; set; }
 
     // [JsonIgnore]
     // public string[] RequiredPermissions => ["AssetModel.View"];
 
-    public GetAssetModelByIdQuery(long id)
+    public GetAssetModelByIdQuery(Guid id)
     {
         Id = id;
     }

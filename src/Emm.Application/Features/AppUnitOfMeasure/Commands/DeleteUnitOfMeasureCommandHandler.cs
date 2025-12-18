@@ -6,12 +6,12 @@ namespace Emm.Application.Features.AppUnitOfMeasure.Commands;
 
 public class DeleteUnitOfMeasureCommandHandler : IRequestHandler<DeleteUnitOfMeasureCommand, Result<object>>
 {
-    private readonly IRepository<UnitOfMeasure, long> _repository;
+    private readonly IRepository<UnitOfMeasure, Guid> _repository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IQueryContext _queryContext;
 
     public DeleteUnitOfMeasureCommandHandler(
-        IRepository<UnitOfMeasure, long> repository,
+        IRepository<UnitOfMeasure, Guid> repository,
         IUnitOfWork unitOfWork,
         IQueryContext queryContext)
     {

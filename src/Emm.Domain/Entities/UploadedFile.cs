@@ -4,7 +4,6 @@ namespace Emm.Domain.Entities;
 
 public class UploadedFile : AggregateRoot
 {
-    public Guid Id { get; private set; }
     public string OriginalFileName { get; private set; } = string.Empty;
     public string FilePath { get; private set; } = string.Empty;
     public string ContentType { get; private set; } = string.Empty;
@@ -16,14 +15,12 @@ public class UploadedFile : AggregateRoot
     private UploadedFile() { } // For EF Core
 
     public UploadedFile(
-        Guid id,
         string originalFileName,
         string filePath,
         string contentType,
         long fileSize,
         string? subfolder = null)
     {
-        Id = id;
         OriginalFileName = originalFileName;
         FilePath = filePath;
         ContentType = contentType;

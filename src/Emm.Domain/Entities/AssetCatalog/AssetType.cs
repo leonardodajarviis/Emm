@@ -5,13 +5,12 @@ namespace Emm.Domain.Entities.AssetCatalog;
 
 public class AssetType : AggregateRoot, IAuditableEntity
 {
-    public long Id { get; private set; }
     public string Code { get; private set; } = null!;
     public string Name { get; private set; } = null!;
     public string? Description { get; private set; }
     public bool IsActive { get; private set; }
     public bool IsCodeGenerated { get; private set; }
-    public long AssetCategoryId { get; private set; }
+    public Guid AssetCategoryId { get; private set; }
     private readonly List<AssetTypeParameter> _parameters = [];
     public IReadOnlyCollection<AssetTypeParameter> Parameters => _parameters.AsReadOnly();
 
@@ -21,7 +20,7 @@ public class AssetType : AggregateRoot, IAuditableEntity
 
     private AssetType() { } // EF Core constructor
 
-    public AssetType(bool isCodeGenerated ,string code, string name, long assetCategoryId, string? description = null, bool isActive = true)
+    public AssetType(bool isCodeGenerated ,string code, string name, Guid assetCategoryId, string? description = null, bool isActive = true)
     {
         Code = code;
         Name = name;
@@ -31,7 +30,7 @@ public class AssetType : AggregateRoot, IAuditableEntity
         IsCodeGenerated = isCodeGenerated;
     }
 
-    public void Update(string name, long assetCategoryId, string? description, bool isActive)
+    public void Update(string name, Guid assetCategoryId, string? description, bool isActive)
     {
         Name = name;
         AssetCategoryId = assetCategoryId;
@@ -39,12 +38,12 @@ public class AssetType : AggregateRoot, IAuditableEntity
         IsActive = isActive;
     }
 
-    public void AddParameter(long parameterId)
+    public void AddParameter(Guid parameterId)
     {
         var assetTypeParameter = new AssetTypeParameter(parameterId);
         _parameters.Add(assetTypeParameter);
     }
-    public void AddParameters(params long[] parameterIds)
+    public void AddParameters(params Guid[] parameterIds)
     {
         ArgumentNullException.ThrowIfNull(parameterIds);
 
@@ -54,7 +53,7 @@ public class AssetType : AggregateRoot, IAuditableEntity
         }
     }
 
-    public void RemoveParameter(long parameterId)
+    public void RemoveParameter(Guid parameterId)
     {
         var parameter = _parameters.FirstOrDefault(p => p.ParameterId == parameterId);
         if (parameter != null)
@@ -66,9 +65,9 @@ public class AssetType : AggregateRoot, IAuditableEntity
 
 public class AssetTypeParameter
 {
-    public long AssetTypeId { get; private set; }
-    public long ParameterId { get; private set; }
-    public AssetTypeParameter(long parameterId)
+    public Guid AssetTypeId { get; private set; }
+    public Guid ParameterId { get; private set; }
+    public AssetTypeParameter(Guid parameterId)
     {
         ParameterId = parameterId;
     }

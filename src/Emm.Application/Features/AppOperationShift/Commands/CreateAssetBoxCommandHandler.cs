@@ -48,9 +48,9 @@ public class CreateAssetBoxCommandHandler : IRequestHandler<CreateAssetBoxComman
                     ValidationErrorCodes.FieldRequired);
             }
 
-            var existingAssetIds = new List<long>();
-            var newAssetIds = new List<long>();
-            var assignedAssetIds = new List<long>();
+            var existingAssetIds = new List<Guid>();
+            var newAssetIds = new List<Guid>();
+            var assignedAssetIds = new List<Guid>();
 
             // === PHASE 2: Add/assign assets with Box ID ===
             if (request.AssetIds?.Count > 0)

@@ -7,9 +7,9 @@ namespace Emm.Application.Features.AppOperationShift.Commands;
 public class UpdateOperationShiftCommandHandler : IRequestHandler<UpdateOperationShiftCommand, Result<object>>
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IRepository<OperationShift, long> _repository;
+    private readonly IRepository<OperationShift, Guid> _repository;
 
-    public UpdateOperationShiftCommandHandler(IUnitOfWork unitOfWork, IRepository<OperationShift, long> repository)
+    public UpdateOperationShiftCommandHandler(IUnitOfWork unitOfWork, IRepository<OperationShift, Guid> repository)
     {
         _unitOfWork = unitOfWork;
         _repository = repository;

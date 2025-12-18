@@ -5,11 +5,11 @@ namespace Emm.Application.Features.AppParameterCatalog.Commands;
 
 public class DeleteParameterCatalogCommandHandler : IRequestHandler<DeleteParameterCatalogCommand, Result<bool>>
 {
-    private readonly IRepository<ParameterCatalog, long> _repository;
+    private readonly IRepository<ParameterCatalog, Guid> _repository;
     private readonly IUnitOfWork _unitOfWork;
 
     public DeleteParameterCatalogCommandHandler(
-        IRepository<ParameterCatalog, long> repository,
+        IRepository<ParameterCatalog, Guid> repository,
         IUnitOfWork unitOfWork)
     {
         _repository = repository;

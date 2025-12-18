@@ -34,8 +34,8 @@ public class LocationController : ControllerBase
         return result.ToActionResult();
     }
 
-    [HttpPut("{id:long}")]
-    public async Task<IActionResult> UpdateLocation([FromRoute] long id, [FromBody] UpdateLocation updateLocation)
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateLocation([FromRoute] Guid id, [FromBody] UpdateLocation updateLocation)
     {
         var command = new UpdateLocationCommand(
             Id: id,
@@ -58,8 +58,8 @@ public class LocationController : ControllerBase
         return result.ToActionResult();
     }
 
-    [HttpGet("{id:long}")]
-    public async Task<IActionResult> GetLocationById([FromRoute] long id)
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetLocationById([FromRoute] Guid id)
     {
         var query = new GetLocationByIdQuery(id);
         var result = await _mediator.Send(query);

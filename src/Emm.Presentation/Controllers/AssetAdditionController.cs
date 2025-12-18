@@ -28,7 +28,7 @@ public class AssetAdditionController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetAssetAdditionById(long id)
+    public async Task<IActionResult> GetAssetAdditionById(Guid id)
     {
         var query = new GetAssetAdditionByIdQuery(id);
         var result = await _mediator.Send(query);
@@ -45,7 +45,7 @@ public class AssetAdditionController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateAssetAddition(long id, [FromBody] UpdateAssetAdditionCommand command)
+    public async Task<IActionResult> UpdateAssetAddition(Guid id, [FromBody] UpdateAssetAdditionCommand command)
     {
         if (id != command.Id)
         {

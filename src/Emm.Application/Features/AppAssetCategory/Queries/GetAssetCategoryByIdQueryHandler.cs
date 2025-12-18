@@ -21,7 +21,7 @@ public class GetAssetCategoryByIdQueryHandler : IRequestHandler<GetAssetCategory
             .Select(x => new AssetCategoryResponse
             {
                 Id = x.Id,
-                Code = x.Code,
+                Code = x.Code.ToString(),
                 Name = x.Name,
                 IsCodeGenerated = x.IsCodeGenerated,
                 Description = x.Description,

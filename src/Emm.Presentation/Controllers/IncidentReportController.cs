@@ -34,8 +34,8 @@ public class IncidentReportController : ControllerBase
         return result.ToActionResult();
     }
 
-    [HttpPut("{id:long}")]
-    public async Task<IActionResult> UpdateIncidentReport([FromRoute] long id, [FromBody] UpdateIncidentReport request)
+    [HttpPut("{id:guid}")]
+    public async Task<IActionResult> UpdateIncidentReport([FromRoute] Guid id, [FromBody] UpdateIncidentReport request)
     {
         var command = new UpdateIncidentReportCommand(
             Id: id,
@@ -58,8 +58,8 @@ public class IncidentReportController : ControllerBase
         return result.ToActionResult();
     }
 
-    [HttpGet("{id:long}")]
-    public async Task<IActionResult> GetIncidentReportById([FromRoute] long id)
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> GetIncidentReportById([FromRoute] Guid id)
     {
         var query = new GetIncidentReportByIdQuery(id);
         var result = await _mediator.Send(query);
@@ -67,8 +67,8 @@ public class IncidentReportController : ControllerBase
         return result.ToActionResult();
     }
 
-    [HttpPost("{id:long}/resolve")]
-    public async Task<IActionResult> ResolveIncidentReport([FromRoute] long id, [FromBody] ResolveIncidentReport request)
+    [HttpPost("{id:guid}/resolve")]
+    public async Task<IActionResult> ResolveIncidentReport([FromRoute] Guid id, [FromBody] ResolveIncidentReport request)
     {
         var command = new ResolveIncidentReportCommand(
             Id: id,
@@ -111,7 +111,7 @@ public class IncidentReportController : ControllerBase
 public record CreateIncidentReport(
     string Title,
     string Description,
-    long AssetId,
+    Guid AssetId,
     IncidentPriority Priority
 );
 

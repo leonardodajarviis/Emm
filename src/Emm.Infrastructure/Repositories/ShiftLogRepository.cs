@@ -5,13 +5,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Emm.Infrastructure.Repositories;
 
-public class ShiftLogRepository : GenericRepository<ShiftLog, long>, IShiftLogRepository
+public class ShiftLogRepository : GenericRepository<ShiftLog, Guid>, IShiftLogRepository
 {
     public ShiftLogRepository(XDbContext context) : base(context)
     {
     }
 
-    public override async Task<Domain.Entities.Operations.ShiftLog?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
+    public override async Task<Domain.Entities.Operations.ShiftLog?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return await DbSet
             .Include(t => t.Readings)
@@ -20,7 +20,7 @@ public class ShiftLogRepository : GenericRepository<ShiftLog, long>, IShiftLogRe
             .FirstOrDefaultAsync(task => task.Id == id, cancellationToken: cancellationToken);
     }
 
-    public async Task<IEnumerable<ShiftLog>> GetByShiftIdAsync(long shiftId, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<ShiftLog>> GetByShiftIdAsync(Guid shiftId, CancellationToken cancellationToken = default)
     {
         return await DbSet
             .Include(t => t.Readings)
@@ -30,7 +30,7 @@ public class ShiftLogRepository : GenericRepository<ShiftLog, long>, IShiftLogRe
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<ShiftLog?> GetTaskWithDetailsAsync(long taskId, CancellationToken cancellationToken = default)
+    public async Task<ShiftLog?> GetTaskWithDetailsAsync(Guid taskId, CancellationToken cancellationToken = default)
     {
         return await GetByIdAsync(taskId, cancellationToken);
     }

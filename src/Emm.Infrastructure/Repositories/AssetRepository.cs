@@ -5,13 +5,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Emm.Infrastructure.Repositories;
 
-public class AssetRepository : GenericRepository<Asset, long>, IAssetRepository
+public class AssetRepository : GenericRepository<Asset, Guid>, IAssetRepository
 {
     public AssetRepository(XDbContext context) : base(context)
     {
     }
 
-    public async Task IdleMultiAsync(IEnumerable<long> assetIds, CancellationToken cancellationToken = default)
+    public async Task IdleMultiAsync(IEnumerable<Guid> assetIds, CancellationToken cancellationToken = default)
     {
         var assets = await DbSet.Where(a => assetIds.Contains(a.Id)).ToListAsync(cancellationToken: cancellationToken);
         foreach (var asset in assets)
@@ -21,7 +21,7 @@ public class AssetRepository : GenericRepository<Asset, long>, IAssetRepository
     }
 
 
-    public async Task OperateMultiAsync(IEnumerable<long> assetIds, CancellationToken cancellationToken = default)
+    public async Task OperateMultiAsync(IEnumerable<Guid> assetIds, CancellationToken cancellationToken = default)
     {
         var assets = await DbSet.Where(a => assetIds.Contains(a.Id)).ToListAsync(cancellationToken: cancellationToken);
         foreach (var asset in assets)

@@ -2,12 +2,12 @@ namespace Emm.Domain.Entities.AssetCatalog;
 
 public class AssetModelParameter
 {
-    public long AssetModelId { get; private set; }
-    public long ParameterId { get; private set; }
+    public Guid AssetModelId { get; private set; }
+    public Guid ParameterId { get; private set; }
 
     public bool IsMaintenanceParameter { get; private set; }
 
-    public AssetModelParameter(long parameterId)
+    public AssetModelParameter(Guid parameterId)
     {
         ParameterId = parameterId;
     }

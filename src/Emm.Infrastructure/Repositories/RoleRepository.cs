@@ -5,13 +5,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Emm.Infrastructure.Repositories;
 
-public class RoleRepository : GenericRepository<Role, long>, IRoleRepository
+public class RoleRepository : GenericRepository<Role, Guid>, IRoleRepository
 {
     public RoleRepository(XDbContext context) : base(context)
     {
     }
 
-    public async Task<Role?> GetByIdWithPermissionsAsync(long id, CancellationToken cancellationToken = default)
+    public async Task<Role?> GetByIdWithPermissionsAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return await DbSet
             .Include(r => r.RolePermissions)
@@ -36,7 +36,7 @@ public class RoleRepository : GenericRepository<Role, long>, IRoleRepository
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<IReadOnlyList<Role>> GetByUserIdAsync(long userId, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<Role>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
     {
         return await Context.Set<UserRole>()
             .Where(ur => ur.UserId == userId)

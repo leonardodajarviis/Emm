@@ -7,9 +7,9 @@ namespace Emm.Application.Features.AppOperationShift.Commands;
 public class DeleteOperationShiftCommandHandler : IRequestHandler<DeleteOperationShiftCommand, Result<object>>
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IRepository<OperationShift, long> _repository;
+    private readonly IRepository<OperationShift, Guid> _repository;
 
-    public DeleteOperationShiftCommandHandler(IUnitOfWork unitOfWork, IRepository<OperationShift, long> repository)
+    public DeleteOperationShiftCommandHandler(IUnitOfWork unitOfWork, IRepository<OperationShift, Guid> repository)
     {
         _unitOfWork = unitOfWork;
         _repository = repository;

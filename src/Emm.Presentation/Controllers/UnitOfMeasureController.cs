@@ -43,8 +43,8 @@ public class UnitOfMeasureController : ControllerBase
     /// <summary>
     /// Update an existing unit of measure
     /// </summary>
-    [HttpPut("{id:long}")]
-    public async Task<IActionResult> UpdateUnitOfMeasure([FromRoute] long id, [FromBody] UpdateUnitOfMeasure updateUnitOfMeasure)
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateUnitOfMeasure([FromRoute] Guid id, [FromBody] UpdateUnitOfMeasure updateUnitOfMeasure)
     {
         var command = new UpdateUnitOfMeasureCommand(
             Id: id,
@@ -64,10 +64,10 @@ public class UnitOfMeasureController : ControllerBase
     /// <summary>
     /// Delete a unit of measure
     /// </summary>
-    [HttpDelete("{id:long}")]
-    public async Task<IActionResult> DeleteUnitOfMeasure([FromRoute] long id)
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteUnitOfMeasure([FromRoute] Guid id)
     {
-        var command = new DeleteUnitOfMeasureCommand(Id: id);
+        var command = new DeleteUnitOfMeasureCommand(id);
         var result = await _mediator.Send(command);
 
         return result.ToActionResult();
@@ -76,8 +76,8 @@ public class UnitOfMeasureController : ControllerBase
     /// <summary>
     /// Activate a unit of measure
     /// </summary>
-    [HttpPatch("{id:long}/activate")]
-    public async Task<IActionResult> ActivateUnitOfMeasure([FromRoute] long id)
+    [HttpPatch("{id}/activate")]
+    public async Task<IActionResult> ActivateUnitOfMeasure([FromRoute] Guid id)
     {
         var command = new ActivateUnitOfMeasureCommand(Id: id);
         var result = await _mediator.Send(command);
@@ -88,10 +88,10 @@ public class UnitOfMeasureController : ControllerBase
     /// <summary>
     /// Deactivate a unit of measure
     /// </summary>
-    [HttpPatch("{id:long}/deactivate")]
-    public async Task<IActionResult> DeactivateUnitOfMeasure([FromRoute] long id)
+    [HttpPatch("{id}/deactivate")]
+    public async Task<IActionResult> DeactivateUnitOfMeasure([FromRoute] Guid id)
     {
-        var command = new DeactivateUnitOfMeasureCommand(Id: id);
+        var command = new DeactivateUnitOfMeasureCommand(id);
         var result = await _mediator.Send(command);
 
         return result.ToActionResult();
@@ -112,8 +112,8 @@ public class UnitOfMeasureController : ControllerBase
     /// <summary>
     /// Get a unit of measure by ID
     /// </summary>
-    [HttpGet("{id:long}")]
-    public async Task<IActionResult> GetUnitOfMeasureById([FromRoute] long id)
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetUnitOfMeasureById([FromRoute] Guid id)
     {
         var query = new GetUnitOfMeasureByIdQuery(id);
         var result = await _mediator.Send(query);

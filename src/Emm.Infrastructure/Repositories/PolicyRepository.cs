@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Emm.Infrastructure.Repositories;
 
-public class PolicyRepository : GenericRepository<Policy, long>, IPolicyRepository
+public class PolicyRepository : GenericRepository<Policy, Guid>, IPolicyRepository
 {
     public PolicyRepository(XDbContext context) : base(context)
     {

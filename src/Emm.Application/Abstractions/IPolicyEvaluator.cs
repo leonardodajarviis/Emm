@@ -29,8 +29,8 @@ public interface IPolicyEvaluator
 /// </summary>
 public class PolicyContext
 {
-    public long UserId { get; set; }
-    public long? UserOrganizationUnitId { get; set; }
+    public Guid UserId { get; set; }
+    public Guid? UserOrganizationUnitId { get; set; }
     public string Resource { get; set; } = null!;
     public string Action { get; set; } = null!;
     public DateTime RequestTime { get; set; } = DateTime.UtcNow;

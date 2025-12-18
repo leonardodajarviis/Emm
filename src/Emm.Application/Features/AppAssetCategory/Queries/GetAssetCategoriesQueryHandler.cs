@@ -38,7 +38,7 @@ public class GetAssetCategoriesQueryHandler : IRequestHandler<GetAssetCategories
             .Select(x => new AssetCategoryResponse
             {
                 Id = x.Id,
-                Code = x.Code,
+                Code = x.Code.ToString(),
                 Name = x.Name,
                 Description = x.Description,
                 IsCodeGenerated = x.IsCodeGenerated,

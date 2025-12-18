@@ -10,6 +10,6 @@ public record CreateOperationShift
     public required DateTime ScheduledEndTime { get; set; }
     public string? Notes { get; set; }
 
-    public IReadOnlyCollection<long> AssetIds { get; set; } = [];
+    public IReadOnlyCollection<Guid> AssetIds { get; set; } = [];
     // Asset assignments
 }

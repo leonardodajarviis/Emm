@@ -4,7 +4,7 @@ using LazyNet.Symphony.Interfaces;
 namespace Emm.Application.Features.AppIncidentReport.Commands;
 
 public record UpdateIncidentReportCommand(
-    long Id,
+    Guid Id,
     string Title,
     string Description,
     IncidentPriority Priority

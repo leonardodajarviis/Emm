@@ -5,11 +5,11 @@ namespace Emm.Application.Features.AppAssetAddition.Commands;
 public class UpdateAssetAdditionCommandHandler : IRequestHandler<UpdateAssetAdditionCommand, Result<object>>
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IRepository<AssetAddition, long> _assetAdditionRepository;
+    private readonly IRepository<AssetAddition, Guid> _assetAdditionRepository;
 
     public UpdateAssetAdditionCommandHandler(
         IUnitOfWork unitOfWork, 
-        IRepository<AssetAddition, long> assetAdditionRepository)
+        IRepository<AssetAddition, Guid> assetAdditionRepository)
     {
         _unitOfWork = unitOfWork;
         _assetAdditionRepository = assetAdditionRepository;

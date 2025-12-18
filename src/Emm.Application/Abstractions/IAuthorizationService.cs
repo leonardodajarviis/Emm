@@ -8,23 +8,23 @@ public interface IAuthorizationService
     /// <summary>
     /// Check if user has a specific permission
     /// </summary>
-    Task<bool> HasPermissionAsync(long userId, string permissionCode, CancellationToken cancellationToken = default);
+    Task<bool> HasPermissionAsync(Guid userId, string permissionCode, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Check if user has any of the specified permissions
     /// </summary>
-    Task<bool> HasAnyPermissionAsync(long userId, IEnumerable<string> permissionCodes, CancellationToken cancellationToken = default);
+    Task<bool> HasAnyPermissionAsync(Guid userId, IEnumerable<string> permissionCodes, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Check if user has all of the specified permissions
     /// </summary>
-    Task<bool> HasAllPermissionsAsync(long userId, IEnumerable<string> permissionCodes, CancellationToken cancellationToken = default);
+    Task<bool> HasAllPermissionsAsync(Guid userId, IEnumerable<string> permissionCodes, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Check if user can perform action on resource (with ABAC policy evaluation)
     /// </summary>
     Task<bool> CanAccessAsync(
-        long userId,
+        Guid userId,
         string resource,
         string action,
         object? resourceContext = null,
@@ -33,10 +33,10 @@ public interface IAuthorizationService
     /// <summary>
     /// Get all permission codes for a user
     /// </summary>
-    Task<IReadOnlyList<string>> GetUserPermissionsAsync(long userId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<string>> GetUserPermissionsAsync(Guid userId, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Get all roles for a user
     /// </summary>
-    Task<IReadOnlyList<string>> GetUserRolesAsync(long userId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<string>> GetUserRolesAsync(Guid userId, CancellationToken cancellationToken = default);
 }

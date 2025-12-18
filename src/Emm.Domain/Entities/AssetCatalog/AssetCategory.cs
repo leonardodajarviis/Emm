@@ -6,8 +6,7 @@ namespace Emm.Domain.Entities.AssetCatalog;
 
 public class AssetCategory : AggregateRoot, IAuditableEntity
 {
-    public long Id { get; private set; }
-    public string Code { get; private set; } = null!;
+    public NaturalKey Code { get; private set; }
     public string Name { get; private set; } = null!;
     public string? Description { get; private set; }
     public bool IsActive { get; private set; }
@@ -15,11 +14,8 @@ public class AssetCategory : AggregateRoot, IAuditableEntity
     public AuditMetadata Audit { get; private set; } = null!;
     public void SetAudit(AuditMetadata audit) => Audit = audit;
 
-    public AssetCategory(string code, bool isCodeGenerated, string name, string? description = null, bool isActive = true)
+    public AssetCategory(NaturalKey code, bool isCodeGenerated, string name, string? description = null, bool isActive = true)
     {
-        if (string.IsNullOrWhiteSpace(code))
-            throw new DomainException("Category code is required");
-
         if (string.IsNullOrWhiteSpace(name))
             throw new DomainException("Category name is required");
 

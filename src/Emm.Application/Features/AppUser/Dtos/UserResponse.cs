@@ -2,7 +2,7 @@ namespace Emm.Application.Features.AppUser.Dtos;
 
 public record UserResponse
 {
-    public required long Id { get; set; }
+    public required Guid Id { get; set; }
     public required string Username { get; set; }
     public required string DisplayName { get; set; }
     public required string Email { get; set; }

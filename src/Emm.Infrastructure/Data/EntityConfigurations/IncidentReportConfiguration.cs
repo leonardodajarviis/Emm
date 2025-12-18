@@ -14,7 +14,7 @@ public class IncidentReportConfiguration : IEntityTypeConfiguration<IncidentRepo
         builder.ToTable("IncidentReports");
 
         builder.HasKey(x => x.Id);
-        builder.Property(x => x.Id).ValueGeneratedOnAdd();
+        builder.Property(x => x.Id).ValueGeneratedNever();
 
         builder.Property(x => x.Code)
             .IsRequired()

@@ -13,7 +13,7 @@ public record AddMaintenancePlan
     public string? RRule { get; set; }
 
     // For Parameter-based maintenance plans
-    public long? ParameterId { get; set; }
+    public Guid? ParameterId { get; set; }
     public decimal? TriggerValue { get; set; }
     public decimal? MinValue { get; set; }
     public decimal? MaxValue { get; set; }
@@ -29,14 +29,14 @@ public record AddMaintenancePlan
 public record AddMaintenancePlanJobStepDto
 {
     public required string Name { get; set; }
-    public long? OrganizationUnitId { get; set; }
+    public Guid? OrganizationUnitId { get; set; }
     public string? Note { get; set; }
     public int Order { get; set; }
 }
 
 public record AddMaintenancePlanRequiredItemDto
 {
-    public required long ItemId { get; set; }
+    public required Guid ItemId { get; set; }
     public required decimal Quantity { get; set; }
     public required bool IsRequired { get; set; }
     public string? Note { get; set; }

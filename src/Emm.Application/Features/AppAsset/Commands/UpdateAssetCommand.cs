@@ -1,7 +1,7 @@
 namespace Emm.Application.Features.AppAsset.Commands;
 
 public record UpdateAssetCommand(
-    long Id,
+    Guid Id,
     string DisplayName,
     string? Description
 ) : IRequest<Result<object>>;

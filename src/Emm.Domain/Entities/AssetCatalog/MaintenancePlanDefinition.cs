@@ -5,9 +5,9 @@ namespace Emm.Domain.Entities.AssetCatalog;
 
 public class MaintenancePlanDefinition: IAuditableEntity
 {
-    public long Id { get; private set; }
+    public Guid Id { get; private set; } = Guid.CreateVersion7();
     public bool IsActive { get; private set; }
-    public long AssetModelId { get; private set; }
+    public Guid AssetModelId { get; private set; }
 
     public string Name { get; private set; } = null!;
     public string? Description { get; private set; }
@@ -35,9 +35,39 @@ public class MaintenancePlanDefinition: IAuditableEntity
         _requiredItems = [];
     }
 
+    // Static factory method cho Time-based maintenance plan
+    public static MaintenancePlanDefinition CreateTimeBased(
+        Guid assetModelId,
+        string name,
+        string? description,
+        string rrule,
+        IReadOnlyCollection<MaintenancePlanJobStepDefinitionSpec>? jobSteps = null,
+        IReadOnlyCollection<MaintenancePlanRequiredItemDefinitionSpec>? requiredItems = null,
+        bool isActive = true)
+    {
+        return new MaintenancePlanDefinition(assetModelId, name, description, rrule, jobSteps, requiredItems, isActive);
+    }
+
+    // Static factory method cho Parameter-based maintenance plan
+    public static MaintenancePlanDefinition CreateParameterBased(
+        Guid assetModelId,
+        string name,
+        string? description,
+        Guid parameterId,
+        decimal triggerValue,
+        decimal minValue,
+        decimal maxValue,
+        MaintenanceTriggerCondition triggerCondition = MaintenanceTriggerCondition.GreaterThanOrEqual,
+        IReadOnlyCollection<MaintenancePlanJobStepDefinitionSpec>? jobSteps = null,
+        IReadOnlyCollection<MaintenancePlanRequiredItemDefinitionSpec>? requiredItems = null,
+        bool isActive = true)
+    {
+        return new MaintenancePlanDefinition(assetModelId, name, description, parameterId, triggerValue, minValue, maxValue, triggerCondition, jobSteps, requiredItems, isActive);
+    }
+
     // Constructor cho Time-based maintenance plan
-    public MaintenancePlanDefinition(
-        long assetModelId,
+    private MaintenancePlanDefinition(
+        Guid assetModelId,
         string name,
         string? description,
         string rrule,
@@ -86,11 +116,11 @@ public class MaintenancePlanDefinition: IAuditableEntity
     }
 
     // Constructor cho Parameter-based maintenance plan
-    public MaintenancePlanDefinition(
-        long assetModelId,
+    private MaintenancePlanDefinition(
+        Guid assetModelId,
         string name,
         string? description,
-        long parameterId,
+        Guid parameterId,
         decimal triggerValue,
         decimal minValue,
         decimal maxValue,
@@ -147,8 +177,8 @@ public class MaintenancePlanDefinition: IAuditableEntity
     }
 
     // Constructor với job steps
-    public MaintenancePlanDefinition(
-        long assetModelId,
+    private MaintenancePlanDefinition(
+        Guid assetModelId,
         string name,
         string? description,
         MaintenancePlanType planType,
@@ -234,13 +264,13 @@ public class MaintenancePlanDefinition: IAuditableEntity
 
     // Methods cho Parameter-based maintenance
 
-    public void AddJobStep(string name, long? organizationUnitId, string? note, int order)
+    public void AddJobStep(string name, Guid? organizationUnitId, string? note, int order)
     {
         var jobStep = new MaintenancePlanJobStepDefinition(name, organizationUnitId, note, order);
         _jobSteps.Add(jobStep);
     }
 
-    public void RemoveJobStep(long jobStepId)
+    public void RemoveJobStep(Guid jobStepId)
     {
         var jobStep = _jobSteps.FirstOrDefault(js => js.Id == jobStepId);
         if (jobStep != null)
@@ -249,7 +279,7 @@ public class MaintenancePlanDefinition: IAuditableEntity
         }
     }
 
-    public void UpdateJobStep(long jobStepId, string name, string? note, int order)
+    public void UpdateJobStep(Guid jobStepId, string name, string? note, int order)
     {
         var jobStep = _jobSteps.FirstOrDefault(js => js.Id == jobStepId);
         if (jobStep == null)
@@ -303,13 +333,13 @@ public class MaintenancePlanDefinition: IAuditableEntity
 
     // Methods cho Required Items (Vật tư phụ tùng)
 
-    public void AddRequiredItem(long itemId, decimal quantity, bool isRequired, string? note = null)
+    public void AddRequiredItem(Guid itemId, decimal quantity, bool isRequired, string? note = null)
     {
         var requiredItem = new MaintenancePlanRequiredItem(itemId, quantity, isRequired, note);
         _requiredItems.Add(requiredItem);
     }
 
-    public void RemoveRequiredItem(long requiredItemId)
+    public void RemoveRequiredItem(Guid requiredItemId)
     {
         var requiredItem = _requiredItems.FirstOrDefault(ri => ri.Id == requiredItemId);
         if (requiredItem != null)
@@ -318,7 +348,7 @@ public class MaintenancePlanDefinition: IAuditableEntity
         }
     }
 
-    public void UpdateRequiredItem(long requiredItemId, decimal quantity, bool isRequired, string? note)
+    public void UpdateRequiredItem(Guid requiredItemId, decimal quantity, bool isRequired, string? note)
     {
         var requiredItem = _requiredItems.FirstOrDefault(ri => ri.Id == requiredItemId);
         if (requiredItem == null)
@@ -373,29 +403,29 @@ public class MaintenancePlanDefinition: IAuditableEntity
 
 public record MaintenancePlanJobStepDefinitionSpec(
     string Name,
-    long? OrganizationUnitId,
+    Guid? OrganizationUnitId,
     string? Note,
     int Order
 );
 
 public record MaintenancePlanRequiredItemDefinitionSpec(
-    long ItemId,
+    Guid ItemId,
     decimal Quantity,
     bool IsRequired,
     string? Note
 );
 
 public record JobStepSpec(
-    long? Id,
+    Guid? Id,
     string Name,
-    long? OrganizationUnitId,
+    Guid? OrganizationUnitId,
     string? Note,
     int Order
 );
 
 public record RequiredItemSpec(
-    long? Id,
-    long ItemId,
+    Guid? Id,
+    Guid ItemId,
     decimal Quantity,
     bool IsRequired,
     string? Note

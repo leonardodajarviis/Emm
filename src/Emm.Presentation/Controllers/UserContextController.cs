@@ -29,7 +29,6 @@ public class UserContextController : ControllerBase
             UserId = _userContextService.GetCurrentUserId(),
             Username = _userContextService.GetCurrentUsername(),
             Email = _userContextService.GetCurrentEmail(),
-            EmployeeId = _userContextService.GetCurrentEmployeeId(),
             OrganizationUnitId = _userContextService.GetCurrentOrganizationUnitId(),
             IsAuthenticated = _userContextService.IsAuthenticated()
         };

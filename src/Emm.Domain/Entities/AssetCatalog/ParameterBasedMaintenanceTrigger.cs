@@ -2,9 +2,9 @@ namespace Emm.Domain.Entities.AssetCatalog;
 
 public class ParameterBasedMaintenanceTrigger
 {
-    public long Id { get; private set; }
-    public long MaintenancePlanDefinitionId { get; private set; }
-    public long ParameterId { get; private set; }
+    public Guid Id { get; private set; } = Guid.CreateVersion7();
+    public Guid MaintenancePlanDefinitionId { get; private set; }
+    public Guid ParameterId { get; private set; }
     public decimal TriggerValue { get; private set; }
     public decimal MinValue { get; private set; }
     public decimal MaxValue { get; private set; }
@@ -12,7 +12,7 @@ public class ParameterBasedMaintenanceTrigger
     public bool IsActive { get; private set; }
 
     public ParameterBasedMaintenanceTrigger(
-        long parameterId,
+        Guid parameterId,
         decimal triggerValue,
         decimal minValue,
         decimal maxValue,

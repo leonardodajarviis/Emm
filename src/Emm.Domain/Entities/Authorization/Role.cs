@@ -9,7 +9,6 @@ namespace Emm.Domain.Entities.Authorization;
 /// </summary>
 public class Role : AggregateRoot, IAuditableEntity
 {
-    public long Id { get; private set; }
 
     /// <summary>
     /// Unique role code (VD: ADMIN, SHIFT_SUPERVISOR)
@@ -87,7 +86,7 @@ public class Role : AggregateRoot, IAuditableEntity
         IsActive = false;
     }
 
-    public void AddPermission(long permissionId)
+    public void AddPermission(Guid permissionId)
     {
         if (_rolePermissions.Any(rp => rp.PermissionId == permissionId))
             return; // Already exists
@@ -95,7 +94,7 @@ public class Role : AggregateRoot, IAuditableEntity
         _rolePermissions.Add(new RolePermission(Id, permissionId));
     }
 
-    public void RemovePermission(long permissionId)
+    public void RemovePermission(Guid permissionId)
     {
         var rolePermission = _rolePermissions.FirstOrDefault(rp => rp.PermissionId == permissionId);
         if (rolePermission != null)

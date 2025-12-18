@@ -24,20 +24,17 @@ namespace Emm.Infrastructure.Migrations
 
             modelBuilder.Entity("Emm.Domain.Entities.AssetCatalog.Asset", b =>
                 {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<long?>("AssetAdditionId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid?>("AssetAdditionId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("AssetCategoryCode")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long>("AssetCategoryId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("AssetCategoryId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("AssetCategoryName")
                         .HasColumnType("nvarchar(max)");
@@ -45,8 +42,8 @@ namespace Emm.Infrastructure.Migrations
                     b.Property<string>("AssetModelCode")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long>("AssetModelId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("AssetModelId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("AssetModelName")
                         .HasColumnType("nvarchar(max)");
@@ -54,8 +51,8 @@ namespace Emm.Infrastructure.Migrations
                     b.Property<string>("AssetTypeCode")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long>("AssetTypeId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("AssetTypeId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("AssetTypeName")
                         .HasColumnType("nvarchar(max)");
@@ -77,11 +74,11 @@ namespace Emm.Infrastructure.Migrations
                     b.Property<bool>("IsLooked")
                         .HasColumnType("bit");
 
-                    b.Property<long>("LocationId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("LocationId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<long>("OrganizationUnitId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("OrganizationUnitId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
@@ -106,11 +103,8 @@ namespace Emm.Infrastructure.Migrations
 
             modelBuilder.Entity("Emm.Domain.Entities.AssetCatalog.AssetCategory", b =>
                 {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Code")
                         .IsRequired()
@@ -152,19 +146,16 @@ namespace Emm.Infrastructure.Migrations
 
             modelBuilder.Entity("Emm.Domain.Entities.AssetCatalog.AssetModel", b =>
                 {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<long?>("AssetCategoryId")
+                    b.Property<Guid?>("AssetCategoryId")
                         .HasMaxLength(50)
-                        .HasColumnType("bigint");
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<long?>("AssetTypeId")
+                    b.Property<Guid?>("AssetTypeId")
                         .HasMaxLength(50)
-                        .HasColumnType("bigint");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Code")
                         .IsRequired()
@@ -192,9 +183,9 @@ namespace Emm.Infrastructure.Migrations
                         .HasMaxLength(2000)
                         .HasColumnType("nvarchar(2000)");
 
-                    b.Property<long?>("ParentId")
+                    b.Property<Guid?>("ParentId")
                         .HasMaxLength(50)
-                        .HasColumnType("bigint");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("ThumbnailFileId")
                         .HasColumnType("uniqueidentifier");
@@ -228,8 +219,8 @@ namespace Emm.Infrastructure.Migrations
 
             modelBuilder.Entity("Emm.Domain.Entities.AssetCatalog.AssetModelImage", b =>
                 {
-                    b.Property<long>("AssetModelId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("AssetModelId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("FileId")
                         .HasColumnType("uniqueidentifier");
@@ -248,11 +239,11 @@ namespace Emm.Infrastructure.Migrations
 
             modelBuilder.Entity("Emm.Domain.Entities.AssetCatalog.AssetModelParameter", b =>
                 {
-                    b.Property<long>("AssetModelId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("AssetModelId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<long>("ParameterId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("ParameterId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<bool>("IsMaintenanceParameter")
                         .HasColumnType("bit");
@@ -266,11 +257,11 @@ namespace Emm.Infrastructure.Migrations
 
             modelBuilder.Entity("Emm.Domain.Entities.AssetCatalog.AssetParameter", b =>
                 {
-                    b.Property<long>("AssetId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("AssetId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<long>("ParameterId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("ParameterId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal>("CurrentValue")
                         .HasColumnType("decimal(18,2)");
@@ -296,15 +287,12 @@ namespace Emm.Infrastructure.Migrations
 
             modelBuilder.Entity("Emm.Domain.Entities.AssetCatalog.AssetType", b =>
                 {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<long>("AssetCategoryId")
+                    b.Property<Guid>("AssetCategoryId")
                         .HasMaxLength(50)
-                        .HasColumnType("bigint");
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Code")
                         .IsRequired()
@@ -349,11 +337,11 @@ namespace Emm.Infrastructure.Migrations
 
             modelBuilder.Entity("Emm.Domain.Entities.AssetCatalog.AssetTypeParameter", b =>
                 {
-                    b.Property<long>("AssetTypeId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("AssetTypeId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<long>("ParameterId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("ParameterId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("AssetTypeId", "ParameterId");
 
@@ -364,14 +352,11 @@ namespace Emm.Infrastructure.Migrations
 
             modelBuilder.Entity("Emm.Domain.Entities.AssetCatalog.MaintenancePlanDefinition", b =>
                 {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<long>("AssetModelId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("AssetModelId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
@@ -400,14 +385,11 @@ namespace Emm.Infrastructure.Migrations
 
             modelBuilder.Entity("Emm.Domain.Entities.AssetCatalog.MaintenancePlanJobStepDefinition", b =>
                 {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<long>("MaintenancePlanDefinitionId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("MaintenancePlanDefinitionId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -421,8 +403,8 @@ namespace Emm.Infrastructure.Migrations
                     b.Property<int>("Order")
                         .HasColumnType("int");
 
-                    b.Property<long?>("OrganizationUnitId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid?>("OrganizationUnitId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
@@ -436,20 +418,17 @@ namespace Emm.Infrastructure.Migrations
 
             modelBuilder.Entity("Emm.Domain.Entities.AssetCatalog.MaintenancePlanRequiredItem", b =>
                 {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<bool>("IsRequired")
                         .HasColumnType("bit");
 
-                    b.Property<long>("ItemId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("ItemId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<long>("MaintenancePlanDefinitionId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("MaintenancePlanDefinitionId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Note")
                         .HasMaxLength(500)
@@ -472,19 +451,16 @@ namespace Emm.Infrastructure.Migrations
 
             modelBuilder.Entity("Emm.Domain.Entities.AssetCatalog.ParameterBasedMaintenanceTrigger", b =>
                 {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
                         .HasDefaultValue(true);
 
-                    b.Property<long>("MaintenancePlanDefinitionId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("MaintenancePlanDefinitionId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal>("MaxValue")
                         .HasColumnType("decimal(18,4)");
@@ -492,8 +468,8 @@ namespace Emm.Infrastructure.Migrations
                     b.Property<decimal>("MinValue")
                         .HasColumnType("decimal(18,4)");
 
-                    b.Property<long>("ParameterId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("ParameterId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("TriggerCondition")
                         .HasColumnType("int");
@@ -521,11 +497,8 @@ namespace Emm.Infrastructure.Migrations
 
             modelBuilder.Entity("Emm.Domain.Entities.AssetTransaction.AssetAddition", b =>
                 {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Code")
                         .IsRequired()
@@ -539,11 +512,11 @@ namespace Emm.Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<long>("LocationId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("LocationId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<long>("OrganizationUnitId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("OrganizationUnitId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Reason")
                         .HasMaxLength(500)
@@ -566,22 +539,19 @@ namespace Emm.Infrastructure.Migrations
 
             modelBuilder.Entity("Emm.Domain.Entities.AssetTransaction.AssetAdditionLine", b =>
                 {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<long>("AssetAdditionId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("AssetAdditionId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("AssetCode")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<long>("AssetModelId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("AssetModelId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal>("UnitPrice")
                         .HasColumnType("decimal(18,2)");
@@ -607,11 +577,8 @@ namespace Emm.Infrastructure.Migrations
 
             modelBuilder.Entity("Emm.Domain.Entities.Authorization.Permission", b =>
                 {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Action")
                         .IsRequired()
@@ -655,11 +622,8 @@ namespace Emm.Infrastructure.Migrations
 
             modelBuilder.Entity("Emm.Domain.Entities.Authorization.Policy", b =>
                 {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Action")
                         .HasMaxLength(50)
@@ -716,11 +680,8 @@ namespace Emm.Infrastructure.Migrations
 
             modelBuilder.Entity("Emm.Domain.Entities.Authorization.Role", b =>
                 {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Code")
                         .IsRequired()
@@ -758,11 +719,11 @@ namespace Emm.Infrastructure.Migrations
 
             modelBuilder.Entity("Emm.Domain.Entities.Authorization.RolePermission", b =>
                 {
-                    b.Property<long>("RoleId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<long>("PermissionId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("PermissionId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("GrantedAt")
                         .ValueGeneratedOnAdd()
@@ -780,19 +741,19 @@ namespace Emm.Infrastructure.Migrations
 
             modelBuilder.Entity("Emm.Domain.Entities.Authorization.UserPermission", b =>
                 {
-                    b.Property<long>("UserId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<long>("PermissionId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("PermissionId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("AssignedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETUTCDATE()");
 
-                    b.Property<long?>("AssignedBy")
-                        .HasColumnType("bigint");
+                    b.Property<Guid?>("AssignedBy")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<bool>("IsGranted")
                         .ValueGeneratedOnAdd()
@@ -814,19 +775,19 @@ namespace Emm.Infrastructure.Migrations
 
             modelBuilder.Entity("Emm.Domain.Entities.Authorization.UserRole", b =>
                 {
-                    b.Property<long>("UserId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<long>("RoleId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("AssignedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETUTCDATE()");
 
-                    b.Property<long?>("AssignedBy")
-                        .HasColumnType("bigint");
+                    b.Property<Guid?>("AssignedBy")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("UserId", "RoleId");
 
@@ -839,11 +800,9 @@ namespace Emm.Infrastructure.Migrations
 
             modelBuilder.Entity("Emm.Domain.Entities.Inventory.Item", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Code")
                         .IsRequired()
@@ -855,8 +814,8 @@ namespace Emm.Infrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<long>("UnitOfMeasureId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("UnitOfMeasureId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
@@ -870,14 +829,11 @@ namespace Emm.Infrastructure.Migrations
 
             modelBuilder.Entity("Emm.Domain.Entities.Maintenance.IncidentReport", b =>
                 {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<long>("AssetId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("AssetId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Code")
                         .IsRequired()
@@ -920,11 +876,8 @@ namespace Emm.Infrastructure.Migrations
 
             modelBuilder.Entity("Emm.Domain.Entities.Operations.OperationShift", b =>
                 {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime?>("ActualEndTime")
                         .HasColumnType("datetime2");
@@ -953,11 +906,11 @@ namespace Emm.Infrastructure.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
-                    b.Property<long>("OrganizationUnitId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("OrganizationUnitId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<long>("PrimaryUserId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("PrimaryUserId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("ScheduledEndTime")
                         .HasColumnType("datetime2");
@@ -986,22 +939,19 @@ namespace Emm.Infrastructure.Migrations
 
             modelBuilder.Entity("Emm.Domain.Entities.Operations.OperationShiftAsset", b =>
                 {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<long?>("AssetBoxId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid?>("AssetBoxId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("AssetCode")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<long>("AssetId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("AssetId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("AssetName")
                         .IsRequired()
@@ -1018,8 +968,8 @@ namespace Emm.Infrastructure.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
-                    b.Property<long>("OperationShiftId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("OperationShiftId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime?>("StartedAt")
                         .HasColumnType("datetime2");
@@ -1047,11 +997,8 @@ namespace Emm.Infrastructure.Migrations
 
             modelBuilder.Entity("Emm.Domain.Entities.Operations.OperationShiftAssetBox", b =>
                 {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("BoxName")
                         .IsRequired()
@@ -1068,8 +1015,8 @@ namespace Emm.Infrastructure.Migrations
                     b.Property<int>("DisplayOrder")
                         .HasColumnType("int");
 
-                    b.Property<long>("OperationShiftId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("OperationShiftId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Role")
                         .HasColumnType("int");
@@ -1091,17 +1038,14 @@ namespace Emm.Infrastructure.Migrations
 
             modelBuilder.Entity("Emm.Domain.Entities.Operations.ShiftLog", b =>
                 {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+                    b.Property<Guid?>("AssetId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<long?>("AssetId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long?>("BoxId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid?>("BoxId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -1123,8 +1067,8 @@ namespace Emm.Infrastructure.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
-                    b.Property<long>("OperationShiftId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("OperationShiftId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime?>("StartTime")
                         .HasColumnType("datetime2");
@@ -1142,11 +1086,8 @@ namespace Emm.Infrastructure.Migrations
 
             modelBuilder.Entity("Emm.Domain.Entities.Operations.ShiftLogCheckpoint", b =>
                 {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<bool>("IsWithAttachedMaterial")
                         .HasColumnType("bit");
@@ -1154,8 +1095,8 @@ namespace Emm.Infrastructure.Migrations
                     b.Property<string>("ItemCode")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long?>("ItemId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid?>("ItemId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ItemName")
                         .HasColumnType("nvarchar(max)");
@@ -1163,8 +1104,8 @@ namespace Emm.Infrastructure.Migrations
                     b.Property<Guid>("LinkedId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<long>("LocationId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("LocationId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("LocationName")
                         .IsRequired()
@@ -1176,8 +1117,8 @@ namespace Emm.Infrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<long>("ShiftLogId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("ShiftLogId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
@@ -1188,11 +1129,8 @@ namespace Emm.Infrastructure.Migrations
 
             modelBuilder.Entity("Emm.Domain.Entities.Operations.ShiftLogEvent", b =>
                 {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<TimeSpan?>("Duration")
                         .HasColumnType("time");
@@ -1203,8 +1141,8 @@ namespace Emm.Infrastructure.Migrations
                     b.Property<int>("EventType")
                         .HasColumnType("int");
 
-                    b.Property<long>("ShiftLogId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("ShiftLogId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("StartTime")
                         .HasColumnType("datetime2");
@@ -1224,25 +1162,22 @@ namespace Emm.Infrastructure.Migrations
 
             modelBuilder.Entity("Emm.Domain.Entities.Operations.ShiftLogItem", b =>
                 {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("AssetCode")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<long?>("AssetId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid?>("AssetId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("AssetName")
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<long>("ItemId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("ItemId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ItemName")
                         .IsRequired()
@@ -1253,11 +1188,11 @@ namespace Emm.Infrastructure.Migrations
                         .HasPrecision(18, 4)
                         .HasColumnType("decimal(18,4)");
 
-                    b.Property<long>("ShiftLogId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("ShiftLogId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<long?>("UnitOfMeasureId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid?>("UnitOfMeasureId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("UnitOfMeasureName")
                         .HasMaxLength(100)
@@ -1274,19 +1209,16 @@ namespace Emm.Infrastructure.Migrations
 
             modelBuilder.Entity("Emm.Domain.Entities.Operations.ShiftLogParameterReading", b =>
                 {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("AssetCode")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<long>("AssetId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("AssetId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("AssetName")
                         .IsRequired()
@@ -1305,8 +1237,8 @@ namespace Emm.Infrastructure.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<long>("ParameterId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("ParameterId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ParameterName")
                         .IsRequired()
@@ -1319,8 +1251,8 @@ namespace Emm.Infrastructure.Migrations
                     b.Property<Guid?>("ShiftLogCheckpointLinkedId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<long>("ShiftLogId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("ShiftLogId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("StringValue")
                         .HasMaxLength(500)
@@ -1353,60 +1285,10 @@ namespace Emm.Infrastructure.Migrations
                     b.ToTable("ShiftLogParameterReadings", (string)null);
                 });
 
-            modelBuilder.Entity("Emm.Domain.Entities.Organization.Employee", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DisplayName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("FirstName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("LastName")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<long?>("OrganizationUnitId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Code")
-                        .IsUnique()
-                        .HasDatabaseName("IX_Employees_Code");
-
-                    b.HasIndex("OrganizationUnitId");
-
-                    b.ToTable("Employees", (string)null);
-                });
-
             modelBuilder.Entity("Emm.Domain.Entities.Organization.Location", b =>
                 {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Code")
                         .IsRequired()
@@ -1427,8 +1309,8 @@ namespace Emm.Infrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<long>("OrganizationUnitId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("OrganizationUnitId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
@@ -1441,11 +1323,8 @@ namespace Emm.Infrastructure.Migrations
 
             modelBuilder.Entity("Emm.Domain.Entities.Organization.OrganizationUnit", b =>
                 {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Code")
                         .IsRequired()
@@ -1471,11 +1350,11 @@ namespace Emm.Infrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<long>("OrganizationUnitLevelId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("OrganizationUnitLevelId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<long?>("ParentId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid?>("ParentId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("UpdatedAt")
                         .ValueGeneratedOnAdd()
@@ -1502,11 +1381,8 @@ namespace Emm.Infrastructure.Migrations
 
             modelBuilder.Entity("Emm.Domain.Entities.Organization.OrganizationUnitLevel", b =>
                 {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -1541,11 +1417,8 @@ namespace Emm.Infrastructure.Migrations
 
             modelBuilder.Entity("Emm.Domain.Entities.ParameterCatalog", b =>
                 {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Code")
                         .IsRequired()
@@ -1564,8 +1437,8 @@ namespace Emm.Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<long>("UnitOfMeasureId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("UnitOfMeasureId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
@@ -1579,14 +1452,11 @@ namespace Emm.Infrastructure.Migrations
 
             modelBuilder.Entity("Emm.Domain.Entities.UnitOfMeasure", b =>
                 {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<long?>("BaseUnitId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid?>("BaseUnitId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Code")
                         .IsRequired()
@@ -1681,11 +1551,8 @@ namespace Emm.Infrastructure.Migrations
 
             modelBuilder.Entity("Emm.Domain.Entities.User", b =>
                 {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -1702,16 +1569,13 @@ namespace Emm.Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<long?>("EmployeeId")
-                        .HasColumnType("bigint");
-
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
                         .HasDefaultValue(true);
 
-                    b.Property<long?>("OrganizationUnitId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid?>("OrganizationUnitId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
@@ -1733,8 +1597,6 @@ namespace Emm.Infrastructure.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.HasIndex("EmployeeId");
-
                     b.HasIndex("Username")
                         .IsUnique();
 
@@ -1743,11 +1605,8 @@ namespace Emm.Infrastructure.Migrations
 
             modelBuilder.Entity("Emm.Domain.Entities.UserSession", b =>
                 {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("AccessTokenExpiresAt")
                         .HasColumnType("datetime2");
@@ -1781,8 +1640,8 @@ namespace Emm.Infrastructure.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<long>("UserId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
@@ -1801,10 +1660,7 @@ namespace Emm.Infrastructure.Migrations
             modelBuilder.Entity("Emm.Infrastructure.Data.SequenceNumber", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -1924,23 +1780,23 @@ namespace Emm.Infrastructure.Migrations
 
                     b.OwnsOne("Emm.Domain.ValueObjects.AuditMetadata", "Audit", b1 =>
                         {
-                            b1.Property<long>("AssetId")
-                                .HasColumnType("bigint");
+                            b1.Property<Guid>("AssetId")
+                                .HasColumnType("uniqueidentifier");
 
                             b1.Property<DateTime>("CreatedAt")
                                 .HasColumnType("datetime2")
                                 .HasColumnName("CreatedAt");
 
-                            b1.Property<long>("CreatedByUserId")
-                                .HasColumnType("bigint")
+                            b1.Property<Guid>("CreatedByUserId")
+                                .HasColumnType("uniqueidentifier")
                                 .HasColumnName("CreatedByUserId");
 
                             b1.Property<DateTime?>("ModifiedAt")
                                 .HasColumnType("datetime2")
                                 .HasColumnName("ModifiedAt");
 
-                            b1.Property<long?>("ModifiedByUserId")
-                                .HasColumnType("bigint")
+                            b1.Property<Guid?>("ModifiedByUserId")
+                                .HasColumnType("uniqueidentifier")
                                 .HasColumnName("ModifiedByUserId");
 
                             b1.HasKey("AssetId");
@@ -1949,7 +1805,7 @@ namespace Emm.Infrastructure.Migrations
 
                             b1.HasIndex("ModifiedByUserId");
 
-                            b1.ToTable("Assets", (string)null);
+                            b1.ToTable("Assets");
 
                             b1.WithOwner()
                                 .HasForeignKey("AssetId");
@@ -1974,23 +1830,23 @@ namespace Emm.Infrastructure.Migrations
                 {
                     b.OwnsOne("Emm.Domain.ValueObjects.AuditMetadata", "Audit", b1 =>
                         {
-                            b1.Property<long>("AssetCategoryId")
-                                .HasColumnType("bigint");
+                            b1.Property<Guid>("AssetCategoryId")
+                                .HasColumnType("uniqueidentifier");
 
                             b1.Property<DateTime>("CreatedAt")
                                 .HasColumnType("datetime2")
                                 .HasColumnName("CreatedAt");
 
-                            b1.Property<long>("CreatedByUserId")
-                                .HasColumnType("bigint")
+                            b1.Property<Guid>("CreatedByUserId")
+                                .HasColumnType("uniqueidentifier")
                                 .HasColumnName("CreatedByUserId");
 
                             b1.Property<DateTime?>("ModifiedAt")
                                 .HasColumnType("datetime2")
                                 .HasColumnName("ModifiedAt");
 
-                            b1.Property<long?>("ModifiedByUserId")
-                                .HasColumnType("bigint")
+                            b1.Property<Guid?>("ModifiedByUserId")
+                                .HasColumnType("uniqueidentifier")
                                 .HasColumnName("ModifiedByUserId");
 
                             b1.HasKey("AssetCategoryId");
@@ -1999,7 +1855,7 @@ namespace Emm.Infrastructure.Migrations
 
                             b1.HasIndex("ModifiedByUserId");
 
-                            b1.ToTable("AssetCategories", (string)null);
+                            b1.ToTable("AssetCategories");
 
                             b1.WithOwner()
                                 .HasForeignKey("AssetCategoryId");
@@ -2039,23 +1895,23 @@ namespace Emm.Infrastructure.Migrations
 
                     b.OwnsOne("Emm.Domain.ValueObjects.AuditMetadata", "Audit", b1 =>
                         {
-                            b1.Property<long>("AssetModelId")
-                                .HasColumnType("bigint");
+                            b1.Property<Guid>("AssetModelId")
+                                .HasColumnType("uniqueidentifier");
 
                             b1.Property<DateTime>("CreatedAt")
                                 .HasColumnType("datetime2")
                                 .HasColumnName("CreatedAt");
 
-                            b1.Property<long>("CreatedByUserId")
-                                .HasColumnType("bigint")
+                            b1.Property<Guid>("CreatedByUserId")
+                                .HasColumnType("uniqueidentifier")
                                 .HasColumnName("CreatedByUserId");
 
                             b1.Property<DateTime?>("ModifiedAt")
                                 .HasColumnType("datetime2")
                                 .HasColumnName("ModifiedAt");
 
-                            b1.Property<long?>("ModifiedByUserId")
-                                .HasColumnType("bigint")
+                            b1.Property<Guid?>("ModifiedByUserId")
+                                .HasColumnType("uniqueidentifier")
                                 .HasColumnName("ModifiedByUserId");
 
                             b1.HasKey("AssetModelId");
@@ -2064,7 +1920,7 @@ namespace Emm.Infrastructure.Migrations
 
                             b1.HasIndex("ModifiedByUserId");
 
-                            b1.ToTable("AssetModels", (string)null);
+                            b1.ToTable("AssetModels");
 
                             b1.WithOwner()
                                 .HasForeignKey("AssetModelId");
@@ -2134,23 +1990,23 @@ namespace Emm.Infrastructure.Migrations
 
                     b.OwnsOne("Emm.Domain.ValueObjects.AuditMetadata", "Audit", b1 =>
                         {
-                            b1.Property<long>("AssetTypeId")
-                                .HasColumnType("bigint");
+                            b1.Property<Guid>("AssetTypeId")
+                                .HasColumnType("uniqueidentifier");
 
                             b1.Property<DateTime>("CreatedAt")
                                 .HasColumnType("datetime2")
                                 .HasColumnName("CreatedAt");
 
-                            b1.Property<long>("CreatedByUserId")
-                                .HasColumnType("bigint")
+                            b1.Property<Guid>("CreatedByUserId")
+                                .HasColumnType("uniqueidentifier")
                                 .HasColumnName("CreatedByUserId");
 
                             b1.Property<DateTime?>("ModifiedAt")
                                 .HasColumnType("datetime2")
                                 .HasColumnName("ModifiedAt");
 
-                            b1.Property<long?>("ModifiedByUserId")
-                                .HasColumnType("bigint")
+                            b1.Property<Guid?>("ModifiedByUserId")
+                                .HasColumnType("uniqueidentifier")
                                 .HasColumnName("ModifiedByUserId");
 
                             b1.HasKey("AssetTypeId");
@@ -2159,7 +2015,7 @@ namespace Emm.Infrastructure.Migrations
 
                             b1.HasIndex("ModifiedByUserId");
 
-                            b1.ToTable("AssetTypes", (string)null);
+                            b1.ToTable("AssetTypes");
 
                             b1.WithOwner()
                                 .HasForeignKey("AssetTypeId");
@@ -2205,23 +2061,23 @@ namespace Emm.Infrastructure.Migrations
 
                     b.OwnsOne("Emm.Domain.ValueObjects.AuditMetadata", "Audit", b1 =>
                         {
-                            b1.Property<long>("MaintenancePlanDefinitionId")
-                                .HasColumnType("bigint");
+                            b1.Property<Guid>("MaintenancePlanDefinitionId")
+                                .HasColumnType("uniqueidentifier");
 
                             b1.Property<DateTime>("CreatedAt")
                                 .HasColumnType("datetime2")
                                 .HasColumnName("CreatedAt");
 
-                            b1.Property<long>("CreatedByUserId")
-                                .HasColumnType("bigint")
+                            b1.Property<Guid>("CreatedByUserId")
+                                .HasColumnType("uniqueidentifier")
                                 .HasColumnName("CreatedByUserId");
 
                             b1.Property<DateTime?>("ModifiedAt")
                                 .HasColumnType("datetime2")
                                 .HasColumnName("ModifiedAt");
 
-                            b1.Property<long?>("ModifiedByUserId")
-                                .HasColumnType("bigint")
+                            b1.Property<Guid?>("ModifiedByUserId")
+                                .HasColumnType("uniqueidentifier")
                                 .HasColumnName("ModifiedByUserId");
 
                             b1.HasKey("MaintenancePlanDefinitionId");
@@ -2230,7 +2086,7 @@ namespace Emm.Infrastructure.Migrations
 
                             b1.HasIndex("ModifiedByUserId");
 
-                            b1.ToTable("MaintenancePlanDefinitions", (string)null);
+                            b1.ToTable("MaintenancePlanDefinitions");
 
                             b1.HasOne("Emm.Domain.Entities.User", null)
                                 .WithMany()
@@ -2299,23 +2155,23 @@ namespace Emm.Infrastructure.Migrations
 
                     b.OwnsOne("Emm.Domain.ValueObjects.AuditMetadata", "Audit", b1 =>
                         {
-                            b1.Property<long>("AssetAdditionId")
-                                .HasColumnType("bigint");
+                            b1.Property<Guid>("AssetAdditionId")
+                                .HasColumnType("uniqueidentifier");
 
                             b1.Property<DateTime>("CreatedAt")
                                 .HasColumnType("datetime2")
                                 .HasColumnName("CreatedAt");
 
-                            b1.Property<long>("CreatedByUserId")
-                                .HasColumnType("bigint")
+                            b1.Property<Guid>("CreatedByUserId")
+                                .HasColumnType("uniqueidentifier")
                                 .HasColumnName("CreatedByUserId");
 
                             b1.Property<DateTime?>("ModifiedAt")
                                 .HasColumnType("datetime2")
                                 .HasColumnName("ModifiedAt");
 
-                            b1.Property<long?>("ModifiedByUserId")
-                                .HasColumnType("bigint")
+                            b1.Property<Guid?>("ModifiedByUserId")
+                                .HasColumnType("uniqueidentifier")
                                 .HasColumnName("ModifiedByUserId");
 
                             b1.HasKey("AssetAdditionId");
@@ -2324,7 +2180,7 @@ namespace Emm.Infrastructure.Migrations
 
                             b1.HasIndex("ModifiedByUserId");
 
-                            b1.ToTable("AssetAdditions", (string)null);
+                            b1.ToTable("AssetAdditions");
 
                             b1.WithOwner()
                                 .HasForeignKey("AssetAdditionId");
@@ -2366,23 +2222,23 @@ namespace Emm.Infrastructure.Migrations
                 {
                     b.OwnsOne("Emm.Domain.ValueObjects.AuditMetadata", "Audit", b1 =>
                         {
-                            b1.Property<long>("PermissionId")
-                                .HasColumnType("bigint");
+                            b1.Property<Guid>("PermissionId")
+                                .HasColumnType("uniqueidentifier");
 
                             b1.Property<DateTime>("CreatedAt")
                                 .HasColumnType("datetime2")
                                 .HasColumnName("CreatedAt");
 
-                            b1.Property<long>("CreatedByUserId")
-                                .HasColumnType("bigint")
+                            b1.Property<Guid>("CreatedByUserId")
+                                .HasColumnType("uniqueidentifier")
                                 .HasColumnName("CreatedByUserId");
 
                             b1.Property<DateTime?>("ModifiedAt")
                                 .HasColumnType("datetime2")
                                 .HasColumnName("ModifiedAt");
 
-                            b1.Property<long?>("ModifiedByUserId")
-                                .HasColumnType("bigint")
+                            b1.Property<Guid?>("ModifiedByUserId")
+                                .HasColumnType("uniqueidentifier")
                                 .HasColumnName("ModifiedByUserId");
 
                             b1.HasKey("PermissionId");
@@ -2391,7 +2247,7 @@ namespace Emm.Infrastructure.Migrations
 
                             b1.HasIndex("ModifiedByUserId");
 
-                            b1.ToTable("Permissions", (string)null);
+                            b1.ToTable("Permissions");
 
                             b1.HasOne("Emm.Domain.Entities.User", null)
                                 .WithMany()
@@ -2416,23 +2272,23 @@ namespace Emm.Infrastructure.Migrations
                 {
                     b.OwnsOne("Emm.Domain.ValueObjects.AuditMetadata", "Audit", b1 =>
                         {
-                            b1.Property<long>("PolicyId")
-                                .HasColumnType("bigint");
+                            b1.Property<Guid>("PolicyId")
+                                .HasColumnType("uniqueidentifier");
 
                             b1.Property<DateTime>("CreatedAt")
                                 .HasColumnType("datetime2")
                                 .HasColumnName("CreatedAt");
 
-                            b1.Property<long>("CreatedByUserId")
-                                .HasColumnType("bigint")
+                            b1.Property<Guid>("CreatedByUserId")
+                                .HasColumnType("uniqueidentifier")
                                 .HasColumnName("CreatedByUserId");
 
                             b1.Property<DateTime?>("ModifiedAt")
                                 .HasColumnType("datetime2")
                                 .HasColumnName("ModifiedAt");
 
-                            b1.Property<long?>("ModifiedByUserId")
-                                .HasColumnType("bigint")
+                            b1.Property<Guid?>("ModifiedByUserId")
+                                .HasColumnType("uniqueidentifier")
                                 .HasColumnName("ModifiedByUserId");
 
                             b1.HasKey("PolicyId");
@@ -2441,7 +2297,7 @@ namespace Emm.Infrastructure.Migrations
 
                             b1.HasIndex("ModifiedByUserId");
 
-                            b1.ToTable("Policies", (string)null);
+                            b1.ToTable("Policies");
 
                             b1.HasOne("Emm.Domain.Entities.User", null)
                                 .WithMany()
@@ -2466,24 +2322,24 @@ namespace Emm.Infrastructure.Migrations
                 {
                     b.OwnsOne("Emm.Domain.ValueObjects.AuditMetadata", "Audit", b1 =>
                         {
-                            b1.Property<long>("RoleId")
-                                .HasColumnType("bigint");
+                            b1.Property<Guid>("RoleId")
+                                .HasColumnType("uniqueidentifier");
 
                             b1.Property<DateTime>("CreatedAt")
                                 .HasColumnType("datetime2");
 
-                            b1.Property<long>("CreatedByUserId")
-                                .HasColumnType("bigint");
+                            b1.Property<Guid>("CreatedByUserId")
+                                .HasColumnType("uniqueidentifier");
 
                             b1.Property<DateTime?>("ModifiedAt")
                                 .HasColumnType("datetime2");
 
-                            b1.Property<long?>("ModifiedByUserId")
-                                .HasColumnType("bigint");
+                            b1.Property<Guid?>("ModifiedByUserId")
+                                .HasColumnType("uniqueidentifier");
 
                             b1.HasKey("RoleId");
 
-                            b1.ToTable("Roles", (string)null);
+                            b1.ToTable("Roles");
 
                             b1.WithOwner()
                                 .HasForeignKey("RoleId");
@@ -2560,23 +2416,23 @@ namespace Emm.Infrastructure.Migrations
 
                     b.OwnsOne("Emm.Domain.ValueObjects.AuditMetadata", "Audit", b1 =>
                         {
-                            b1.Property<long>("ItemId")
-                                .HasColumnType("bigint");
+                            b1.Property<Guid>("ItemId")
+                                .HasColumnType("uniqueidentifier");
 
                             b1.Property<DateTime>("CreatedAt")
                                 .HasColumnType("datetime2")
                                 .HasColumnName("CreatedAt");
 
-                            b1.Property<long>("CreatedByUserId")
-                                .HasColumnType("bigint")
+                            b1.Property<Guid>("CreatedByUserId")
+                                .HasColumnType("uniqueidentifier")
                                 .HasColumnName("CreatedByUserId");
 
                             b1.Property<DateTime?>("ModifiedAt")
                                 .HasColumnType("datetime2")
                                 .HasColumnName("ModifiedAt");
 
-                            b1.Property<long?>("ModifiedByUserId")
-                                .HasColumnType("bigint")
+                            b1.Property<Guid?>("ModifiedByUserId")
+                                .HasColumnType("uniqueidentifier")
                                 .HasColumnName("ModifiedByUserId");
 
                             b1.HasKey("ItemId");
@@ -2585,7 +2441,7 @@ namespace Emm.Infrastructure.Migrations
 
                             b1.HasIndex("ModifiedByUserId");
 
-                            b1.ToTable("Items", (string)null);
+                            b1.ToTable("Items");
 
                             b1.HasOne("Emm.Domain.Entities.User", null)
                                 .WithMany()
@@ -2616,23 +2472,23 @@ namespace Emm.Infrastructure.Migrations
 
                     b.OwnsOne("Emm.Domain.ValueObjects.AuditMetadata", "Audit", b1 =>
                         {
-                            b1.Property<long>("IncidentReportId")
-                                .HasColumnType("bigint");
+                            b1.Property<Guid>("IncidentReportId")
+                                .HasColumnType("uniqueidentifier");
 
                             b1.Property<DateTime>("CreatedAt")
                                 .HasColumnType("datetime2")
                                 .HasColumnName("CreatedAt");
 
-                            b1.Property<long>("CreatedByUserId")
-                                .HasColumnType("bigint")
+                            b1.Property<Guid>("CreatedByUserId")
+                                .HasColumnType("uniqueidentifier")
                                 .HasColumnName("CreatedByUserId");
 
                             b1.Property<DateTime?>("ModifiedAt")
                                 .HasColumnType("datetime2")
                                 .HasColumnName("ModifiedAt");
 
-                            b1.Property<long?>("ModifiedByUserId")
-                                .HasColumnType("bigint")
+                            b1.Property<Guid?>("ModifiedByUserId")
+                                .HasColumnType("uniqueidentifier")
                                 .HasColumnName("ModifiedByUserId");
 
                             b1.HasKey("IncidentReportId");
@@ -2641,7 +2497,7 @@ namespace Emm.Infrastructure.Migrations
 
                             b1.HasIndex("ModifiedByUserId");
 
-                            b1.ToTable("IncidentReports", (string)null);
+                            b1.ToTable("IncidentReports");
 
                             b1.HasOne("Emm.Domain.Entities.User", null)
                                 .WithMany()
@@ -2666,23 +2522,23 @@ namespace Emm.Infrastructure.Migrations
                 {
                     b.OwnsOne("Emm.Domain.ValueObjects.AuditMetadata", "Audit", b1 =>
                         {
-                            b1.Property<long>("OperationShiftId")
-                                .HasColumnType("bigint");
+                            b1.Property<Guid>("OperationShiftId")
+                                .HasColumnType("uniqueidentifier");
 
                             b1.Property<DateTime>("CreatedAt")
                                 .HasColumnType("datetime2")
                                 .HasColumnName("CreatedAt");
 
-                            b1.Property<long>("CreatedByUserId")
-                                .HasColumnType("bigint")
+                            b1.Property<Guid>("CreatedByUserId")
+                                .HasColumnType("uniqueidentifier")
                                 .HasColumnName("CreatedByUserId");
 
                             b1.Property<DateTime?>("ModifiedAt")
                                 .HasColumnType("datetime2")
                                 .HasColumnName("ModifiedAt");
 
-                            b1.Property<long?>("ModifiedByUserId")
-                                .HasColumnType("bigint")
+                            b1.Property<Guid?>("ModifiedByUserId")
+                                .HasColumnType("uniqueidentifier")
                                 .HasColumnName("ModifiedByUserId");
 
                             b1.HasKey("OperationShiftId");
@@ -2691,7 +2547,7 @@ namespace Emm.Infrastructure.Migrations
 
                             b1.HasIndex("ModifiedByUserId");
 
-                            b1.ToTable("OperationShifts", (string)null);
+                            b1.ToTable("OperationShifts");
 
                             b1.HasOne("Emm.Domain.Entities.User", null)
                                 .WithMany()
@@ -2734,23 +2590,23 @@ namespace Emm.Infrastructure.Migrations
                 {
                     b.OwnsOne("Emm.Domain.ValueObjects.AuditMetadata", "Audit", b1 =>
                         {
-                            b1.Property<long>("ShiftLogId")
-                                .HasColumnType("bigint");
+                            b1.Property<Guid>("ShiftLogId")
+                                .HasColumnType("uniqueidentifier");
 
                             b1.Property<DateTime>("CreatedAt")
                                 .HasColumnType("datetime2")
                                 .HasColumnName("CreatedAt");
 
-                            b1.Property<long>("CreatedByUserId")
-                                .HasColumnType("bigint")
+                            b1.Property<Guid>("CreatedByUserId")
+                                .HasColumnType("uniqueidentifier")
                                 .HasColumnName("CreatedByUserId");
 
                             b1.Property<DateTime?>("ModifiedAt")
                                 .HasColumnType("datetime2")
                                 .HasColumnName("ModifiedAt");
 
-                            b1.Property<long?>("ModifiedByUserId")
-                                .HasColumnType("bigint")
+                            b1.Property<Guid?>("ModifiedByUserId")
+                                .HasColumnType("uniqueidentifier")
                                 .HasColumnName("ModifiedByUserId");
 
                             b1.HasKey("ShiftLogId");
@@ -2759,7 +2615,7 @@ namespace Emm.Infrastructure.Migrations
 
                             b1.HasIndex("ModifiedByUserId");
 
-                            b1.ToTable("ShiftLogs", (string)null);
+                            b1.ToTable("ShiftLogs");
 
                             b1.HasOne("Emm.Domain.Entities.User", null)
                                 .WithMany()
@@ -2816,35 +2672,27 @@ namespace Emm.Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Emm.Domain.Entities.Organization.Employee", b =>
-                {
-                    b.HasOne("Emm.Domain.Entities.Organization.OrganizationUnit", null)
-                        .WithMany()
-                        .HasForeignKey("OrganizationUnitId")
-                        .OnDelete(DeleteBehavior.NoAction);
-                });
-
             modelBuilder.Entity("Emm.Domain.Entities.Organization.Location", b =>
                 {
                     b.OwnsOne("Emm.Domain.ValueObjects.AuditMetadata", "Audit", b1 =>
                         {
-                            b1.Property<long>("LocationId")
-                                .HasColumnType("bigint");
+                            b1.Property<Guid>("LocationId")
+                                .HasColumnType("uniqueidentifier");
 
                             b1.Property<DateTime>("CreatedAt")
                                 .HasColumnType("datetime2")
                                 .HasColumnName("CreatedAt");
 
-                            b1.Property<long>("CreatedByUserId")
-                                .HasColumnType("bigint")
+                            b1.Property<Guid>("CreatedByUserId")
+                                .HasColumnType("uniqueidentifier")
                                 .HasColumnName("CreatedByUserId");
 
                             b1.Property<DateTime?>("ModifiedAt")
                                 .HasColumnType("datetime2")
                                 .HasColumnName("ModifiedAt");
 
-                            b1.Property<long?>("ModifiedByUserId")
-                                .HasColumnType("bigint")
+                            b1.Property<Guid?>("ModifiedByUserId")
+                                .HasColumnType("uniqueidentifier")
                                 .HasColumnName("ModifiedByUserId");
 
                             b1.HasKey("LocationId");
@@ -2853,7 +2701,7 @@ namespace Emm.Infrastructure.Migrations
 
                             b1.HasIndex("ModifiedByUserId");
 
-                            b1.ToTable("Locations", (string)null);
+                            b1.ToTable("Locations");
 
                             b1.HasOne("Emm.Domain.Entities.User", null)
                                 .WithMany()
@@ -2893,23 +2741,23 @@ namespace Emm.Infrastructure.Migrations
 
                     b.OwnsOne("Emm.Domain.ValueObjects.AuditMetadata", "Audit", b1 =>
                         {
-                            b1.Property<long>("ParameterCatalogId")
-                                .HasColumnType("bigint");
+                            b1.Property<Guid>("ParameterCatalogId")
+                                .HasColumnType("uniqueidentifier");
 
                             b1.Property<DateTime>("CreatedAt")
                                 .HasColumnType("datetime2")
                                 .HasColumnName("CreatedAt");
 
-                            b1.Property<long>("CreatedByUserId")
-                                .HasColumnType("bigint")
+                            b1.Property<Guid>("CreatedByUserId")
+                                .HasColumnType("uniqueidentifier")
                                 .HasColumnName("CreatedByUserId");
 
                             b1.Property<DateTime?>("ModifiedAt")
                                 .HasColumnType("datetime2")
                                 .HasColumnName("ModifiedAt");
 
-                            b1.Property<long?>("ModifiedByUserId")
-                                .HasColumnType("bigint")
+                            b1.Property<Guid?>("ModifiedByUserId")
+                                .HasColumnType("uniqueidentifier")
                                 .HasColumnName("ModifiedByUserId");
 
                             b1.HasKey("ParameterCatalogId");
@@ -2918,7 +2766,7 @@ namespace Emm.Infrastructure.Migrations
 
                             b1.HasIndex("ModifiedByUserId");
 
-                            b1.ToTable("ParameterCatalogs", (string)null);
+                            b1.ToTable("ParameterCatalogs");
 
                             b1.HasOne("Emm.Domain.Entities.User", null)
                                 .WithMany()
@@ -2944,14 +2792,6 @@ namespace Emm.Infrastructure.Migrations
                     b.HasOne("Emm.Domain.Entities.UnitOfMeasure", null)
                         .WithMany("DerivedUnits")
                         .HasForeignKey("BaseUnitId")
-                        .OnDelete(DeleteBehavior.NoAction);
-                });
-
-            modelBuilder.Entity("Emm.Domain.Entities.User", b =>
-                {
-                    b.HasOne("Emm.Domain.Entities.Organization.Employee", null)
-                        .WithMany()
-                        .HasForeignKey("EmployeeId")
                         .OnDelete(DeleteBehavior.NoAction);
                 });
 

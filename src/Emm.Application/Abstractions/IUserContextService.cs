@@ -4,10 +4,9 @@ namespace Emm.Application.Abstractions;
 
 public interface IUserContextService
 {
-    long? GetCurrentUserId();
+    Guid? GetCurrentUserId();
     string? GetCurrentUsername();
-    long? GetCurrentEmployeeId();
-    long? GetCurrentOrganizationUnitId();
+    Guid? GetCurrentOrganizationUnitId();
     string? GetCurrentEmail();
     ClaimsPrincipal? GetCurrentUser();
     bool IsAuthenticated();

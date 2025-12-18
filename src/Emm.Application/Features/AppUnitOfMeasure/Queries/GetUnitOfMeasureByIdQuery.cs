@@ -2,4 +2,4 @@ using Emm.Application.Common;
 
 namespace Emm.Application.Features.AppUnitOfMeasure.Queries;
 
-public record GetUnitOfMeasureByIdQuery(long Id) : IRequest<Result<object>>;
+public record GetUnitOfMeasureByIdQuery(Guid Id) : IRequest<Result<object>>;

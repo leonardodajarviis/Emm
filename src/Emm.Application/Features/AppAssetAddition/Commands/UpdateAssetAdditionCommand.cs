@@ -1,10 +1,10 @@
 namespace Emm.Application.Features.AppAssetAddition.Commands;
 
 public record UpdateAssetAdditionCommand(
-    long Id,
+    Guid Id,
     string Code,
-    long OrganizationUnitId,
-    long LocationId,
+    Guid OrganizationUnitId,
+    Guid LocationId,
     string? DecisionNumber,
     string? DecisionDate,
     string? Reason,
@@ -13,7 +13,7 @@ public record UpdateAssetAdditionCommand(
 
 public record UpdateAssetAdditionLineCommand(
     long? Id, // null for new lines
-    long AssetModelId,
+    Guid AssetModelId,
     string AssetCode,
     decimal UnitPrice
 );

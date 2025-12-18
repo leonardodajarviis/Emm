@@ -33,8 +33,8 @@ public class OrganizationUnitLevelController : ControllerBase
         return result.ToActionResult();
     }
 
-    [HttpPut("{id:long}")]
-    public async Task<IActionResult> UpdateOrganizationUnitLevel([FromRoute] long id, [FromBody] UpdateOrganizationUnitLevel updateOrganizationUnitLevel)
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateOrganizationUnitLevel([FromRoute] Guid id, [FromBody] UpdateOrganizationUnitLevel updateOrganizationUnitLevel)
     {
         var command = new UpdateOrganizationUnitLevelCommand(
             Id: id,
@@ -57,8 +57,8 @@ public class OrganizationUnitLevelController : ControllerBase
         return result.ToActionResult();
     }
 
-    [HttpGet("{id:long}")]
-    public async Task<IActionResult> GetOrganizationUnitLevelById([FromRoute] long id)
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetOrganizationUnitLevelById([FromRoute] Guid id)
     {
         var query = new GetOrganizationUnitLevelByIdQuery(id);
         var result = await _mediator.Send(query);

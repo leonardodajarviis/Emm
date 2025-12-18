@@ -13,7 +13,7 @@ public class ShiftLogParameterReadingConfiguration : IEntityTypeConfiguration<Sh
         builder.HasKey(x => x.Id);
 
         builder.Property(x => x.Id)
-            .ValueGeneratedOnAdd()
+            .ValueGeneratedNever()
             .IsRequired();
 
 

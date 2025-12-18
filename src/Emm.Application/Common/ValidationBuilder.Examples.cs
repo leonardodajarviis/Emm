@@ -16,8 +16,8 @@ public static class ValidationBuilderExamples
     /// </summary>
     public static async Task<Result<object>> Example1_BasicValidation(
         IForeignKeyValidator fkValidator,
-        long userId,
-        long organizationUnitId,
+        Guid userId,
+        Guid organizationUnitId,
         CancellationToken cancellationToken)
     {
         return await fkValidator.CreateValidator()
@@ -40,7 +40,7 @@ public static class ValidationBuilderExamples
     public static async Task<Result<object>> Example2_CustomValidationWithCancellationToken(
         IForeignKeyValidator fkValidator,
         IQueryContext queryContext,
-        long userId,
+        Guid userId,
         string email,
         CancellationToken cancellationToken)
     {
@@ -76,9 +76,9 @@ public static class ValidationBuilderExamples
     /// </summary>
     public static async Task<Result<object>> Example3_MultipleValidations(
         IForeignKeyValidator fkValidator,
-        long[] assetIds,
-        long[] locationIds,
-        long? managerId, // nullable
+        Guid[] assetIds,
+        Guid[] locationIds,
+        Guid? managerId, // nullable
         CancellationToken cancellationToken)
     {
         return await fkValidator.CreateValidator()
@@ -104,9 +104,9 @@ public static class ValidationBuilderExamples
     public static async Task<Result<object>> Example4_ComplexScenario(
         IForeignKeyValidator fkValidator,
         IQueryContext queryContext,
-        long userId,
-        long organizationUnitId,
-        long[] assetIds,
+        Guid userId,
+        Guid organizationUnitId,
+        Guid[] assetIds,
         DateTime startDate,
         DateTime endDate,
         CancellationToken cancellationToken)
@@ -168,9 +168,9 @@ public static class ValidationBuilderExamples
         // - Không waste resources cho validations tiếp theo
 
         return await fkValidator.CreateValidator()
-            .ValidateForeignKey<User>(1, "User") // Might be cancelled here
-            .ValidateForeignKey<User>(2, "User") // Or here
-            .ValidateForeignKey<User>(3, "User") // Or here
+            .ValidateForeignKey<User>(Guid.NewGuid(), "User") // Might be cancelled here
+            .ValidateForeignKey<User>(Guid.NewGuid(), "User") // Or here
+            .ValidateForeignKey<User>(Guid.NewGuid(), "User") // Or here
             .ValidateAndExecuteAsync(async () =>
             {
                 await Task.CompletedTask;

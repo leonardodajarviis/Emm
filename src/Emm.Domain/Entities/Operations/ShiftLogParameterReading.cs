@@ -5,13 +5,13 @@ namespace Emm.Domain.Entities.Operations;
 /// </summary>
 public class ShiftLogParameterReading
 {
-    public long Id { get; private set; }
+    public Guid Id { get; private set; }
     public Guid? ShiftLogCheckpointLinkedId {get; private set;}
-    public long ShiftLogId { get; private set; }
-    public long AssetId { get; private set; }
+    public Guid ShiftLogId { get; private set; }
+    public Guid AssetId { get; private set; }
     public string AssetCode { get; private set; } = null!;
     public string AssetName { get; private set; } = null!;
-    public long ParameterId { get; private set; }
+    public Guid ParameterId { get; private set; }
     public string ParameterName { get; private set; } = null!;
     public string ParameterCode { get; private set; } = null!;
     public decimal Value { get; private set; }
@@ -22,11 +22,11 @@ public class ShiftLogParameterReading
     public bool IsLooked { get; private set; }
 
     public ShiftLogParameterReading(
-        long operationTaskId,
-        long assetId,
+        Guid operationTaskId,
+        Guid assetId,
         string assetCode,
         string assetName,
-        long parameterId,
+        Guid parameterId,
         string parameterName,
         string parameterCode,
         decimal value,

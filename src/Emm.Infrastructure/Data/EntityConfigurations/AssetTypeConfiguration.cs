@@ -16,7 +16,7 @@ public class AssetTypeConfiguration : IEntityTypeConfiguration<AssetType>
 
         // Properties Configuration
         builder.Property(x => x.Id)
-            .ValueGeneratedOnAdd()
+            .ValueGeneratedNever()
             .IsRequired();
 
         builder.Property(x => x.Code)

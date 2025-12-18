@@ -1,7 +1,7 @@
 namespace Emm.Application.Features.AppOrganizationUnitLevel.Commands;
 
 public record UpdateOrganizationUnitLevelCommand(
-    long Id,
+    Guid Id,
     string Name,
     string? Description,
     int Level

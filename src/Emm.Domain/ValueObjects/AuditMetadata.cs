@@ -2,12 +2,12 @@ namespace Emm.Domain.ValueObjects;
 
 public record AuditMetadata
 {
-    public long CreatedByUserId { get; init; }
+    public Guid CreatedByUserId { get; init; }
     public DateTime CreatedAt { get; init; }
-    public long? ModifiedByUserId { get; init; }
+    public Guid? ModifiedByUserId { get; init; }
     public DateTime? ModifiedAt { get; init; }
 
-    public static AuditMetadata Create(long createdByUserId, DateTime at)
+    public static AuditMetadata Create(Guid createdByUserId, DateTime at)
     {
         return new AuditMetadata
         {
@@ -16,7 +16,7 @@ public record AuditMetadata
         };
     }
 
-    public AuditMetadata Update(long modifiedByUserId, DateTime at)
+    public AuditMetadata Update(Guid modifiedByUserId, DateTime at)
     {
         return this with
         {

@@ -13,12 +13,11 @@ public class MaintenanceTicket : AggregateRoot, IAuditableEntity
     private const int MaxTasksPerTicket = 50;
     private const int MaxPartsPerTicket = 100;
 
-    public long Id { get; private set; }
     public string Code { get; private set; } = null!;
     public string Title { get; private set; } = null!;
     public string? Description { get; private set; }
-    public long AssetId { get; private set; }
-    public long? IncidentReportId { get; private set; }
+    public Guid AssetId { get; private set; }
+    public Guid? IncidentReportId { get; private set; }
     public MaintenanceType MaintenanceType { get; private set; }
     public MaintenancePriority Priority { get; private set; }
     public MaintenanceTicketStatus Status { get; private set; }
@@ -28,8 +27,8 @@ public class MaintenanceTicket : AggregateRoot, IAuditableEntity
     public DateTime? ActualStartDate { get; private set; }
     public DateTime? ActualEndDate { get; private set; }
 
-    public long? AssignedToUserId { get; private set; }
-    public long? AssignedToTeamId { get; private set; }
+    public Guid? AssignedToUserId { get; private set; }
+    public Guid? AssignedToTeamId { get; private set; }
 
     public decimal EstimatedCost { get; private set; }
     public decimal ActualCost { get; private set; }
@@ -57,19 +56,19 @@ public class MaintenanceTicket : AggregateRoot, IAuditableEntity
     public MaintenanceTicket(
         string code,
         string title,
-        long assetId,
+        Guid assetId,
         MaintenanceType maintenanceType,
         MaintenancePriority priority,
         DateTime scheduledStartDate,
         DateTime? scheduledEndDate = null,
-        long? incidentReportId = null,
+        Guid? incidentReportId = null,
         string? description = null,
         decimal estimatedCost = 0,
         decimal estimatedDurationHours = 0)
     {
         ValidateCode(code);
         ValidateTitle(title);
-        ValidateForeignKey(assetId, nameof(AssetId));
+        DomainGuard.AgainstInvalidForeignKey(assetId, nameof(AssetId));
         ValidateScheduledDates(scheduledStartDate, scheduledEndDate);
 
         _tasks = [];
@@ -201,9 +200,9 @@ public class MaintenanceTicket : AggregateRoot, IAuditableEntity
 
     #region Assignment
 
-    public void AssignToUser(long userId)
+    public void AssignToUser(Guid userId)
     {
-        ValidateForeignKey(userId, nameof(userId));
+        DomainGuard.AgainstInvalidForeignKey(userId, nameof(userId));
 
         if (Status == MaintenanceTicketStatus.Completed || Status == MaintenanceTicketStatus.Cancelled)
             throw new DomainException("Cannot assign a completed or cancelled ticket");
@@ -216,9 +215,9 @@ public class MaintenanceTicket : AggregateRoot, IAuditableEntity
         // RaiseDomainEvent(new MaintenanceTicketAssignedEvent(Id, Code, userId, null));
     }
 
-    public void AssignToTeam(long teamId)
+    public void AssignToTeam(Guid teamId)
     {
-        ValidateForeignKey(teamId, nameof(teamId));
+        DomainGuard.AgainstInvalidForeignKey(teamId, nameof(teamId));
 
         if (Status == MaintenanceTicketStatus.Completed || Status == MaintenanceTicketStatus.Cancelled)
             throw new DomainException("Cannot assign a completed or cancelled ticket");
@@ -329,7 +328,7 @@ public class MaintenanceTicket : AggregateRoot, IAuditableEntity
         // RaiseDomainEvent(new MaintenanceTaskAddedEvent(Id, taskName));
     }
 
-    public void CompleteTask(long taskId, string? notes = null)
+    public void CompleteTask(Guid taskId, string? notes = null)
     {
         if (Status != MaintenanceTicketStatus.InProgress)
             throw new DomainException("Tasks can only be completed when ticket is in progress");
@@ -342,7 +341,7 @@ public class MaintenanceTicket : AggregateRoot, IAuditableEntity
         // RaiseDomainEvent(new MaintenanceTaskCompletedEvent(Id, taskId));
     }
 
-    public void RemoveTask(long taskId)
+    public void RemoveTask(Guid taskId)
     {
         if (Status == MaintenanceTicketStatus.Completed || Status == MaintenanceTicketStatus.Cancelled)
             throw new DomainException("Cannot remove tasks from a completed or cancelled ticket");
@@ -363,7 +362,7 @@ public class MaintenanceTicket : AggregateRoot, IAuditableEntity
     #region Parts Management
 
     public void AddPart(
-        long itemId,
+        Guid itemId,
         string itemCode,
         string itemName,
         decimal quantity,
@@ -385,7 +384,7 @@ public class MaintenanceTicket : AggregateRoot, IAuditableEntity
         // RaiseDomainEvent(new MaintenancePartAddedEvent(Id, itemId, quantity));
     }
 
-    public void UpdatePartQuantity(long itemId, decimal newQuantity)
+    public void UpdatePartQuantity(Guid itemId, decimal newQuantity)
     {
         if (Status == MaintenanceTicketStatus.Completed || Status == MaintenanceTicketStatus.Cancelled)
             throw new DomainException("Cannot update parts in a completed or cancelled ticket");
@@ -398,7 +397,7 @@ public class MaintenanceTicket : AggregateRoot, IAuditableEntity
         // RaiseDomainEvent(new MaintenancePartQuantityUpdatedEvent(Id, itemId, newQuantity));
     }
 
-    public void RemovePart(long itemId)
+    public void RemovePart(Guid itemId)
     {
         if (Status == MaintenanceTicketStatus.Completed || Status == MaintenanceTicketStatus.Cancelled)
             throw new DomainException("Cannot remove parts from a completed or cancelled ticket");
@@ -454,12 +453,6 @@ public class MaintenanceTicket : AggregateRoot, IAuditableEntity
             throw new DomainException("Maintenance ticket title cannot exceed 200 characters");
     }
 
-    private static void ValidateForeignKey(long foreignKeyId, string fieldName)
-    {
-        if (foreignKeyId <= 0)
-            throw new DomainException($"{fieldName} must be greater than zero");
-    }
-
     private static void ValidateScheduledDates(DateTime startDate, DateTime? endDate)
     {
         if (endDate.HasValue && endDate.Value < startDate)
@@ -510,7 +503,7 @@ public enum MaintenancePriority
 /// </summary>
 public class MaintenanceTask
 {
-    public long Id { get; private set; }
+    public Guid Id { get; private set; }
     public string TaskName { get; private set; } = null!;
     public string? TaskDescription { get; private set; }
     public decimal EstimatedDurationMinutes { get; private set; }
@@ -572,8 +565,8 @@ public class MaintenanceTask
 /// </summary>
 public class MaintenancePart
 {
-    public long Id { get; private set; }
-    public long ItemId { get; private set; }
+    public Guid Id { get; private set; }
+    public Guid ItemId { get; private set; }
     public string ItemCode { get; private set; } = null!;
     public string ItemName { get; private set; } = null!;
     public decimal Quantity { get; private set; }
@@ -584,15 +577,14 @@ public class MaintenancePart
     private MaintenancePart() { }
 
     public MaintenancePart(
-        long itemId,
+        Guid itemId,
         string itemCode,
         string itemName,
         decimal quantity,
         decimal unitCost,
         string? unit = null)
     {
-        if (itemId <= 0)
-            throw new DomainException("ItemId must be greater than zero");
+        DomainGuard.AgainstInvalidForeignKey(itemId, nameof(ItemId));
 
         if (string.IsNullOrWhiteSpace(itemCode))
             throw new DomainException("Item code cannot be empty");

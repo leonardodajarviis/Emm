@@ -13,7 +13,7 @@ public class MaintenancePlanRequiredItemConfiguration : IEntityTypeConfiguration
         builder.HasKey(x => x.Id);
 
         builder.Property(x => x.Id)
-            .ValueGeneratedOnAdd()
+            .ValueGeneratedNever()
             .IsRequired();
 
         builder.Property(x => x.MaintenancePlanDefinitionId)

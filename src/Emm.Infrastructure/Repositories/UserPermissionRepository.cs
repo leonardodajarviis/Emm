@@ -14,7 +14,7 @@ public class UserPermissionRepository : IUserPermissionRepository
         _context = context;
     }
 
-    public async Task<IReadOnlyList<UserPermission>> GetByUserIdAsync(long userId, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<UserPermission>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
     {
         return await _context.Set<UserPermission>()
             .Include(up => up.Permission)
@@ -22,7 +22,7 @@ public class UserPermissionRepository : IUserPermissionRepository
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<UserPermission?> GetAsync(long userId, long permissionId, CancellationToken cancellationToken = default)
+    public async Task<UserPermission?> GetAsync(Guid userId, Guid permissionId, CancellationToken cancellationToken = default)
     {
         return await _context.Set<UserPermission>()
             .FirstOrDefaultAsync(up => up.UserId == userId && up.PermissionId == permissionId, cancellationToken);
@@ -39,7 +39,7 @@ public class UserPermissionRepository : IUserPermissionRepository
         return Task.CompletedTask;
     }
 
-    public async Task<bool> ExistsAsync(long userId, long permissionId, CancellationToken cancellationToken = default)
+    public async Task<bool> ExistsAsync(Guid userId, Guid permissionId, CancellationToken cancellationToken = default)
     {
         return await _context.Set<UserPermission>()
             .AnyAsync(up => up.UserId == userId && up.PermissionId == permissionId, cancellationToken);

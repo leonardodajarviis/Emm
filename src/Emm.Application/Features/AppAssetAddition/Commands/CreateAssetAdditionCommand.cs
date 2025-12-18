@@ -1,8 +1,8 @@
 namespace Emm.Application.Features.AppAssetAddition.Commands;
 
 public record CreateAssetAdditionCommand(
-    long OrganizationUnitId,
-    long LocationId,
+    Guid OrganizationUnitId,
+    Guid LocationId,
     string? DecisionNumber,
     DateTime? DecisionDate,
     string? Reason,
@@ -10,7 +10,7 @@ public record CreateAssetAdditionCommand(
 ) : IRequest<Result<object>>;
 
 public record CreateAssetAdditionLineCommand(
-    long AssetModelId,
+    Guid AssetModelId,
     string AssetCode,
     decimal UnitPrice
 );

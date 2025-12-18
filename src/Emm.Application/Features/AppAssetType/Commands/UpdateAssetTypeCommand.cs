@@ -1,10 +1,10 @@
 namespace Emm.Application.Features.AppAssetType.Commands;
 
 public record UpdateAssetTypeCommand(
-    long Id,
+    Guid Id,
     string Name,
-    long AssetCategoryId,
+    Guid AssetCategoryId,
     string? Description,
     bool IsActive,
-    IEnumerable<long> ParameterIds
+    IEnumerable<Guid> ParameterIds
 ) : IRequest<Result<object>>;

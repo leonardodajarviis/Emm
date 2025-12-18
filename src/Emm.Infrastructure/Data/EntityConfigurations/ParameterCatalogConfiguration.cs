@@ -15,7 +15,7 @@ public class ParameterCatalogConfiguration : IEntityTypeConfiguration<ParameterC
         builder.HasKey(x => x.Id);
 
         builder.Property(x => x.Id)
-            .ValueGeneratedOnAdd()
+            .ValueGeneratedNever()
             .IsRequired();
 
         builder.Property(x => x.Code)

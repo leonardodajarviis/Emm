@@ -6,10 +6,10 @@ namespace Emm.Application.Features.AppAssetAddition.Commands;
 public class CreateAssetAdditionCommandHandler : IRequestHandler<CreateAssetAdditionCommand, Result<object>>
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IRepository<AssetAddition, long> _repository;
+    private readonly IRepository<AssetAddition, Guid> _repository;
     private readonly IOutbox _outbox;
 
-    public CreateAssetAdditionCommandHandler(IUnitOfWork unitOfWork, IRepository<AssetAddition, long> repository, IOutbox outbox)
+    public CreateAssetAdditionCommandHandler(IUnitOfWork unitOfWork, IRepository<AssetAddition, Guid> repository, IOutbox outbox)
     {
         _unitOfWork = unitOfWork;
         _repository = repository;
@@ -44,10 +44,12 @@ public class CreateAssetAdditionCommandHandler : IRequestHandler<CreateAssetAddi
 
             await _repository.AddAsync(assetAddition);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
-            // Raise domain event after save to ensure Id is populated
-            assetAddition.RegisterEvent();
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
+            // Register event to outbox - will be processed after transaction commits
+            assetAddition.RegisterEvent();
+            _outbox.EnqueueRange(assetAddition.DomainEvents);
+            assetAddition.ClearDomainEvents();
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return Result<object>.Success(new
             {

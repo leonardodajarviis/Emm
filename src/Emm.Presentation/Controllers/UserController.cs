@@ -35,8 +35,8 @@ public class UserController : ControllerBase
         return result.ToActionResult();
     }
 
-    [HttpPut("{id:long}")]
-    public async Task<IActionResult> UpdateUser([FromRoute] long id, [FromBody] UpdateUser updateUser)
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateUser([FromRoute] Guid id, [FromBody] UpdateUser updateUser)
     {
         var command = new UpdateUserCommand(
             Id: id,
@@ -48,16 +48,16 @@ public class UserController : ControllerBase
         return result.ToActionResult();
     }
 
-    [HttpDelete("{id:long}")]
-    public async Task<IActionResult> DeleteUser([FromRoute] long id)
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteUser([FromRoute] Guid id)
     {
         var command = new DeleteUserCommand(id);
         var result = await _mediator.Send(command);
         return result.ToActionResult();
     }
 
-    [HttpGet("{id:long}")]
-    public async Task<IActionResult> GetUserById([FromRoute] long id)
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetUserById([FromRoute] Guid id)
     {
         var query = new GetUserByIdQuery(id);
         var result = await _mediator.Send(query);
@@ -72,8 +72,8 @@ public class UserController : ControllerBase
         return result.ToActionResult();
     }
 
-    [HttpPut("{id:long}/change-password")]
-    public async Task<IActionResult> ChangePassword([FromRoute] long id, [FromBody] ChangePassword changePassword)
+    [HttpPut("{id}/change-password")]
+    public async Task<IActionResult> ChangePassword([FromRoute] Guid id, [FromBody] ChangePassword changePassword)
     {
         var command = new ChangePasswordCommand(
             Id: id,
@@ -85,16 +85,16 @@ public class UserController : ControllerBase
         return result.ToActionResult();
     }
 
-    [HttpPut("{id:long}/activate")]
-    public async Task<IActionResult> ActivateUser([FromRoute] long id)
+    [HttpPut("{id}/activate")]
+    public async Task<IActionResult> ActivateUser([FromRoute] Guid id)
     {
         var command = new ActivateUserCommand(id);
         var result = await _mediator.Send(command);
         return result.ToActionResult();
     }
 
-    [HttpPut("{id:long}/deactivate")]
-    public async Task<IActionResult> DeactivateUser([FromRoute] long id)
+    [HttpPut("{id}/deactivate")]
+    public async Task<IActionResult> DeactivateUser([FromRoute] Guid id)
     {
         var command = new DeactivateUserCommand(id);
         var result = await _mediator.Send(command);

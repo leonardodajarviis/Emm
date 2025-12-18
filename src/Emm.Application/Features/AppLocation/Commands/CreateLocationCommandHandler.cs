@@ -6,9 +6,9 @@ namespace Emm.Application.Features.AppLocation.Commands;
 public class CreateLocationCommandHandler : IRequestHandler<CreateLocationCommand, Result<object>>
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IRepository<Location, long> _repository;
+    private readonly IRepository<Location, Guid> _repository;
 
-    public CreateLocationCommandHandler(IUnitOfWork unitOfWork, IRepository<Location, long> repository)
+    public CreateLocationCommandHandler(IUnitOfWork unitOfWork, IRepository<Location, Guid> repository)
     {
         _unitOfWork = unitOfWork;
         _repository = repository;

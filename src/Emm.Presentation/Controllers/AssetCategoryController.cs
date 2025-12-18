@@ -27,8 +27,8 @@ public class AssetCategoryController : ControllerBase
         return result.ToActionResult();
     }
 
-    [HttpPut("{id:long}")]
-    public async Task<IActionResult> UpdateAssetCategory([FromRoute] long id, [FromBody] UpdateAssetCategory updateAssetCategory)
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateAssetCategory([FromRoute] Guid id, [FromBody] UpdateAssetCategory updateAssetCategory)
     {
         var command = new UpdateAssetCategoryCommand(
             Id: id,
@@ -51,8 +51,8 @@ public class AssetCategoryController : ControllerBase
         return result.ToActionResult();
     }
 
-    [HttpGet("{id:long}")]
-    public async Task<IActionResult> GetAssetCategoryById([FromRoute] long id)
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetAssetCategoryById([FromRoute] Guid id)
     {
         var query = new GetAssetCategoryByIdQuery(id);
         var result = await _mediator.Send(query);

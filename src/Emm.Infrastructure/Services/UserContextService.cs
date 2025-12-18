@@ -13,10 +13,10 @@ public class UserContextService : IUserContextService
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public long? GetCurrentUserId()
+    public Guid? GetCurrentUserId()
     {
         var userIdClaim = GetCurrentUser()?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        return long.TryParse(userIdClaim, out var userId) ? userId : null;
+        return Guid.TryParse(userIdClaim, out var userId) ? userId : null;
     }
 
     public string? GetCurrentUsername()
@@ -24,20 +24,12 @@ public class UserContextService : IUserContextService
         return GetCurrentUser()?.FindFirst(ClaimTypes.Name)?.Value;
     }
 
-    public long? GetCurrentEmployeeId()
-    {
-        var employeeIdClaim = GetCurrentUser()?.FindFirst("employeeId")?.Value;
-        if (employeeIdClaim == "no-employee")
-            return null;
-        return long.TryParse(employeeIdClaim, out var employeeId) ? employeeId : null;
-    }
-
-    public long? GetCurrentOrganizationUnitId()
+    public Guid? GetCurrentOrganizationUnitId()
     {
         var orgUnitIdClaim = GetCurrentUser()?.FindFirst("organizationUnitId")?.Value;
         if (orgUnitIdClaim == "no-organization-unit")
             return null;
-        return long.TryParse(orgUnitIdClaim, out var orgUnitId) ? orgUnitId : null;
+        return Guid.TryParse(orgUnitIdClaim, out var orgUnitId) ? orgUnitId : null;
     }
 
     public string? GetCurrentEmail()
@@ -64,7 +56,7 @@ public class UserContextService : IUserContextService
         var authHeader = request.Headers["Authorization"].FirstOrDefault();
         if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
         {
-            return authHeader.Substring("Bearer ".Length).Trim();
+            return authHeader["Bearer ".Length..].Trim();
         }
 
         return null;

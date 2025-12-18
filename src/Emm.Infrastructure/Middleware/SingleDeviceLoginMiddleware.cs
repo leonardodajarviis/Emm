@@ -38,7 +38,7 @@ public class SingleDeviceLoginMiddleware
             var jtiClaim = context.User.FindFirst(JwtRegisteredClaimNames.Jti)?.Value;
             var userIdClaim = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            if (!string.IsNullOrEmpty(jtiClaim) && !string.IsNullOrEmpty(userIdClaim) && long.TryParse(userIdClaim, out var userId))
+            if (!string.IsNullOrEmpty(jtiClaim) && !string.IsNullOrEmpty(userIdClaim) && Guid.TryParse(userIdClaim, out var userId))
             {
                 // Lấy session hiện tại dựa trên JTI
                 // GetByAccessTokenJtiAsync already filters RevokedAt == null, so no need to check IsRevoked

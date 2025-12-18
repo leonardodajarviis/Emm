@@ -7,11 +7,11 @@ namespace Emm.Domain.Events.Operations;
 /// </summary>
 public sealed record OperationShiftResumedEvent : IDomainEvent
 {
-    public long ShiftId { get; init; }
+    public Guid ShiftId { get; init; }
     public string? Notes { get; init; }
     public DateTime OccurredOn { get; init; }
 
-    public OperationShiftResumedEvent(long shiftId, string? notes)
+    public OperationShiftResumedEvent(Guid shiftId, string? notes)
     {
         ShiftId = shiftId;
         Notes = notes;
