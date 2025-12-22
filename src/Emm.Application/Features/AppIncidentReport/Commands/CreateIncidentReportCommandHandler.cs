@@ -50,7 +50,7 @@ public class CreateIncidentReportCommandHandler : IRequestHandler<CreateIncident
                 return Result<object>.Failure(ErrorType.NotFound, "Asset not found");
             }
 
-            var code = await _unitOfWork.GenerateNextCodeAsync("IR", "IncidentReports", 6, cancellationToken);
+            var code = await _unitOfWork.GenerateNextCodeAsync<IncidentReport>("IR", 6, cancellationToken);
 
             var incidentReport = new IncidentReport(
                 code: code,

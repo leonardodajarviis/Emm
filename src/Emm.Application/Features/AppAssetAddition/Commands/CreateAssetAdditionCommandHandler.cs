@@ -21,7 +21,7 @@ public class CreateAssetAdditionCommandHandler : IRequestHandler<CreateAssetAddi
         var result = await _unitOfWork.ExecuteInTransactionAsync(async () =>
         {
             // Generate the next code for Asset Addition
-            var code = await _unitOfWork.GenerateNextCodeAsync("PNTS", "AssetAdditions", 6, cancellationToken);
+            var code = await _unitOfWork.GenerateNextCodeAsync<AssetAddition>("PNTS", 6, cancellationToken);
 
             var assetAddition = new AssetAddition(
                 code: code,

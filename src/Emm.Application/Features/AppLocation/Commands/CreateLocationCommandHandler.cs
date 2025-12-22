@@ -17,7 +17,7 @@ public class CreateLocationCommandHandler : IRequestHandler<CreateLocationComman
     public async Task<Result<object>> Handle(CreateLocationCommand request, CancellationToken cancellationToken)
     {
         // Generate unique code for location
-        var code = await _unitOfWork.GenerateNextCodeAsync("VT", "Locations", 6, cancellationToken);
+        var code = await _unitOfWork.GenerateNextCodeAsync<Location>("VT", 6, cancellationToken);
         
         var location = new Location(
             code: code,

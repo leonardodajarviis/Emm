@@ -71,7 +71,8 @@ namespace Emm.Infrastructure.Migrations
                 name: "SequenceNumbers",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     Prefix = table.Column<string>(type: "nvarchar(64)", maxLength: 64, nullable: false),
                     NumberLength = table.Column<int>(type: "int", nullable: false),
                     TableName = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),

@@ -5,10 +5,12 @@ using Emm.Application.Common;
 using Emm.Presentation.Extensions;
 using LazyNet.Symphony.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Emm.Presentation.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/asset-types")]
 public class AssetTypeController : ControllerBase
 {
@@ -28,15 +30,11 @@ public class AssetTypeController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateAssetType([FromRoute] Guid id, [FromBody] UpdateAssetType updateAssetType)
+    public async Task<IActionResult> UpdateAssetType([FromRoute] Guid id, [FromBody] UpdateAssetTypeBody updateAssetType)
     {
         var command = new UpdateAssetTypeCommand(
-            Id: id,
-            Name: updateAssetType.Name,
-            Description: updateAssetType.Description,
-            AssetCategoryId: updateAssetType.AssetCategoryId,
-            ParameterIds: updateAssetType.ParameterIds,
-            IsActive: updateAssetType.IsActive
+            id,
+            updateAssetType
         );
 
         var result = await _mediator.Send(command);

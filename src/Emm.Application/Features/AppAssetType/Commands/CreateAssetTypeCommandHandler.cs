@@ -30,7 +30,7 @@ public class CreateAssetTypeCommandHandler : IRequestHandler<CreateAssetTypeComm
             var code = request.Code;
             if (request.IsCodeGenerated)
             {
-                code = await _unitOfWork.GenerateNextCodeAsync("LTS", "AssetTypes", 6, cancellationToken: cancellationToken);
+                code = await _unitOfWork.GenerateNextCodeAsync<AssetType>("LTS", 6, cancellationToken);
             }
 
             var assetType = new AssetType(

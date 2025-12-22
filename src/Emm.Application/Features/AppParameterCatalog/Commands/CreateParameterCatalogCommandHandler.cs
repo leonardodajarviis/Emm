@@ -20,7 +20,7 @@ public class CreateParameterCatalogCommandHandler : IRequestHandler<CreateParame
     {
         return await _unitOfWork.ExecuteInTransactionAsync(async () =>
         {
-            var code = await _unitOfWork.GenerateNextCodeAsync("TS", "ParameterCatalogs", 6, cancellationToken);
+            var code = await _unitOfWork.GenerateNextCodeAsync<ParameterCatalog>("TS", 6, cancellationToken);
 
             var parameterCatalog = new ParameterCatalog(
                 code,

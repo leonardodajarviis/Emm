@@ -21,13 +21,13 @@ public class SequenceCodeGenerator : ICodeGenerator, IDisposable
         _dbContext = dbContext;
     }
 
-    public async Task<NaturalKey> GetNaturalKeyAsync(
+    public async Task<NaturalKey> GetNaturalKeyAsync<TEntity>(
         string prefix,
-        string tableName,
         int numberLength = 6,
         CancellationToken cancellationToken = default)
+        where TEntity : class
     {
-        var code = await GenerateNextCodeAsync(prefix, tableName, numberLength, cancellationToken);
+        var code = await GenerateNextCodeAsync<TEntity>(prefix, numberLength, cancellationToken);
 
         var numberPart = code[prefix.Length..];
         if (!int.TryParse(numberPart, out var number))
@@ -38,20 +38,21 @@ public class SequenceCodeGenerator : ICodeGenerator, IDisposable
         return NaturalKey.Create(prefix, number, numberLength);
     }
 
-    public async Task<string> GenerateNextCodeAsync(
+    public async Task<string> GenerateNextCodeAsync<TEntity>(
         string prefix,
-        string tableName,
         int numberLength = 6,
         CancellationToken cancellationToken = default)
+        where TEntity : class
     {
         if (string.IsNullOrWhiteSpace(prefix))
             throw new ArgumentException("Prefix cannot be null or empty", nameof(prefix));
 
-        if (string.IsNullOrWhiteSpace(tableName))
-            throw new ArgumentException("Table name cannot be null or empty", nameof(tableName));
-
         if (numberLength < 1 || numberLength > 20)
             throw new ArgumentException("Number length must be between 1 and 20", nameof(numberLength));
+
+        // Get table name from Entity Framework metadata
+        var tableName = _dbContext.Model.FindEntityType(typeof(TEntity))?.GetTableName()
+            ?? throw new InvalidOperationException($"Entity type {typeof(TEntity).Name} is not configured in DbContext");
 
         var semaphoreKey = $"{tableName}_{prefix}_{numberLength}";
         var semaphore = _semaphores.GetOrAdd(semaphoreKey, _ => new SemaphoreSlim(1, 1));

@@ -1,4 +1,4 @@
-namespace Emm.Application.Common.ErrorCodes;
+namespace Emm.Application.ErrorCodes;
 
 /// <summary>
 /// File storage error codes

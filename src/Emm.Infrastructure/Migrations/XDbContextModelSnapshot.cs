@@ -1660,7 +1660,10 @@ namespace Emm.Infrastructure.Migrations
             modelBuilder.Entity("Emm.Infrastructure.Data.SequenceNumber", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()

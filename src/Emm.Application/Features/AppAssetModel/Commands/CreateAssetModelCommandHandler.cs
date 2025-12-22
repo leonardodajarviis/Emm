@@ -47,7 +47,7 @@ public class CreateAssetModelCommandHandler : IRequestHandler<CreateAssetModelCo
 
             if (request.IsCodeGenerated)
             {
-                code = await _codeGenerator.GetNaturalKeyAsync("DTB", "AssetModels", 6, cancellationToken);
+                code = await _codeGenerator.GetNaturalKeyAsync<AssetModel>("DTB", 6, cancellationToken);
             }
             else
             {

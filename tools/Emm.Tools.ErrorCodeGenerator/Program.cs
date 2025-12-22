@@ -1,6 +1,6 @@
 using System.Reflection;
 using System.Text.Json;
-using Emm.Application.Common.ErrorCodes;
+using Emm.Application.ErrorCodes;
 
 namespace Emm.Tools.ErrorCodeGenerator;
 
@@ -10,7 +10,7 @@ public class Program
     {
         var outputPath = args.Length > 0 ? args[0] : "error-codes.json";
 
-        Console.WriteLine("🔍 Scanning error codes...");
+        Console.WriteLine("@@Scanning error codes...");
 
         var assembly = typeof(GeneralErrorCodes).Assembly;
         var errorCodeTypes = assembly.GetTypes()
@@ -48,7 +48,7 @@ public class Program
 
         await File.WriteAllTextAsync(outputPath, json);
 
-        Console.WriteLine($"✅ Generated {codes.Count} error codes to: {Path.GetFullPath(outputPath)}");
+        Console.WriteLine($"## Generated {codes.Count} error codes to: {Path.GetFullPath(outputPath)}");
         Console.WriteLine();
 
         // Summary by prefix
@@ -56,7 +56,7 @@ public class Program
             .GroupBy(c => c.Split('_')[0])
             .OrderBy(g => g.Key);
 
-        Console.WriteLine("📊 Summary by category:");
+        Console.WriteLine("-- Summary by category:");
         foreach (var group in summary)
         {
             Console.WriteLine($"   {group.Key}: {group.Count()} codes");

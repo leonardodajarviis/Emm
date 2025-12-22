@@ -4,10 +4,12 @@ namespace Emm.Domain.Repositories;
 
 public interface ICodeGenerator
 {
-    Task<string> GenerateNextCodeAsync(string prefix, string tableName, int maxLength = 6, CancellationToken cancellationToken = default);
-    Task<NaturalKey> GetNaturalKeyAsync(
+    Task<string> GenerateNextCodeAsync<TEntity>(string prefix, int maxLength = 6, CancellationToken cancellationToken = default)
+        where TEntity : class;
+
+    Task<NaturalKey> GetNaturalKeyAsync<TEntity>(
         string prefix,
-        string tableName,
         int numberLength = 6,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default)
+        where TEntity : class;
 }

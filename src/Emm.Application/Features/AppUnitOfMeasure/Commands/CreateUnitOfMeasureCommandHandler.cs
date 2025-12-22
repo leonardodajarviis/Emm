@@ -36,7 +36,7 @@ public class CreateUnitOfMeasureCommandHandler : IRequestHandler<CreateUnitOfMea
             }
 
             // Generate unique code for unit of measure
-            var code = await _unitOfWork.GenerateNextCodeAsync("UOM", "UnitOfMeasures", 6, cancellationToken);
+            var code = await _unitOfWork.GenerateNextCodeAsync<UnitOfMeasure>("UOM", 6, cancellationToken);
 
             var unitOfMeasure = new UnitOfMeasure(
                 code,

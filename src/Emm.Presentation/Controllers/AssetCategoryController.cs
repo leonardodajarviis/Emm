@@ -1,7 +1,6 @@
 using Emm.Application.Features.AppAssetCategory.Commands;
 using Emm.Application.Features.AppAssetCategory.Queries;
 using Emm.Application.Common;
-using Emm.Application.Features.AppAssetCategory.Dtos;
 using Emm.Presentation.Extensions;
 using LazyNet.Symphony.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -28,13 +27,11 @@ public class AssetCategoryController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateAssetCategory([FromRoute] Guid id, [FromBody] UpdateAssetCategory updateAssetCategory)
+    public async Task<IActionResult> UpdateAssetCategory([FromRoute] Guid id, [FromBody] UpdateAssetCategoryBody updateAssetCategory)
     {
         var command = new UpdateAssetCategoryCommand(
-            Id: id,
-            Name: updateAssetCategory.Name,
-            Description: updateAssetCategory.Description,
-            IsActive: updateAssetCategory.IsActive
+            id,
+            updateAssetCategory
         );
 
         var result = await _mediator.Send(command);

@@ -52,16 +52,18 @@ public class UnitOfWork : IUnitOfWork
         }
     }
 
-    public async Task<string> GenerateNextCodeAsync(string prefix, string tableName, int numberLength = 6, CancellationToken cancellationToken = default)
+    public async Task<string> GenerateNextCodeAsync<TEntity>(string prefix, int numberLength = 6, CancellationToken cancellationToken = default)
+        where TEntity : class
     {
         if (string.IsNullOrWhiteSpace(prefix))
             throw new ArgumentException("Prefix cannot be null or empty", nameof(prefix));
 
-        if (string.IsNullOrWhiteSpace(tableName))
-            throw new ArgumentException("Table name cannot be null or empty", nameof(tableName));
-
         if (numberLength < 1 || numberLength > 20)
             throw new ArgumentException("Number length must be between 1 and 20", nameof(numberLength));
+
+        // Get table name from Entity Framework metadata
+        var tableName = _dbContext.Model.FindEntityType(typeof(TEntity))?.GetTableName()
+            ?? throw new InvalidOperationException($"Entity type {typeof(TEntity).Name} is not configured in DbContext");
 
         // Create a unique key for the semaphore based on prefix and table name
         var semaphoreKey = $"{tableName}_{prefix}_{numberLength}";

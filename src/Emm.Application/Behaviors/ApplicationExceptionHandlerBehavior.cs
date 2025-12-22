@@ -1,5 +1,5 @@
 using System.Reflection;
-using Emm.Application.Common.ErrorCodes;
+using Emm.Application.ErrorCodes;
 using Emm.Domain.Exceptions;
 using LazyNet.Symphony.Core;
 using Microsoft.EntityFrameworkCore;

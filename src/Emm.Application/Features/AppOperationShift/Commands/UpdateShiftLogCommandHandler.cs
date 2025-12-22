@@ -1,4 +1,4 @@
-using Emm.Application.Common.ErrorCodes;
+using Emm.Application.ErrorCodes;
 using Emm.Domain.Entities.AssetCatalog;
 using Emm.Domain.Entities.Inventory;
 

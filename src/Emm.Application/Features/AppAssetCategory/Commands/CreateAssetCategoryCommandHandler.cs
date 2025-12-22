@@ -32,7 +32,7 @@ public class CreateAssetCategoryCommandHandler : IRequestHandler<CreateAssetCate
 
             if (request.IsCodeGenerated)
             {
-                code = await _codeGenerator.GetNaturalKeyAsync("DTB", "AssetModels", 6, cancellationToken);
+                code = await _codeGenerator.GetNaturalKeyAsync<AssetCategory>("DTB", 6, cancellationToken);
             }
             else
             {

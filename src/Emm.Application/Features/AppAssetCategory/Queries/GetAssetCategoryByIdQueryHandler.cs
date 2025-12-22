@@ -1,3 +1,4 @@
+using Emm.Application.ErrorCodes;
 using Emm.Application.Features.AppAssetCategory.Dtos;
 using Emm.Domain.Entities;
 using Emm.Domain.Entities.AssetCatalog;
@@ -43,7 +44,7 @@ public class GetAssetCategoryByIdQueryHandler : IRequestHandler<GetAssetCategory
 
         if (assetCategory == null)
         {
-            return Result<AssetCategoryResponse>.Failure(ErrorType.NotFound, "AssetCategory not found");
+            return Result<AssetCategoryResponse>.Failure(ErrorType.NotFound, "AssetCategory not found", AssetCategoryErrorCodes.NotFound);
         }
 
         return Result<AssetCategoryResponse>.Success(assetCategory);

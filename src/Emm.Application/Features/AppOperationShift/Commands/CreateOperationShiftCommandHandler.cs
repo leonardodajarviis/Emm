@@ -1,5 +1,5 @@
 using Emm.Application.Abstractions;
-using Emm.Application.Common.ErrorCodes;
+using Emm.Application.ErrorCodes;
 using Emm.Domain.Abstractions;
 using Emm.Domain.Entities.AssetCatalog;
 using Emm.Domain.Entities.Operations;
@@ -36,7 +36,7 @@ public class CreateOperationShiftCommandHandler : IRequestHandler<CreateOperatio
     {
         return await _unitOfWork.ExecuteInTransactionAsync(async () =>
         {
-            var code = await _codeGenerator.GenerateNextCodeAsync("NKVH", "OperationShifts", 6, cancellationToken);
+            var code = await _codeGenerator.GenerateNextCodeAsync<OperationShift>("NKVH", 6, cancellationToken);
 
             var organizationUnitId = _userContextService.GetCurrentOrganizationUnitId();
             if (organizationUnitId == null)

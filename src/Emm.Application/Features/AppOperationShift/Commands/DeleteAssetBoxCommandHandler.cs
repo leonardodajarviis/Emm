@@ -1,4 +1,4 @@
-using Emm.Application.Common.ErrorCodes;
+using Emm.Application.ErrorCodes;
 
 namespace Emm.Application.Features.AppOperationShift.Commands;
 

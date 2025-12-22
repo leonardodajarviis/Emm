@@ -1,6 +1,6 @@
 using Emm.Domain.Exceptions;
 
-namespace Emm.Application.Common.ErrorCodes;
+namespace Emm.Application.ErrorCodes;
 
 /// <summary>
 /// Maps Domain exceptions to Application error codes.

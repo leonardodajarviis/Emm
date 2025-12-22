@@ -1,6 +1,6 @@
 using Emm.Application.Abstractions;
 using Emm.Application.Common;
-using Emm.Application.Common.ErrorCodes;
+using Emm.Application.ErrorCodes;
 using Emm.Domain.Entities.Operations;
 using LazyNet.Symphony.Interfaces;
 

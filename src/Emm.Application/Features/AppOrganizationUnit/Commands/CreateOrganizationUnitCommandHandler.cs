@@ -17,7 +17,7 @@ public class CreateOrganizationUnitCommandHandler : IRequestHandler<CreateOrgani
     public async Task<Result<object>> Handle(CreateOrganizationUnitCommand request, CancellationToken cancellationToken)
     {
         // Generate unique code for organization unit
-        var code = await _unitOfWork.GenerateNextCodeAsync("DV", "OrganizationUnits", 6, cancellationToken);
+        var code = await _unitOfWork.GenerateNextCodeAsync<OrganizationUnit>("DV", 6, cancellationToken);
         
         var organizationUnit = new OrganizationUnit(
             code: code,

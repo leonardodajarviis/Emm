@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Emm.Infrastructure.Migrations
 {
     [DbContext(typeof(XDbContext))]
-    [Migration("20251218023539_FirstOne")]
+    [Migration("20251222105427_FirstOne")]
     partial class FirstOne
     {
         /// <inheritdoc />
@@ -1663,7 +1663,10 @@ namespace Emm.Infrastructure.Migrations
             modelBuilder.Entity("Emm.Infrastructure.Data.SequenceNumber", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()

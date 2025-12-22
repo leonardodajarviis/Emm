@@ -1,3 +1,4 @@
+using Emm.Application.ErrorCodes;
 using Emm.Application.Features.AppAssetType.Dtos;
 using Emm.Application.Features.AppParameterCatalog.Dtos;
 using Emm.Domain.Entities;
@@ -58,7 +59,7 @@ public class GetAssetTypeByIdQueryHandler : IRequestHandler<GetAssetTypeByIdQuer
 
         if (assetType == null)
         {
-            return Result<AssetTypeResponse>.Failure(ErrorType.NotFound, "AssetType not found.");
+            return Result<AssetTypeResponse>.Failure(ErrorType.NotFound, "AssetType not found.", AssetTypeErrorCodes.NotFound);
         }
 
 

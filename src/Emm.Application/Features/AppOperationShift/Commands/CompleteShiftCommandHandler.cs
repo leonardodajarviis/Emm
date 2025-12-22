@@ -1,6 +1,5 @@
 using Emm.Application.Abstractions;
-using Emm.Application.Common.ErrorCodes;
-using Emm.Domain.Entities.Operations;
+using Emm.Application.ErrorCodes;
 
 namespace Emm.Application.Features.AppOperationShift.Commands;
 
