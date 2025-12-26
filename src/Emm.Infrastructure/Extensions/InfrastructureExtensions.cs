@@ -10,6 +10,7 @@ using Emm.Infrastructure.Options;
 using Emm.Infrastructure.Repositories;
 using Emm.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -140,6 +141,24 @@ public static class InfrastructureExtensions
                     }
 
                     return Task.CompletedTask;
+                },
+                OnChallenge = context =>
+                {
+                    // Skip the default behavior
+                    context.HandleResponse();
+
+                    // Set response status code
+                    context.Response.StatusCode = 401;
+                    context.Response.ContentType = "application/json";
+
+                    // Create custom error response
+                    var errorResponse = new
+                    {
+                        code = "AUTHENTICATION_REQUIRED",
+                        message = "Authentication token is missing or invalid"
+                    };
+
+                    return context.Response.WriteAsJsonAsync(errorResponse);
                 }
             };
         });

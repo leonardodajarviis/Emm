@@ -9,7 +9,17 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    // Add global model state validation filter
+    options.Filters.Add<Emm.Presentation.Filters.ValidateModelStateFilter>();
+})
+.ConfigureApiBehaviorOptions(options =>
+{
+    // Disable automatic 400 response for model validation errors
+    // We handle this in our custom filter instead
+    options.SuppressModelStateInvalidFilter = true;
+});
 
 builder.AddObservability();
 

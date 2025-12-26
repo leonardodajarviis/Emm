@@ -101,7 +101,7 @@ public class AssetModelController : ControllerBase
     }
 
 
-    [HttpPut("{id:long}/maintenance-plans/{maintenancePlanId}")]
+    [HttpPut("{id}/maintenance-plans/{maintenancePlanId}")]
     public async Task<IActionResult> UpdateMaintenancePlan(
         [FromRoute] Guid id,
         [FromRoute] Guid maintenancePlanId,
@@ -140,7 +140,7 @@ public class AssetModelController : ControllerBase
         return result.ToActionResult();
     }
 
-    [HttpDelete("{id:long}/maintenance-plans/{maintenancePlanId:long}")]
+    [HttpDelete("{id}/maintenance-plans/{maintenancePlanId}")]
     public async Task<IActionResult> RemoveMaintenancePlan(
         [FromRoute] Guid id,
         [FromRoute] Guid maintenancePlanId)
