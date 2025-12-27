@@ -128,7 +128,12 @@ public record MaintenancePlanRequiredItemResponse
 {
     public required Guid Id { get; set; }
     public Guid MaintenancePlanDefinitionId { get; set; }
+    public required Guid ItemGroupId { get; set; }
+    public string? ItemGroupName { get; set; }
     public required Guid ItemId { get; set; }
+    public string? ItemName { get; set; }
+    public required Guid UnitOfMeasureId { get; set; }
+    public string? UnitOfMeasureName { get; set; }
     public required decimal Quantity { get; set; }
     public required bool IsRequired { get; set; }
     public string? Note { get; set; }

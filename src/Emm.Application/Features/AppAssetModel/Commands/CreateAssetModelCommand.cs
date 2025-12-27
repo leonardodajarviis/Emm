@@ -38,6 +38,7 @@ public sealed record CreateMaintenancePlanDefinitionCommand(
 );
 
 public sealed record MaintenancePlanJobStepDefinitionCommand(
+    Guid? Id,
     string Name,
     Guid? OrganizationUnitId,
     string? Note,
@@ -45,7 +46,10 @@ public sealed record MaintenancePlanJobStepDefinitionCommand(
 );
 
 public sealed record MaintenancePlanRequiredItemDefinitionCommand(
+    Guid? Id,
+    Guid ItemGroupId,
     Guid ItemId,
+    Guid UnitOfMeasureId,
     decimal Quantity,
     bool IsRequired,
     string? Note

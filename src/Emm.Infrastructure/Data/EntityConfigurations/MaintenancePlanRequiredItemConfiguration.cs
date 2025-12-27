@@ -1,4 +1,6 @@
+using Emm.Domain.Entities;
 using Emm.Domain.Entities.AssetCatalog;
+using Emm.Domain.Entities.Inventory;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -22,6 +24,12 @@ public class MaintenancePlanRequiredItemConfiguration : IEntityTypeConfiguration
         builder.Property(x => x.ItemId)
             .IsRequired();
 
+        builder.Property(x => x.UnitOfMeasureId)
+            .IsRequired();
+
+        builder.Property(x => x.ItemGroupId)
+            .IsRequired();
+
         builder.Property(x => x.Quantity)
             .HasPrecision(18, 2)
             .IsRequired();
@@ -37,6 +45,21 @@ public class MaintenancePlanRequiredItemConfiguration : IEntityTypeConfiguration
             .WithMany(mpd => mpd.RequiredItems)
             .HasForeignKey(x => x.MaintenancePlanDefinitionId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne<Item>()
+            .WithMany()
+            .HasForeignKey(x => x.ItemId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        builder.HasOne<UnitOfMeasure>()
+            .WithMany()
+            .HasForeignKey(x => x.UnitOfMeasureId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        builder.HasOne<ItemGroup>()
+            .WithMany()
+            .HasForeignKey(x => x.ItemGroupId)
+            .OnDelete(DeleteBehavior.NoAction);
 
         // Index để tìm kiếm nhanh theo MaintenancePlanDefinitionId
         builder.HasIndex(x => x.MaintenancePlanDefinitionId)

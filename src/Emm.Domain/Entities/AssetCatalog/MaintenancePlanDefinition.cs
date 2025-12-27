@@ -106,7 +106,9 @@ public class MaintenancePlanDefinition: IAuditableEntity
             foreach (var item in requiredItems)
             {
                 AddRequiredItem(
+                    itemGroupId: item.ItemGroupId,
                     itemId: item.ItemId,
+                    unitOfMeasureId: item.UnitOfMeasureId,
                     quantity: item.Quantity,
                     isRequired: item.IsRequired,
                     note: item.Note
@@ -167,7 +169,9 @@ public class MaintenancePlanDefinition: IAuditableEntity
             foreach (var item in requiredItems)
             {
                 AddRequiredItem(
+                    itemGroupId: item.ItemGroupId,
                     itemId: item.ItemId,
+                    unitOfMeasureId: item.UnitOfMeasureId,
                     quantity: item.Quantity,
                     isRequired: item.IsRequired,
                     note: item.Note
@@ -333,9 +337,9 @@ public class MaintenancePlanDefinition: IAuditableEntity
 
     // Methods cho Required Items (Vật tư phụ tùng)
 
-    public void AddRequiredItem(Guid itemId, decimal quantity, bool isRequired, string? note = null)
+    public void AddRequiredItem(Guid itemGroupId, Guid itemId, Guid unitOfMeasureId, decimal quantity, bool isRequired, string? note = null)
     {
-        var requiredItem = new MaintenancePlanRequiredItem(itemId, quantity, isRequired, note);
+        var requiredItem = new MaintenancePlanRequiredItem(itemGroupId ,itemId, unitOfMeasureId, quantity, isRequired, note);
         _requiredItems.Add(requiredItem);
     }
 
@@ -357,7 +361,7 @@ public class MaintenancePlanDefinition: IAuditableEntity
         requiredItem.Update(quantity, isRequired, note);
     }
 
-    public void SyncRequiredItems(IReadOnlyCollection<RequiredItemSpec> requiredItemSpecs)
+    public void SyncRequiredItems(IReadOnlyCollection<MaintenancePlanRequiredItemDefinitionSpec> requiredItemSpecs)
     {
         // Xóa các vật tư không còn trong danh sách mới
         var incomingIds = requiredItemSpecs
@@ -390,7 +394,9 @@ public class MaintenancePlanDefinition: IAuditableEntity
             {
                 // Add new
                 var newItem = new MaintenancePlanRequiredItem(
+                    spec.ItemGroupId,
                     spec.ItemId,
+                    spec.UnitOfMeasureId,
                     spec.Quantity,
                     spec.IsRequired,
                     spec.Note
@@ -409,7 +415,10 @@ public record MaintenancePlanJobStepDefinitionSpec(
 );
 
 public record MaintenancePlanRequiredItemDefinitionSpec(
+    Guid? Id,
+    Guid ItemGroupId,
     Guid ItemId,
+    Guid UnitOfMeasureId,
     decimal Quantity,
     bool IsRequired,
     string? Note
@@ -421,12 +430,4 @@ public record JobStepSpec(
     Guid? OrganizationUnitId,
     string? Note,
     int Order
-);
-
-public record RequiredItemSpec(
-    Guid? Id,
-    Guid ItemId,
-    decimal Quantity,
-    bool IsRequired,
-    string? Note
 );

@@ -25,6 +25,10 @@ public class ItemConfiguration : IEntityTypeConfiguration<Item>
         builder.Property(i => i.UnitOfMeasureId)
             .IsRequired();
 
+        builder.Property(i => i.GroupId)
+            .IsRequired();
+
+
         builder.ConfigureAuditEntity();
 
         builder.HasIndex(i => i.Code)

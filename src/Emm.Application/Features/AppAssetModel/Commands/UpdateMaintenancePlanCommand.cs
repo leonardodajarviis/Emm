@@ -5,35 +5,27 @@ namespace Emm.Application.Features.AppAssetModel.Commands;
 public record UpdateMaintenancePlanCommand(
     Guid AssetModelId,
     Guid MaintenancePlanId,
+    UpdateMaintenancePlanBody Body
+) : IRequest<Result<object>>;
+
+public record UpdateMaintenancePlanBody(
     string Name,
     string? Description,
     bool IsActive,
     MaintenancePlanType PlanType,
-    // For Time-based plans
+
+    // For Time-based maintenance plans
     string? RRule,
-    // For Parameter-based plans
+
+    // For Parameter-based maintenance plans
     decimal? TriggerValue,
     decimal? MinValue,
     decimal? MaxValue,
     MaintenanceTriggerCondition? TriggerCondition,
-    // Job steps
-    IReadOnlyCollection<UpdateJobStepCommand>? JobSteps,
+
+    // Job steps (common for both types)
+    IReadOnlyCollection<MaintenancePlanJobStepDefinitionCommand>? JobSteps,
+
     // Required items (vật tư phụ tùng)
-    IReadOnlyCollection<UpdateRequiredItemCommand>? RequiredItems
-) : IRequest<Result<object>>;
-
-public record UpdateJobStepCommand(
-    Guid? Id,  // null = new, has value = update
-    string Name,
-    Guid? OrganizationUnitId,
-    string? Note,
-    int Order
-);
-
-public record UpdateRequiredItemCommand(
-    Guid? Id,  // null = new, has value = update
-    Guid ItemId,
-    decimal Quantity,
-    bool IsRequired,
-    string? Note
+    IReadOnlyCollection<MaintenancePlanRequiredItemDefinitionCommand>? RequiredItems
 );

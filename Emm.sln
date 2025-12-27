@@ -27,8 +27,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{A07EC889
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Emm.Tools.ErrorCodeGenerator", "tools\Emm.Tools.ErrorCodeGenerator\Emm.Tools.ErrorCodeGenerator.csproj", "{01723190-6155-47A0-86A9-522093A50337}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Emm.Tools.DataSeeder", "tools\Emm.Tools.DataSeeder\Emm.Tools.DataSeeder.csproj", "{1C49D872-BB3D-40B4-9EAD-B1968E4059A2}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -147,18 +145,6 @@ Global
 		{01723190-6155-47A0-86A9-522093A50337}.Release|x64.Build.0 = Release|Any CPU
 		{01723190-6155-47A0-86A9-522093A50337}.Release|x86.ActiveCfg = Release|Any CPU
 		{01723190-6155-47A0-86A9-522093A50337}.Release|x86.Build.0 = Release|Any CPU
-		{1C49D872-BB3D-40B4-9EAD-B1968E4059A2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1C49D872-BB3D-40B4-9EAD-B1968E4059A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1C49D872-BB3D-40B4-9EAD-B1968E4059A2}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{1C49D872-BB3D-40B4-9EAD-B1968E4059A2}.Debug|x64.Build.0 = Debug|Any CPU
-		{1C49D872-BB3D-40B4-9EAD-B1968E4059A2}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{1C49D872-BB3D-40B4-9EAD-B1968E4059A2}.Debug|x86.Build.0 = Debug|Any CPU
-		{1C49D872-BB3D-40B4-9EAD-B1968E4059A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1C49D872-BB3D-40B4-9EAD-B1968E4059A2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1C49D872-BB3D-40B4-9EAD-B1968E4059A2}.Release|x64.ActiveCfg = Release|Any CPU
-		{1C49D872-BB3D-40B4-9EAD-B1968E4059A2}.Release|x64.Build.0 = Release|Any CPU
-		{1C49D872-BB3D-40B4-9EAD-B1968E4059A2}.Release|x86.ActiveCfg = Release|Any CPU
-		{1C49D872-BB3D-40B4-9EAD-B1968E4059A2}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -173,6 +159,5 @@ Global
 		{7F5822C2-B3FC-4772-AA91-FFBBCDDC7534} = {22F24255-836E-4EAC-8363-F7BE72CB76CB}
 		{B6DDEF49-4729-4D52-9529-BAAA9668116D} = {22F24255-836E-4EAC-8363-F7BE72CB76CB}
 		{01723190-6155-47A0-86A9-522093A50337} = {A07EC889-99D4-46B4-80A3-1A4A7BED63B6}
-		{1C49D872-BB3D-40B4-9EAD-B1968E4059A2} = {A07EC889-99D4-46B4-80A3-1A4A7BED63B6}
 	EndGlobalSection
 EndGlobal

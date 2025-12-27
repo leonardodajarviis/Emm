@@ -421,7 +421,9 @@ public class AssetModel : AggregateRoot, IAuditableEntity
     // Required items management methods
     public void AddRequiredItemToMaintenancePlan(
         Guid maintenancePlanId,
+        Guid itemGroupId,
         Guid itemId,
+        Guid unitOfMeasureId,
         decimal quantity,
         bool isRequired,
         string? note = null)
@@ -432,7 +434,7 @@ public class AssetModel : AggregateRoot, IAuditableEntity
         var maintenancePlan = _maintenancePlanDefinitions.FirstOrDefault(mp => mp.Id == maintenancePlanId);
         DomainGuard.AgainstNotFound(maintenancePlan, nameof(MaintenancePlanDefinition), maintenancePlanId);
 
-        maintenancePlan!.AddRequiredItem(itemId, quantity, isRequired, note);
+        maintenancePlan!.AddRequiredItem(itemGroupId, itemId, unitOfMeasureId, quantity, isRequired, note);
 
         // RaiseDomainEvent(new MaintenancePlanRequiredItemAddedEvent(Id, maintenancePlanId, itemId));
     }
@@ -471,7 +473,7 @@ public class AssetModel : AggregateRoot, IAuditableEntity
 
     public void SyncRequiredItemsInMaintenancePlan(
         Guid maintenancePlanId,
-        IReadOnlyCollection<RequiredItemSpec> requiredItemSpecs)
+        IReadOnlyCollection<MaintenancePlanRequiredItemDefinitionSpec> requiredItemSpecs)
     {
         DomainGuard.AgainstNull(requiredItemSpecs, nameof(requiredItemSpecs));
 

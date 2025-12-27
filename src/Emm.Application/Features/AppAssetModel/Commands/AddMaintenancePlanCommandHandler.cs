@@ -17,6 +17,7 @@ public class AddMaintenancePlanCommandHandler : IRequestHandler<AddMaintenancePl
 
     public async Task<Result<object>> Handle(AddMaintenancePlanCommand request, CancellationToken cancellationToken)
     {
+        var bodyRequest = request.Body;
         var assetModel = await _repository.GetByIdAsync(request.AssetModelId, cancellationToken);
         if (assetModel == null)
         {
@@ -25,9 +26,9 @@ public class AddMaintenancePlanCommandHandler : IRequestHandler<AddMaintenancePl
 
         // Convert job steps if provided
         IReadOnlyCollection<MaintenancePlanJobStepDefinitionSpec>? jobSteps = null;
-        if (request.JobSteps != null && request.JobSteps.Count > 0)
+        if (bodyRequest.JobSteps != null && bodyRequest.JobSteps.Count > 0)
         {
-            jobSteps = [.. request.JobSteps.Select(js => new MaintenancePlanJobStepDefinitionSpec(
+            jobSteps = [.. bodyRequest.JobSteps.Select(js => new MaintenancePlanJobStepDefinitionSpec(
                 Name: js.Name,
                 OrganizationUnitId: js.OrganizationUnitId,
                 Note: js.Note,
@@ -36,10 +37,10 @@ public class AddMaintenancePlanCommandHandler : IRequestHandler<AddMaintenancePl
         }
 
         // Add maintenance plan based on plan type
-        switch (request.PlanType)
+        switch (bodyRequest.PlanType)
         {
             case MaintenancePlanType.TimeBased:
-                if (string.IsNullOrWhiteSpace(request.RRule))
+                if (string.IsNullOrWhiteSpace(bodyRequest.RRule))
                 {
                     return Result<object>.Failure(
                         ErrorType.Validation,
@@ -47,19 +48,19 @@ public class AddMaintenancePlanCommandHandler : IRequestHandler<AddMaintenancePl
                 }
 
                 assetModel.AddTimeBasedMaintenancePlan(
-                    name: request.Name,
-                    description: request.Description,
-                    rrule: request.RRule,
+                    name: bodyRequest.Name,
+                    description: bodyRequest.Description,
+                    rrule: bodyRequest.RRule,
                     jobSteps: jobSteps,
-                    isActive: request.IsActive
+                    isActive: bodyRequest.IsActive
                 );
                 break;
 
             case MaintenancePlanType.ParameterBased:
-                if (!request.ParameterId.HasValue ||
-                    !request.TriggerValue.HasValue ||
-                    !request.MinValue.HasValue ||
-                    !request.MaxValue.HasValue)
+                if (!bodyRequest.ParameterId.HasValue ||
+                    !bodyRequest.TriggerValue.HasValue ||
+                    !bodyRequest.MinValue.HasValue ||
+                    !bodyRequest.MaxValue.HasValue)
                 {
                     return Result<object>.Failure(
                         ErrorType.Validation,
@@ -67,15 +68,15 @@ public class AddMaintenancePlanCommandHandler : IRequestHandler<AddMaintenancePl
                 }
 
                 assetModel.AddParameterBasedMaintenancePlan(
-                    name: request.Name,
-                    description: request.Description,
-                    parameterId: request.ParameterId.Value,
-                    triggerValue: request.TriggerValue.Value,
-                    minValue: request.MinValue.Value,
-                    maxValue: request.MaxValue.Value,
+                    name: bodyRequest.Name,
+                    description: bodyRequest.Description,
+                    parameterId: bodyRequest.ParameterId.Value,
+                    triggerValue: bodyRequest.TriggerValue.Value,
+                    minValue: bodyRequest.MinValue.Value,
+                    maxValue: bodyRequest.MaxValue.Value,
                     triggerCondition: MaintenanceTriggerCondition.Equal,
                     jobSteps: jobSteps,
-                    isActive: request.IsActive
+                    isActive: bodyRequest.IsActive
                 );
                 break;
 
@@ -87,13 +88,15 @@ public class AddMaintenancePlanCommandHandler : IRequestHandler<AddMaintenancePl
         var maintenancePlan = assetModel.MaintenancePlanDefinitions.LastOrDefault();
 
         // Add required items if provided
-        if (request.RequiredItems != null && request.RequiredItems.Count > 0 && maintenancePlan != null)
+        if (bodyRequest.RequiredItems != null && bodyRequest.RequiredItems.Count > 0 && maintenancePlan != null)
         {
-            foreach (var item in request.RequiredItems)
+            foreach (var item in bodyRequest.RequiredItems)
             {
                 assetModel.AddRequiredItemToMaintenancePlan(
                     maintenancePlanId: maintenancePlan.Id,
+                    itemGroupId: item.ItemGroupId,
                     itemId: item.ItemId,
+                    unitOfMeasureId: item.UnitOfMeasureId,
                     quantity: item.Quantity,
                     isRequired: item.IsRequired,
                     note: item.Note

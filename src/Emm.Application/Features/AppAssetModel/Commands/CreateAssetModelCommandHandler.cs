@@ -134,7 +134,10 @@ public class CreateAssetModelCommandHandler : IRequestHandler<CreateAssetModelCo
                 Order: js.Order)).ToList() ?? [];
 
             var requiredItems = definition.RequiredItems?.Select(ri => new MaintenancePlanRequiredItemDefinitionSpec(
+                Id: null,
+                ItemGroupId: ri.ItemGroupId,
                 ItemId: ri.ItemId,
+                UnitOfMeasureId: ri.UnitOfMeasureId,
                 Quantity: ri.Quantity,
                 IsRequired: ri.IsRequired,
                 Note: ri.Note)).ToList() ?? [];

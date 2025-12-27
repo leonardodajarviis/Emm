@@ -3,6 +3,7 @@ using Emm.Application.Features.AppAssetModel.Dtos;
 using Emm.Application.Features.AppParameterCatalog.Dtos;
 using Emm.Domain.Entities;
 using Emm.Domain.Entities.AssetCatalog;
+using Emm.Domain.Entities.Inventory;
 using Emm.Domain.Entities.Organization;
 using Microsoft.EntityFrameworkCore;
 
@@ -157,7 +158,21 @@ public class GetAssetModelByIdQueryHandler : IRequestHandler<GetAssetModelByIdQu
                             {
                                 Id = ri.Id,
                                 MaintenancePlanDefinitionId = ri.MaintenancePlanDefinitionId,
+                                ItemGroupId = ri.ItemGroupId,
+                                ItemGroupName = _qq.Query<ItemGroup>()
+                                    .Where(ig => ig.Id == ri.ItemGroupId)
+                                    .Select(ig => ig.Name)
+                                    .FirstOrDefault(),
                                 ItemId = ri.ItemId,
+                                ItemName = _qq.Query<Item>()
+                                    .Where(i => i.Id == ri.ItemId)
+                                    .Select(i => i.Name)
+                                    .FirstOrDefault(),
+                                UnitOfMeasureId = ri.UnitOfMeasureId,
+                                UnitOfMeasureName = _qq.Query<UnitOfMeasure>()
+                                    .Where(uom => uom.Id == ri.UnitOfMeasureId)
+                                    .Select(uom => uom.Name)
+                                    .FirstOrDefault(),
                                 Quantity = ri.Quantity,
                                 IsRequired = ri.IsRequired,
                                 Note = ri.Note

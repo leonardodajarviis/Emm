@@ -13,6 +13,10 @@ public class MaintenancePlanRequiredItem
     /// </summary>
     public Guid ItemId { get; private set; }
 
+    public Guid UnitOfMeasureId { get; private set; }
+
+    public Guid ItemGroupId { get; private set; }
+
     /// <summary>
     /// Số lượng cần thiết
     /// </summary>
@@ -28,12 +32,14 @@ public class MaintenancePlanRequiredItem
     /// </summary>
     public string? Note { get; private set; }
 
-    public MaintenancePlanRequiredItem(Guid itemId, decimal quantity, bool isRequired, string? note = null)
+    public MaintenancePlanRequiredItem(Guid itemGroupId, Guid itemId, Guid unitOfMeasureId, decimal quantity, bool isRequired, string? note = null)
     {
         if (quantity <= 0)
             throw new ArgumentException("Quantity must be greater than zero", nameof(quantity));
 
+        ItemGroupId = itemGroupId;
         ItemId = itemId;
+        UnitOfMeasureId = unitOfMeasureId;
         Quantity = quantity;
         IsRequired = isRequired;
         Note = note;

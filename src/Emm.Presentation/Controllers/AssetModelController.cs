@@ -67,32 +67,11 @@ public class AssetModelController : ControllerBase
     [HttpPost("{id}/maintenance-plans")]
     public async Task<IActionResult> AddMaintenancePlan(
         [FromRoute] Guid id,
-        [FromBody] AddMaintenancePlan addMaintenancePlan)
+        [FromBody] AddMaintenancePlanCommandBody addMaintenancePlan)
     {
         var command = new AddMaintenancePlanCommand(
             AssetModelId: id,
-            Name: addMaintenancePlan.Name,
-            Description: addMaintenancePlan.Description,
-            IsActive: addMaintenancePlan.IsActive,
-            PlanType: addMaintenancePlan.PlanType,
-            RRule: addMaintenancePlan.RRule,
-            ParameterId: addMaintenancePlan.ParameterId,
-            TriggerValue: addMaintenancePlan.TriggerValue,
-            MinValue: addMaintenancePlan.MinValue,
-            MaxValue: addMaintenancePlan.MaxValue,
-            TriggerCondition: addMaintenancePlan.TriggerCondition,
-            JobSteps: addMaintenancePlan.JobSteps?.Select(js => new AddMaintenancePlanJobStepCommand(
-                Name: js.Name,
-                OrganizationUnitId: js.OrganizationUnitId,
-                Note: js.Note,
-                Order: js.Order
-            )).ToList(),
-            RequiredItems: addMaintenancePlan.RequiredItems?.Select(ri => new AddMaintenancePlanRequiredItemCommand(
-                ItemId: ri.ItemId,
-                Quantity: ri.Quantity,
-                IsRequired: ri.IsRequired,
-                Note: ri.Note
-            )).ToList()
+            Body: addMaintenancePlan
         );
 
         var result = await _mediator.Send(command);
@@ -105,35 +84,13 @@ public class AssetModelController : ControllerBase
     public async Task<IActionResult> UpdateMaintenancePlan(
         [FromRoute] Guid id,
         [FromRoute] Guid maintenancePlanId,
-        [FromBody] UpdateMaintenancePlanDto updateMaintenancePlan)
+        [FromBody] UpdateMaintenancePlanBody updateMaintenancePlan)
     {
         var command = new UpdateMaintenancePlanCommand(
             AssetModelId: id,
             MaintenancePlanId: maintenancePlanId,
-            Name: updateMaintenancePlan.Name,
-            Description: updateMaintenancePlan.Description,
-            IsActive: updateMaintenancePlan.IsActive,
-            PlanType: updateMaintenancePlan.PlanType,
-            RRule: updateMaintenancePlan.RRule,
-            TriggerValue: updateMaintenancePlan.TriggerValue,
-            MinValue: updateMaintenancePlan.MinValue,
-            MaxValue: updateMaintenancePlan.MaxValue,
-            TriggerCondition: updateMaintenancePlan.TriggerCondition,
-            JobSteps: updateMaintenancePlan.JobSteps?.Select(js => new UpdateJobStepCommand(
-                Id: js.Id,
-                Name: js.Name,
-                OrganizationUnitId: js.OrganizationUnitId,
-                Note: js.Note,
-                Order: js.Order
-            )).ToList(),
-            RequiredItems: updateMaintenancePlan.RequiredItems?.Select(ri => new UpdateRequiredItemCommand(
-                Id: ri.Id,
-                ItemId: ri.ItemId,
-                Quantity: ri.Quantity,
-                IsRequired: ri.IsRequired,
-                Note: ri.Note
-            )).ToList()
-        );
+            Body: updateMaintenancePlan
+        ) ;
 
         var result = await _mediator.Send(command);
 

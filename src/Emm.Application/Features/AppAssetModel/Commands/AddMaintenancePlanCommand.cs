@@ -4,6 +4,10 @@ namespace Emm.Application.Features.AppAssetModel.Commands;
 
 public record AddMaintenancePlanCommand(
     Guid AssetModelId,
+    AddMaintenancePlanCommandBody Body
+) : IRequest<Result<object>>;
+
+public record AddMaintenancePlanCommandBody(
     string Name,
     string? Description,
     bool IsActive,
@@ -20,22 +24,8 @@ public record AddMaintenancePlanCommand(
     MaintenanceTriggerCondition? TriggerCondition,
 
     // Job steps (common for both types)
-    IReadOnlyCollection<AddMaintenancePlanJobStepCommand>? JobSteps,
+    IReadOnlyCollection<MaintenancePlanJobStepDefinitionCommand>? JobSteps,
 
     // Required items (vật tư phụ tùng)
-    IReadOnlyCollection<AddMaintenancePlanRequiredItemCommand>? RequiredItems
-) : IRequest<Result<object>>;
-
-public record AddMaintenancePlanJobStepCommand(
-    string Name,
-    Guid? OrganizationUnitId,
-    string? Note,
-    int Order
-);
-
-public record AddMaintenancePlanRequiredItemCommand(
-    Guid ItemId,
-    decimal Quantity,
-    bool IsRequired,
-    string? Note
+    IReadOnlyCollection<MaintenancePlanRequiredItemDefinitionCommand>? RequiredItems
 );

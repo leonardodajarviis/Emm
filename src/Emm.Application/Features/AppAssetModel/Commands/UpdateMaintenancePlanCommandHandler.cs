@@ -17,6 +17,7 @@ public class UpdateMaintenancePlanCommandHandler : IRequestHandler<UpdateMainten
 
     public async Task<Result<object>> Handle(UpdateMaintenancePlanCommand request, CancellationToken cancellationToken)
     {
+        var bodyRequest = request.Body;
         var assetModel = await _repository.GetByIdAsync(request.AssetModelId, cancellationToken);
         if (assetModel == null)
         {
@@ -24,27 +25,27 @@ public class UpdateMaintenancePlanCommandHandler : IRequestHandler<UpdateMainten
         }
 
         // Update based on plan type
-        switch (request.PlanType)
+        switch (bodyRequest.PlanType)
         {
             case MaintenancePlanType.TimeBased:
-                if (string.IsNullOrWhiteSpace(request.RRule))
+                if (string.IsNullOrWhiteSpace(bodyRequest.RRule))
                 {
                     return Result<object>.Failure(ErrorType.Validation, "RRule is required for time-based maintenance plans.");
                 }
 
                 assetModel.UpdateTimeBasedMaintenancePlan(
                     maintenancePlanId: request.MaintenancePlanId,
-                    name: request.Name,
-                    description: request.Description,
-                    rrule: request.RRule,
-                    isActive: request.IsActive
+                    name: bodyRequest.Name,
+                    description: bodyRequest.Description,
+                    rrule: bodyRequest.RRule,
+                    isActive: bodyRequest.IsActive
                 );
                 break;
 
             case MaintenancePlanType.ParameterBased:
-                if (!request.TriggerValue.HasValue ||
-                    !request.MinValue.HasValue ||
-                    !request.MaxValue.HasValue)
+                if (!bodyRequest.TriggerValue.HasValue ||
+                    !bodyRequest.MinValue.HasValue ||
+                    !bodyRequest.MaxValue.HasValue)
                 {
                     return Result<object>.Failure(
                         ErrorType.Validation,
@@ -53,13 +54,13 @@ public class UpdateMaintenancePlanCommandHandler : IRequestHandler<UpdateMainten
 
                 assetModel.UpdateParameterBasedMaintenancePlan(
                     maintenancePlanId: request.MaintenancePlanId,
-                    name: request.Name,
-                    description: request.Description,
-                    triggerValue: request.TriggerValue.Value,
-                    minValue: request.MinValue.Value,
-                    maxValue: request.MaxValue.Value,
+                    name: bodyRequest.Name,
+                    description: bodyRequest.Description,
+                    triggerValue: bodyRequest.TriggerValue.Value,
+                    minValue: bodyRequest.MinValue.Value,
+                    maxValue: bodyRequest.MaxValue.Value,
                     triggerCondition: MaintenanceTriggerCondition.Equal,
-                    isActive: request.IsActive
+                    isActive: bodyRequest.IsActive
                 );
                 break;
 
@@ -77,9 +78,9 @@ public class UpdateMaintenancePlanCommandHandler : IRequestHandler<UpdateMainten
         }
 
         // Sync job steps if provided
-        if (request.JobSteps != null && request.JobSteps.Count > 0)
+        if (bodyRequest.JobSteps != null && bodyRequest.JobSteps.Count > 0)
         {
-            var jobStepSpecs = request.JobSteps.Select(js => new JobStepSpec(
+            var jobStepSpecs = bodyRequest.JobSteps.Select(js => new JobStepSpec(
                 Id: js.Id,
                 Name: js.Name,
                 OrganizationUnitId: js.OrganizationUnitId,
@@ -91,11 +92,13 @@ public class UpdateMaintenancePlanCommandHandler : IRequestHandler<UpdateMainten
         }
 
         // Sync required items if provided
-        if (request.RequiredItems != null && request.RequiredItems.Count > 0)
+        if (bodyRequest.RequiredItems != null && bodyRequest.RequiredItems.Count > 0)
         {
-            var requiredItemSpecs = request.RequiredItems.Select(ri => new RequiredItemSpec(
+            var requiredItemSpecs = bodyRequest.RequiredItems.Select(ri => new MaintenancePlanRequiredItemDefinitionSpec(
                 Id: ri.Id,
+                ItemGroupId: Guid.NewGuid(),
                 ItemId: ri.ItemId,
+                UnitOfMeasureId: Guid.NewGuid(),
                 Quantity: ri.Quantity,
                 IsRequired: ri.IsRequired,
                 Note: ri.Note
