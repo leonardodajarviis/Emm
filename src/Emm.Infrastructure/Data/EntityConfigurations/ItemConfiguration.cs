@@ -34,5 +34,10 @@ public class ItemConfiguration : IEntityTypeConfiguration<Item>
             .WithMany()
             .HasForeignKey(i => i.UnitOfMeasureId)
             .OnDelete(DeleteBehavior.NoAction);
+
+        builder.HasOne<ItemGroup>()
+            .WithMany()
+            .HasForeignKey(i => i.GroupId)
+            .OnDelete(DeleteBehavior.NoAction);
     }
 }

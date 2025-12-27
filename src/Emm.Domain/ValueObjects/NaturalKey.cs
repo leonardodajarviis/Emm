@@ -38,7 +38,7 @@ public readonly record struct NaturalKey : IEquatable<NaturalKey>
         if (number < 0)
             throw new DomainException("Number cannot be negative");
 
-        var value = $"{prefix}-{number.ToString().PadLeft(padding, '0')}";
+        var value = $"{prefix}{number.ToString().PadLeft(padding, '0')}";
 
         return new NaturalKey(value, prefix, number, padding);
     }
