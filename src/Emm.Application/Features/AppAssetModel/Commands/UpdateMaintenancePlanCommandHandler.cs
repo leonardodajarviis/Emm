@@ -96,9 +96,9 @@ public class UpdateMaintenancePlanCommandHandler : IRequestHandler<UpdateMainten
         {
             var requiredItemSpecs = bodyRequest.RequiredItems.Select(ri => new MaintenancePlanRequiredItemDefinitionSpec(
                 Id: ri.Id,
-                ItemGroupId: Guid.NewGuid(),
+                ItemGroupId: ri.ItemGroupId,
                 ItemId: ri.ItemId,
-                UnitOfMeasureId: Guid.NewGuid(),
+                UnitOfMeasureId: ri.UnitOfMeasureId,
                 Quantity: ri.Quantity,
                 IsRequired: ri.IsRequired,
                 Note: ri.Note
