@@ -80,7 +80,7 @@ public class UpdateMaintenancePlanCommandHandler : IRequestHandler<UpdateMainten
         // Sync job steps if provided
         if (bodyRequest.JobSteps != null && bodyRequest.JobSteps.Count > 0)
         {
-            var jobStepSpecs = bodyRequest.JobSteps.Select(js => new JobStepSpec(
+            var jobStepSpecs = bodyRequest.JobSteps.Select(js => new MaintenancePlanJobStepDefinitionSpec(
                 Id: js.Id,
                 Name: js.Name,
                 OrganizationUnitId: js.OrganizationUnitId,

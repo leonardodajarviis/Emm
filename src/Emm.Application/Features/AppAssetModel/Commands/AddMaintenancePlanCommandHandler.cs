@@ -29,6 +29,7 @@ public class AddMaintenancePlanCommandHandler : IRequestHandler<AddMaintenancePl
         if (bodyRequest.JobSteps != null && bodyRequest.JobSteps.Count > 0)
         {
             jobSteps = [.. bodyRequest.JobSteps.Select(js => new MaintenancePlanJobStepDefinitionSpec(
+                Id: js.Id,
                 Name: js.Name,
                 OrganizationUnitId: js.OrganizationUnitId,
                 Note: js.Note,

@@ -292,7 +292,7 @@ public class MaintenancePlanDefinition: IAuditableEntity
         jobStep.Update(name, note, order);
     }
 
-    public void SyncJobSteps(IReadOnlyCollection<JobStepSpec> jobStepSpecs)
+    public void SyncJobSteps(IReadOnlyCollection<MaintenancePlanJobStepDefinitionSpec> jobStepSpecs)
     {
         // Xóa các job steps không còn trong danh sách mới
         var incomingIds = jobStepSpecs
@@ -408,6 +408,7 @@ public class MaintenancePlanDefinition: IAuditableEntity
 }
 
 public record MaintenancePlanJobStepDefinitionSpec(
+    Guid? Id,
     string Name,
     Guid? OrganizationUnitId,
     string? Note,
@@ -422,12 +423,4 @@ public record MaintenancePlanRequiredItemDefinitionSpec(
     decimal Quantity,
     bool IsRequired,
     string? Note
-);
-
-public record JobStepSpec(
-    Guid? Id,
-    string Name,
-    Guid? OrganizationUnitId,
-    string? Note,
-    int Order
 );
