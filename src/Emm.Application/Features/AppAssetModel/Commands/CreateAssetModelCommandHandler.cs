@@ -1,6 +1,7 @@
 ﻿using Emm.Application.Abstractions;
 using Emm.Domain.Entities;
 using Emm.Domain.Entities.AssetCatalog;
+using Emm.Domain.Services;
 using Emm.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,6 +15,7 @@ public class CreateAssetModelCommandHandler : IRequestHandler<CreateAssetModelCo
     private readonly IFileStorage _fileStorage;
     private readonly IUserContextService _userContextService;
     private readonly ICodeGenerator _codeGenerator;
+    private readonly MaintenancePlanManagementService _maintenancePlanService;
 
     public CreateAssetModelCommandHandler(
         IUnitOfWork unitOfWork,
@@ -21,7 +23,8 @@ public class CreateAssetModelCommandHandler : IRequestHandler<CreateAssetModelCo
         IQueryContext queryContext,
         IFileStorage fileStorage,
         ICodeGenerator codeGenerator,
-        IUserContextService userContextService)
+        IUserContextService userContextService,
+        MaintenancePlanManagementService maintenancePlanService)
     {
         ArgumentNullException.ThrowIfNull(unitOfWork);
         ArgumentNullException.ThrowIfNull(repository);
@@ -35,6 +38,7 @@ public class CreateAssetModelCommandHandler : IRequestHandler<CreateAssetModelCo
         _qq = queryContext;
         _userContextService = userContextService;
         _codeGenerator = codeGenerator;
+        _maintenancePlanService = maintenancePlanService;
     }
 
     public async Task<Result<object>> Handle(CreateAssetModelCommand request, CancellationToken cancellationToken)
@@ -89,7 +93,7 @@ public class CreateAssetModelCommandHandler : IRequestHandler<CreateAssetModelCo
             // Add maintenance plan definitions
             if (request.MaintenancePlanDefinitions?.Count > 0)
             {
-                AddMaintenancePlanDefinitions(assetModel, request.MaintenancePlanDefinitions);
+                AddMaintenancePlanDefinitions(assetModel, request.MaintenancePlanDefinitions, _maintenancePlanService);
             }
 
             // Add images
@@ -123,11 +127,15 @@ public class CreateAssetModelCommandHandler : IRequestHandler<CreateAssetModelCo
         });
     }
 
-    private static void AddMaintenancePlanDefinitions(AssetModel assetModel, IReadOnlyCollection<CreateMaintenancePlanDefinitionCommand> maintenancePlanDefinitions)
+    private static void AddMaintenancePlanDefinitions(
+        AssetModel assetModel,
+        IReadOnlyCollection<CreateMaintenancePlanDefinitionCommand> maintenancePlanDefinitions,
+        MaintenancePlanManagementService maintenancePlanService)
     {
         foreach (var definition in maintenancePlanDefinitions)
         {
             var jobSteps = definition.JobSteps?.Select(js => new MaintenancePlanJobStepDefinitionSpec(
+                Id: null,
                 Name: js.Name,
                 OrganizationUnitId: js.OrganizationUnitId,
                 Note: js.Note,
@@ -145,7 +153,8 @@ public class CreateAssetModelCommandHandler : IRequestHandler<CreateAssetModelCo
             switch (definition.PlanType)
             {
                 case MaintenancePlanType.TimeBased:
-                    assetModel.AddTimeBasedMaintenancePlan(
+                    maintenancePlanService.AddTimeBasedMaintenancePlan(
+                        assetModel: assetModel,
                         name: definition.Name,
                         description: definition.Description,
                         rrule: definition.RRule ?? string.Empty,
@@ -162,7 +171,8 @@ public class CreateAssetModelCommandHandler : IRequestHandler<CreateAssetModelCo
                         throw new ArgumentException("ParameterId, TriggerValue, MinValue, and MaxValue are required for parameter-based maintenance plans");
                     }
 
-                    assetModel.AddParameterBasedMaintenancePlan(
+                    maintenancePlanService.AddParameterBasedMaintenancePlan(
+                        assetModel: assetModel,
                         name: definition.Name,
                         description: definition.Description,
                         parameterId: definition.ParameterId.Value,

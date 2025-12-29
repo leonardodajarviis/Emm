@@ -3,6 +3,7 @@ using Emm.Application.Abstractions;
 using Emm.Application.Abstractions.Security;
 using Emm.Domain.Abstractions;
 using Emm.Domain.Repositories;
+using Emm.Domain.Services;
 using Emm.Infrastructure.Data;
 using Emm.Infrastructure.Data.Interceptors;
 using Emm.Infrastructure.Messaging;
@@ -50,6 +51,9 @@ public static class InfrastructureExtensions
         services.AddScoped<IShiftLogRepository, ShiftLogRepository>();
         services.AddScoped<IAssetRepository, AssetRepository>();
         services.AddScoped<ICodeGenerator, SequenceCodeGenerator>();
+
+        // Register Domain Services
+        services.AddScoped<MaintenancePlanManagementService>();
 
         // Authorization repositories
         services.AddScoped<IPermissionRepository, PermissionRepository>();

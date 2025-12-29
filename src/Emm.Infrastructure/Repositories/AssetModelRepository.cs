@@ -20,6 +20,8 @@ public class AssetModelRepository : GenericRepository<AssetModel, Guid>, IAssetM
             .Include(am => am.MaintenancePlanDefinitions)
             .ThenInclude(am => am.JobSteps)
             .Include(am => am.MaintenancePlanDefinitions)
+            .ThenInclude(am => am.RequiredItems)
+            .Include(am => am.MaintenancePlanDefinitions)
             .ThenInclude(am => am.ParameterBasedTrigger);
 
         return query.FirstOrDefaultAsync(am => am.Id == id, cancellationToken);

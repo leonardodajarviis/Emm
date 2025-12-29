@@ -1,4 +1,5 @@
 using Emm.Domain.Entities.AssetCatalog;
+using Emm.Domain.Services;
 
 namespace Emm.Application.Features.AppAssetModel.Commands;
 
@@ -6,13 +7,16 @@ public class RemoveMaintenancePlanCommandHandler : IRequestHandler<RemoveMainten
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IAssetModelRepository _repository;
+    private readonly MaintenancePlanManagementService _maintenancePlanService;
 
     public RemoveMaintenancePlanCommandHandler(
         IUnitOfWork unitOfWork,
-        IAssetModelRepository repository)
+        IAssetModelRepository repository,
+        MaintenancePlanManagementService maintenancePlanService)
     {
         _unitOfWork = unitOfWork;
         _repository = repository;
+        _maintenancePlanService = maintenancePlanService;
     }
 
     public async Task<Result<object>> Handle(RemoveMaintenancePlanCommand request, CancellationToken cancellationToken)
@@ -23,7 +27,7 @@ public class RemoveMaintenancePlanCommandHandler : IRequestHandler<RemoveMainten
             return Result<object>.Failure(ErrorType.NotFound, "Asset model not found.");
         }
 
-        assetModel.RemoveMaintenancePlan(request.MaintenancePlanId);
+        _maintenancePlanService.RemoveMaintenancePlan(assetModel, request.MaintenancePlanId);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 

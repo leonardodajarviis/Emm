@@ -1,4 +1,5 @@
 using Emm.Domain.Entities.AssetCatalog;
+using Emm.Domain.Services;
 
 namespace Emm.Application.Features.AppAssetModel.Commands;
 
@@ -6,13 +7,16 @@ public class UpdateMaintenancePlanCommandHandler : IRequestHandler<UpdateMainten
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IAssetModelRepository _repository;
+    private readonly MaintenancePlanManagementService _maintenancePlanService;
 
     public UpdateMaintenancePlanCommandHandler(
         IUnitOfWork unitOfWork,
-        IAssetModelRepository repository)
+        IAssetModelRepository repository,
+        MaintenancePlanManagementService maintenancePlanService)
     {
         _unitOfWork = unitOfWork;
         _repository = repository;
+        _maintenancePlanService = maintenancePlanService;
     }
 
     public async Task<Result<object>> Handle(UpdateMaintenancePlanCommand request, CancellationToken cancellationToken)
@@ -33,7 +37,8 @@ public class UpdateMaintenancePlanCommandHandler : IRequestHandler<UpdateMainten
                     return Result<object>.Failure(ErrorType.Validation, "RRule is required for time-based maintenance plans.");
                 }
 
-                assetModel.UpdateTimeBasedMaintenancePlan(
+                _maintenancePlanService.UpdateTimeBasedMaintenancePlan(
+                    assetModel: assetModel,
                     maintenancePlanId: request.MaintenancePlanId,
                     name: bodyRequest.Name,
                     description: bodyRequest.Description,
@@ -52,7 +57,8 @@ public class UpdateMaintenancePlanCommandHandler : IRequestHandler<UpdateMainten
                         "TriggerValue, MinValue, MaxValue, and TriggerCondition are required for parameter-based maintenance plans.");
                 }
 
-                assetModel.UpdateParameterBasedMaintenancePlan(
+                _maintenancePlanService.UpdateParameterBasedMaintenancePlan(
+                    assetModel: assetModel,
                     maintenancePlanId: request.MaintenancePlanId,
                     name: bodyRequest.Name,
                     description: bodyRequest.Description,

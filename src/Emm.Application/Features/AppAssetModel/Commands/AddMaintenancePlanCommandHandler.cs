@@ -1,4 +1,5 @@
 using Emm.Domain.Entities.AssetCatalog;
+using Emm.Domain.Services;
 
 namespace Emm.Application.Features.AppAssetModel.Commands;
 
@@ -6,13 +7,16 @@ public class AddMaintenancePlanCommandHandler : IRequestHandler<AddMaintenancePl
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IAssetModelRepository _repository;
+    private readonly MaintenancePlanManagementService _maintenancePlanService;
 
     public AddMaintenancePlanCommandHandler(
         IUnitOfWork unitOfWork,
-        IAssetModelRepository repository)
+        IAssetModelRepository repository,
+        MaintenancePlanManagementService maintenancePlanService)
     {
         _unitOfWork = unitOfWork;
         _repository = repository;
+        _maintenancePlanService = maintenancePlanService;
     }
 
     public async Task<Result<object>> Handle(AddMaintenancePlanCommand request, CancellationToken cancellationToken)
@@ -48,7 +52,8 @@ public class AddMaintenancePlanCommandHandler : IRequestHandler<AddMaintenancePl
                         "RRule is required for time-based maintenance plans.");
                 }
 
-                assetModel.AddTimeBasedMaintenancePlan(
+                _maintenancePlanService.AddTimeBasedMaintenancePlan(
+                    assetModel: assetModel,
                     name: bodyRequest.Name,
                     description: bodyRequest.Description,
                     rrule: bodyRequest.RRule,
@@ -68,7 +73,8 @@ public class AddMaintenancePlanCommandHandler : IRequestHandler<AddMaintenancePl
                         "ParameterId, TriggerValue, MinValue, MaxValue, and TriggerCondition are required for parameter-based maintenance plans.");
                 }
 
-                assetModel.AddParameterBasedMaintenancePlan(
+                _maintenancePlanService.AddParameterBasedMaintenancePlan(
+                    assetModel: assetModel,
                     name: bodyRequest.Name,
                     description: bodyRequest.Description,
                     parameterId: bodyRequest.ParameterId.Value,
@@ -93,7 +99,8 @@ public class AddMaintenancePlanCommandHandler : IRequestHandler<AddMaintenancePl
         {
             foreach (var item in bodyRequest.RequiredItems)
             {
-                assetModel.AddRequiredItemToMaintenancePlan(
+                _maintenancePlanService.AddRequiredItemToMaintenancePlan(
+                    assetModel: assetModel,
                     maintenancePlanId: maintenancePlan.Id,
                     itemGroupId: item.ItemGroupId,
                     itemId: item.ItemId,

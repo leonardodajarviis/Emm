@@ -215,274 +215,43 @@ public class AssetModel : AggregateRoot, IAuditableEntity
         }
     }
 
-    // Time-based maintenance plan methods
-    public void AddTimeBasedMaintenancePlan(
-        string name,
-        string? description,
-        string rrule,
-        IReadOnlyCollection<MaintenancePlanJobStepDefinitionSpec>? jobSteps = null,
-        IReadOnlyCollection<MaintenancePlanRequiredItemDefinitionSpec>? requiredItems = null,
-        bool isActive = true)
+    // Internal methods for Domain Service to use
+    // These methods should ONLY be called by MaintenancePlanManagementService
+
+    /// <summary>
+    /// Internal method for adding a maintenance plan. Should only be called by MaintenancePlanManagementService.
+    /// </summary>
+    public void AddMaintenancePlanInternal(MaintenancePlanDefinition plan)
     {
         ValidateMaintenancePlanLimit();
-        ValidateMaintenancePlanName(name);
-
-        var maintenancePlan = MaintenancePlanDefinition.CreateTimeBased(
-            assetModelId: Id,
-            name: name,
-            description: description,
-            rrule: rrule,
-            jobSteps: jobSteps,
-            requiredItems: requiredItems,
-            isActive: isActive
-        );
-
-        _maintenancePlanDefinitions.Add(maintenancePlan);
-
-        // RaiseDomainEvent(new MaintenancePlanAddedEvent(Id, maintenancePlan.Id, name));
+        DomainGuard.AgainstNull(plan, nameof(plan));
+        _maintenancePlanDefinitions.Add(plan);
     }
 
-    // Parameter-based maintenance plan methods
-    public void AddParameterBasedMaintenancePlan(
-        string name,
-        string? description,
-        Guid parameterId,
-        decimal triggerValue,
-        decimal minValue,
-        decimal maxValue,
-        MaintenanceTriggerCondition triggerCondition = MaintenanceTriggerCondition.GreaterThanOrEqual,
-        IReadOnlyCollection<MaintenancePlanJobStepDefinitionSpec>? jobSteps = null,
-        IReadOnlyCollection<MaintenancePlanRequiredItemDefinitionSpec>? requiredItems = null,
-        bool isActive = true)
-    {
-        ValidateMaintenancePlanLimit();
-        ValidateMaintenancePlanName(name);
-
-        var existParameter = _parameters.FirstOrDefault(p => p.ParameterId == parameterId);
-        if (existParameter == null)
-        {
-            throw new DomainException($"Parameter {parameterId} is not associated with this AssetModel");
-        }
-
-        existParameter.MarkAsMaintenanceParameter();
-
-        var maintenancePlan = MaintenancePlanDefinition.CreateParameterBased(
-            assetModelId: Id,
-            name: name,
-            description: description,
-            parameterId: parameterId,
-            triggerValue: triggerValue,
-            minValue: minValue,
-            maxValue: maxValue,
-            triggerCondition: triggerCondition,
-            jobSteps: jobSteps,
-            requiredItems: requiredItems,
-            isActive: isActive
-        );
-
-        _maintenancePlanDefinitions.Add(maintenancePlan);
-
-        // RaiseDomainEvent(new MaintenancePlanAddedEvent(Id, maintenancePlan.Id, name));
-    }
-
-    // General maintenance plan methods
-    public void RemoveMaintenancePlan(Guid maintenancePlanId)
+    /// <summary>
+    /// Internal method for removing a maintenance plan. Should only be called by MaintenancePlanManagementService.
+    /// </summary>
+    public void RemoveMaintenancePlanInternal(Guid maintenancePlanId)
     {
         var maintenancePlan = _maintenancePlanDefinitions.FirstOrDefault(mp => mp.Id == maintenancePlanId);
         DomainGuard.AgainstNotFound(maintenancePlan, nameof(MaintenancePlanDefinition), maintenancePlanId);
-
-        if (maintenancePlan!.PlanType == MaintenancePlanType.ParameterBased)
-        {
-            if (maintenancePlan.ParameterBasedTrigger == null)
-            {
-                throw new DomainException("ParameterBasedTrigger is null for a parameter-based maintenance plan");
-            }
-
-            var parameterId = maintenancePlan.ParameterBasedTrigger.ParameterId;
-            var associatedParameter = _parameters.FirstOrDefault(p => p.ParameterId == parameterId);
-
-            associatedParameter?.UnmarkAsMaintenanceParameter();
-        }
-
         _maintenancePlanDefinitions.Remove(maintenancePlan!);
-
-        // RaiseDomainEvent(new MaintenancePlanRemovedEvent(Id, maintenancePlanId));
     }
 
-    public void UpdateMaintenancePlan(
-        Guid maintenancePlanId,
-        string name,
-        string? description,
-        bool isActive)
+    /// <summary>
+    /// Internal method for finding a parameter. Should only be called by MaintenancePlanManagementService.
+    /// </summary>
+    public AssetModelParameter? FindParameter(Guid parameterId)
     {
-        ValidateMaintenancePlanName(name);
-
-        var maintenancePlan = _maintenancePlanDefinitions.FirstOrDefault(mp => mp.Id == maintenancePlanId);
-        DomainGuard.AgainstNotFound(maintenancePlan, nameof(MaintenancePlanDefinition), maintenancePlanId);
-
-        maintenancePlan!.Update(name, description, isActive);
-
-        // RaiseDomainEvent(new MaintenancePlanUpdatedEvent(Id, maintenancePlanId, name));
+        return _parameters.FirstOrDefault(p => p.ParameterId == parameterId);
     }
 
-    public void UpdateTimeBasedMaintenancePlan(
-        Guid maintenancePlanId,
-        string name,
-        string? description,
-        string rrule,
-        bool isActive)
+    /// <summary>
+    /// Internal method for getting a maintenance plan. Should only be called by MaintenancePlanManagementService.
+    /// </summary>
+    public MaintenancePlanDefinition? GetMaintenancePlan(Guid maintenancePlanId)
     {
-        ValidateMaintenancePlanName(name);
-
-        var maintenancePlan = _maintenancePlanDefinitions.FirstOrDefault(mp => mp.Id == maintenancePlanId);
-        DomainGuard.AgainstNotFound(maintenancePlan, nameof(MaintenancePlanDefinition), maintenancePlanId);
-
-        maintenancePlan!.UpdateTimeBasedPlan(name, description, rrule, isActive);
-
-        // RaiseDomainEvent(new MaintenancePlanUpdatedEvent(Id, maintenancePlanId, name));
-    }
-
-    public void UpdateParameterBasedMaintenancePlan(
-        Guid maintenancePlanId,
-        string name,
-        string? description,
-        decimal triggerValue,
-        decimal minValue,
-        decimal maxValue,
-        MaintenanceTriggerCondition triggerCondition,
-        bool isActive)
-    {
-        ValidateMaintenancePlanName(name);
-
-        var maintenancePlan = _maintenancePlanDefinitions.FirstOrDefault(mp => mp.Id == maintenancePlanId);
-        DomainGuard.AgainstNotFound(maintenancePlan, nameof(MaintenancePlanDefinition), maintenancePlanId);
-
-        maintenancePlan!.UpdateParameterBasedPlan(
-            name,
-            description,
-            triggerValue,
-            minValue,
-            maxValue,
-            triggerCondition,
-            isActive
-        );
-
-        // RaiseDomainEvent(new MaintenancePlanUpdatedEvent(Id, maintenancePlanId, name));
-    }
-
-    // Job steps management methods
-    public void AddJobStepToMaintenancePlan(
-        Guid maintenancePlanId,
-        string stepName,
-        Guid? organizationUnitId,
-        string? note,
-        int order)
-    {
-        ValidateMaintenancePlanName(stepName);
-
-        var maintenancePlan = _maintenancePlanDefinitions.FirstOrDefault(mp => mp.Id == maintenancePlanId);
-        DomainGuard.AgainstNotFound(maintenancePlan, nameof(MaintenancePlanDefinition), maintenancePlanId);
-
-        maintenancePlan!.AddJobStep(stepName, organizationUnitId, note, order);
-
-        // RaiseDomainEvent(new MaintenancePlanJobStepAddedEvent(Id, maintenancePlanId, stepName));
-    }
-
-    public void RemoveJobStepFromMaintenancePlan(
-        Guid maintenancePlanId,
-        Guid jobStepId)
-    {
-        var maintenancePlan = _maintenancePlanDefinitions.FirstOrDefault(mp => mp.Id == maintenancePlanId);
-        DomainGuard.AgainstNotFound(maintenancePlan, nameof(MaintenancePlanDefinition), maintenancePlanId);
-
-        maintenancePlan!.RemoveJobStep(jobStepId);
-
-        // RaiseDomainEvent(new MaintenancePlanJobStepRemovedEvent(Id, maintenancePlanId, jobStepId));
-    }
-
-    public void UpdateJobStepInMaintenancePlan(
-        Guid maintenancePlanId,
-        Guid jobStepId,
-        string stepName,
-        string? note,
-        int order)
-    {
-        ValidateMaintenancePlanName(stepName);
-
-        var maintenancePlan = _maintenancePlanDefinitions.FirstOrDefault(mp => mp.Id == maintenancePlanId);
-        DomainGuard.AgainstNotFound(maintenancePlan, nameof(MaintenancePlanDefinition), maintenancePlanId);
-
-        // Delegate to MaintenancePlanDefinition to respect aggregate boundaries
-        maintenancePlan!.UpdateJobStep(jobStepId, stepName, note, order);
-
-        // RaiseDomainEvent(new MaintenancePlanJobStepUpdatedEvent(Id, maintenancePlanId, jobStepId, stepName));
-    }
-
-    // Required items management methods
-    public void AddRequiredItemToMaintenancePlan(
-        Guid maintenancePlanId,
-        Guid itemGroupId,
-        Guid itemId,
-        Guid unitOfMeasureId,
-        decimal quantity,
-        bool isRequired,
-        string? note = null)
-    {
-        DomainGuard.AgainstInvalidForeignKey(itemId, nameof(itemId));
-        DomainGuard.AgainstNegative(quantity, nameof(quantity));
-
-        var maintenancePlan = _maintenancePlanDefinitions.FirstOrDefault(mp => mp.Id == maintenancePlanId);
-        DomainGuard.AgainstNotFound(maintenancePlan, nameof(MaintenancePlanDefinition), maintenancePlanId);
-
-        maintenancePlan!.AddRequiredItem(itemGroupId, itemId, unitOfMeasureId, quantity, isRequired, note);
-
-        // RaiseDomainEvent(new MaintenancePlanRequiredItemAddedEvent(Id, maintenancePlanId, itemId));
-    }
-
-    public void RemoveRequiredItemFromMaintenancePlan(
-        Guid maintenancePlanId,
-        Guid requiredItemId)
-    {
-        DomainGuard.AgainstInvalidForeignKey(requiredItemId, nameof(requiredItemId));
-
-        var maintenancePlan = _maintenancePlanDefinitions.FirstOrDefault(mp => mp.Id == maintenancePlanId);
-        DomainGuard.AgainstNotFound(maintenancePlan, nameof(MaintenancePlanDefinition), maintenancePlanId);
-
-        maintenancePlan!.RemoveRequiredItem(requiredItemId);
-
-        // RaiseDomainEvent(new MaintenancePlanRequiredItemRemovedEvent(Id, maintenancePlanId, requiredItemId));
-    }
-
-    public void UpdateRequiredItemInMaintenancePlan(
-        Guid maintenancePlanId,
-        Guid requiredItemId,
-        decimal quantity,
-        bool isRequired,
-        string? note)
-    {
-        DomainGuard.AgainstInvalidForeignKey(requiredItemId, nameof(requiredItemId));
-        DomainGuard.AgainstNegative(quantity, nameof(quantity));
-
-        var maintenancePlan = _maintenancePlanDefinitions.FirstOrDefault(mp => mp.Id == maintenancePlanId);
-        DomainGuard.AgainstNotFound(maintenancePlan, nameof(MaintenancePlanDefinition), maintenancePlanId);
-
-        maintenancePlan!.UpdateRequiredItem(requiredItemId, quantity, isRequired, note);
-
-        // RaiseDomainEvent(new MaintenancePlanRequiredItemUpdatedEvent(Id, maintenancePlanId, requiredItemId));
-    }
-
-    public void SyncRequiredItemsInMaintenancePlan(
-        Guid maintenancePlanId,
-        IReadOnlyCollection<MaintenancePlanRequiredItemDefinitionSpec> requiredItemSpecs)
-    {
-        DomainGuard.AgainstNull(requiredItemSpecs, nameof(requiredItemSpecs));
-
-        var maintenancePlan = _maintenancePlanDefinitions.FirstOrDefault(mp => mp.Id == maintenancePlanId);
-        DomainGuard.AgainstNotFound(maintenancePlan, nameof(MaintenancePlanDefinition), maintenancePlanId);
-
-        maintenancePlan!.SyncRequiredItems(requiredItemSpecs);
-
-        // RaiseDomainEvent(new MaintenancePlanRequiredItemsSyncedEvent(Id, maintenancePlanId));
+        return _maintenancePlanDefinitions.FirstOrDefault(mp => mp.Id == maintenancePlanId);
     }
 
     public void AddImage(Guid fileId, string filePath)
@@ -552,12 +321,6 @@ public class AssetModel : AggregateRoot, IAuditableEntity
             _maintenancePlanDefinitions.Count >= MaxMaintenancePlansPerModel,
             "MaintenancePlanLimit",
             $"Cannot exceed {MaxMaintenancePlansPerModel} maintenance plans per asset model");
-    }
-
-    private static void ValidateMaintenancePlanName(string name)
-    {
-        DomainGuard.AgainstNullOrEmpty(name, "MaintenancePlanName");
-        DomainGuard.AgainstTooLong(name, 200, "MaintenancePlanName");
     }
 
     private void ValidateParentId(Guid? parentId)
