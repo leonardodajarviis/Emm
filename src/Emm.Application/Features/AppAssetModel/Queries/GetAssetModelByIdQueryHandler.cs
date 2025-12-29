@@ -138,6 +138,7 @@ public class GetAssetModelByIdQueryHandler : IRequestHandler<GetAssetModelByIdQu
                                 MaintenancePlanDefinitionId = js.MaintenancePlanDefinitionId,
                                 Name = js.Name,
                                 OrganizationUnitId = js.OrganizationUnitId,
+
                                 OrganizationUnit = js.OrganizationUnitId != null ? _qq.Query<OrganizationUnit>()
                                     .Where(ou => ou.Id == js.OrganizationUnitId)
                                     .Select(ou => new OrganizationUnitResponse

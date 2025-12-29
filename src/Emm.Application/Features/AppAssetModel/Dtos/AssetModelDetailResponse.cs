@@ -113,6 +113,7 @@ public record MaintenancePlanJobStepDefinitionResponse
     public required string Name { get; set; }
     public Guid? OrganizationUnitId { get; set; }
     public OrganizationUnitResponse? OrganizationUnit { get; set; }
+    public string? OrganizationUnitName => OrganizationUnit?.Name;
     public string? Note { get; set; }
     public int Order { get; set; }
 }
