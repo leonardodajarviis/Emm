@@ -1,6 +1,5 @@
 using Emm.Application.Abstractions;
 using Emm.Domain.Entities;
-using Emm.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 namespace Emm.Application.Features.AppAssetModel.Commands;

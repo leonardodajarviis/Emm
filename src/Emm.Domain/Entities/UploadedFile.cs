@@ -15,12 +15,14 @@ public class UploadedFile : AggregateRoot
     private UploadedFile() { } // For EF Core
 
     public UploadedFile(
+        Guid id,
         string originalFileName,
         string filePath,
         string contentType,
         long fileSize,
         string? subfolder = null)
     {
+        Id = id;
         OriginalFileName = originalFileName;
         FilePath = filePath;
         ContentType = contentType;

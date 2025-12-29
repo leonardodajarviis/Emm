@@ -41,6 +41,12 @@ public class GetAssetTypesQueryHandler : IRequestHandler<GetAssetTypesQuery, Res
                         Id = p.Id,
                         Code = p.Code,
                         Name = p.Name,
+                        UnitOfMeasureId = p.UnitOfMeasureId,
+                        UnitOfMeasureName = _queryContext.Query<UnitOfMeasure>()
+                            .Where(uom => uom.Id == p.UnitOfMeasureId)
+                            .Select(uom => uom.Name)
+                            .FirstOrDefault(),
+                        Description = p.Description,
                     })
                     .ToList(),
                 AssetCategoryName = _queryContext.Query<AssetCategory>()
