@@ -53,7 +53,6 @@ public class AssetModel : AggregateRoot, IAuditableEntity
         bool isActive = true)
     {
 
-        ValidateName(name);
         DomainGuard.AgainstInvalidForeignKey(assetCategoryId, nameof(AssetCategoryId));
         DomainGuard.AgainstInvalidForeignKey(assetTypeId, nameof(AssetTypeId));
 
@@ -76,18 +75,12 @@ public class AssetModel : AggregateRoot, IAuditableEntity
 
     public void SetThumbnailOnCreate(Guid fileId, string fileUrl)
     {
-        ValidateFileId(fileId);
-        ValidateFileUrl(fileUrl);
-
         ThumbnailFileId = fileId;
         ThumbnailUrl = fileUrl;
     }
 
     public void UpdateThumbnail(Guid fileId, string fileUrl)
     {
-        ValidateFileId(fileId);
-        ValidateFileUrl(fileUrl);
-
         ThumbnailFileId = fileId;
         ThumbnailUrl = fileUrl;
 
@@ -115,7 +108,6 @@ public class AssetModel : AggregateRoot, IAuditableEntity
         Guid? assetTypeId,
         bool isActive)
     {
-        ValidateName(name);
         ValidateParentId(parentId);
         DomainGuard.AgainstInvalidForeignKey(assetCategoryId, nameof(AssetCategoryId));
         DomainGuard.AgainstInvalidForeignKey(assetTypeId, nameof(AssetTypeId));
@@ -211,7 +203,6 @@ public class AssetModel : AggregateRoot, IAuditableEntity
             }
 
             _parameters.Remove(parameter);
-            // RaiseDomainEvent(new AssetModelParameterRemovedEvent(Id, parameterId));
         }
     }
 
@@ -256,9 +247,6 @@ public class AssetModel : AggregateRoot, IAuditableEntity
 
     public void AddImage(Guid fileId, string filePath)
     {
-        ValidateFileId(fileId);
-        ValidateFilePath(filePath);
-
         DomainGuard.AgainstBusinessRule(
             _images.Count >= MaxImagesPerModel,
             "MaxImagesLimit",
@@ -277,42 +265,12 @@ public class AssetModel : AggregateRoot, IAuditableEntity
 
     public void RemoveImage(Guid fileId)
     {
-        ValidateFileId(fileId);
-
         var image = _images.FirstOrDefault(img => img.FileId == fileId);
         DomainGuard.AgainstNotFound(image, nameof(AssetModelImage), fileId);
 
         _images.Remove(image!);
 
         // RaiseDomainEvent(new AssetModelImageRemovedEvent(Id, fileId));
-    }
-
-    // Validation methods
-    private static void ValidateCode(string code)
-    {
-        DomainGuard.AgainstNullOrEmpty(code, nameof(Code));
-        DomainGuard.AgainstTooLong(code, 50, nameof(Code));
-    }
-
-    private static void ValidateName(string name)
-    {
-        DomainGuard.AgainstNullOrEmpty(name, nameof(Name));
-        DomainGuard.AgainstTooLong(name, 200, nameof(Name));
-    }
-
-    private static void ValidateFileId(Guid fileId)
-    {
-        DomainGuard.AgainstDefault(fileId, "FileId");
-    }
-
-    private static void ValidateFileUrl(string fileUrl)
-    {
-        DomainGuard.AgainstNullOrEmpty(fileUrl, "FileUrl");
-    }
-
-    private static void ValidateFilePath(string filePath)
-    {
-        DomainGuard.AgainstNullOrEmpty(filePath, "FilePath");
     }
 
     private void ValidateMaintenancePlanLimit()

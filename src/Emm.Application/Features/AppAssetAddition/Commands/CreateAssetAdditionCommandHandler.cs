@@ -42,14 +42,12 @@ public class CreateAssetAdditionCommandHandler : IRequestHandler<CreateAssetAddi
                 );
             }
 
+            assetAddition.RegisterEvent();
+
             await _repository.AddAsync(assetAddition);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             // Register event to outbox - will be processed after transaction commits
-            assetAddition.RegisterEvent();
-            _outbox.EnqueueRange(assetAddition.DomainEvents);
-            assetAddition.ClearDomainEvents();
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return Result<object>.Success(new
             {

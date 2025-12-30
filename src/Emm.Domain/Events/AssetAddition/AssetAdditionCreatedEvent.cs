@@ -2,7 +2,7 @@ using Emm.Domain.Abstractions;
 
 namespace Emm.Domain.Events.AssetAddition;
 
-public record AssetAdditionCreatedEvent : IDomainEvent
+public record AssetAdditionCreatedEvent : IImmediateDomainEvent
 {
     public Guid AssetAdditionId { get; }
     public Guid LocationId { get; }
