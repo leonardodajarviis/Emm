@@ -6,7 +6,7 @@ public record UpdateAssetModel
     public string? Description { get; set; }
     public string? Notes { get; set; }
     public Guid? ParentId { get; set; }
-    public Guid? AssetCategoryId { get; set; }
-    public Guid? AssetTypeId { get; set; }
+    public Guid AssetCategoryId { get; set; }
+    public Guid AssetTypeId { get; set; }
     public bool IsActive { get; set; } = true;
 }

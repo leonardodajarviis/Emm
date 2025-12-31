@@ -81,14 +81,11 @@ public class CreateAssetModelCommandHandler : IRequestHandler<CreateAssetModelCo
             var currentUserId = _userContextService.GetCurrentUserId();
 
             // Add parameters from AssetType if AssetTypeId is provided
-            if (request.AssetTypeId.HasValue)
-            {
-                var assetParameterIds = await _qq.Query<AssetTypeParameter>()
-                    .Where(at => at.AssetTypeId == request.AssetTypeId)
-                    .Select(at => at.ParameterId).ToArrayAsync(cancellationToken);
+            var assetParameterIds = await _qq.Query<AssetTypeParameter>()
+                .Where(at => at.AssetTypeId == request.AssetTypeId)
+                .Select(at => at.ParameterId).ToArrayAsync(cancellationToken);
 
-                assetModel.AddParameters(assetParameterIds);
-            }
+            assetModel.AddParameters(assetParameterIds);
 
             // Add maintenance plan definitions
             if (request.MaintenancePlanDefinitions?.Count > 0)

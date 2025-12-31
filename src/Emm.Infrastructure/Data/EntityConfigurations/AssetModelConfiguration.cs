@@ -37,7 +37,7 @@ public class AssetModelConfiguration : IEntityTypeConfiguration<AssetModel>
 
         builder.Property(x => x.Notes)
             .HasMaxLength(2000)
-            .IsRequired(false);
+            .IsRequired();
 
         builder.Property(x => x.ParentId)
             .HasMaxLength(50)
@@ -45,11 +45,11 @@ public class AssetModelConfiguration : IEntityTypeConfiguration<AssetModel>
 
         builder.Property(x => x.AssetCategoryId)
             .HasMaxLength(50)
-            .IsRequired(false);
+            .IsRequired();
 
         builder.Property(x => x.AssetTypeId)
             .HasMaxLength(50)
-            .IsRequired(false);
+            .IsRequired();
 
         builder.Property(x => x.IsActive)
             .IsRequired()

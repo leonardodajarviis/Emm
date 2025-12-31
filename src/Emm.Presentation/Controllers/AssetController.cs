@@ -20,15 +20,8 @@ public class AssetController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateAsset([FromBody] CreateAsset createAsset)
+    public async Task<IActionResult> CreateAsset([FromBody] CreateAssetCommand command)
     {
-        var command = new CreateAssetCommand(
-            Code: createAsset.Code,
-            DisplayName: createAsset.DisplayName,
-            AssetModelId: createAsset.AssetModelId,
-            Description: createAsset.Description
-        );
-
         var result = await _mediator.Send(command);
 
         return result.ToActionResult();

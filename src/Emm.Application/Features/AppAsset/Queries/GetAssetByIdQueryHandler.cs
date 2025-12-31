@@ -25,7 +25,7 @@ public class GetAssetByIdQueryHandler : IRequestHandler<GetAssetByIdQuery, Resul
             .Select(x => new AssetResponse
             {
                 Id = x.Id,
-                Code = x.Code,
+                Code = x.Code.Value,
                 DisplayName = x.DisplayName,
                 AssetCategoryId = x.AssetCategoryId,
                 AssetCategoryCode = x.AssetCategoryCode,

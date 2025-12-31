@@ -11,6 +11,8 @@ public record CreateAssetAdditionCommand(
 
 public record CreateAssetAdditionLineCommand(
     Guid AssetModelId,
-    string AssetCode,
+    bool IsCodeGenerated,
+    string? AssetCode,
+    string AssetDisplayName,
     decimal UnitPrice
 );

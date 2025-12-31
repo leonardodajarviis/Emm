@@ -34,6 +34,6 @@ public class AssetAdditionLineResponse
     public required Guid Id { get; set; }
     public required Guid AssetAdditionId { get; set; }
     public required Guid AssetModelId { get; set; }
-    public required string AssetCode { get; set; }
+    public required string? AssetCode { get; set; }
     public required decimal UnitPrice { get; set; }
 }

@@ -5,7 +5,7 @@ namespace Emm.Domain.Entities.AssetCatalog;
 
 public class AssetType : AggregateRoot, IAuditableEntity
 {
-    public string Code { get; private set; } = null!;
+    public NaturalKey Code { get; private set; }
     public string Name { get; private set; } = null!;
     public string? Description { get; private set; }
     public bool IsActive { get; private set; }
@@ -20,7 +20,7 @@ public class AssetType : AggregateRoot, IAuditableEntity
 
     private AssetType() { } // EF Core constructor
 
-    public AssetType(bool isCodeGenerated ,string code, string name, Guid assetCategoryId, string? description = null, bool isActive = true)
+    public AssetType(bool isCodeGenerated ,NaturalKey code, string name, Guid assetCategoryId, string? description = null, bool isActive = true)
     {
         Code = code;
         Name = name;

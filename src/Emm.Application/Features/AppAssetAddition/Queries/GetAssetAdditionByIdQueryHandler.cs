@@ -20,7 +20,7 @@ public class GetAssetAdditionByIdQueryHandler : IRequestHandler<GetAssetAddition
             .Select(x => new AssetAdditionResponse
             {
                 Id = x.Id,
-                Code = x.Code,
+                Code = x.Code.Value,
                 OrganizationUnitId = x.OrganizationUnitId,
                 LocationId = x.LocationId,
                 DecisionNumber = x.DecisionNumber,
@@ -34,7 +34,7 @@ public class GetAssetAdditionByIdQueryHandler : IRequestHandler<GetAssetAddition
                         Id = line.Id,
                         AssetAdditionId = line.AssetAdditionId,
                         AssetModelId = line.AssetModelId,
-                        AssetCode = line.AssetCode,
+                        AssetCode = line.AssetCode.Value,
                         UnitPrice = line.UnitPrice
                     })
                     .ToList()

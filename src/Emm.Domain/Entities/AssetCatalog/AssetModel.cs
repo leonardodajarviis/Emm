@@ -16,8 +16,8 @@ public class AssetModel : AggregateRoot, IAuditableEntity
     public string? Description { get; private set; }
     public string? Notes { get; private set; }
     public Guid? ParentId { get; private set; }
-    public Guid? AssetCategoryId { get; private set; }
-    public Guid? AssetTypeId { get; private set; }
+    public Guid AssetCategoryId { get; private set; }
+    public Guid AssetTypeId { get; private set; }
     public bool IsActive { get; private set; }
     public Guid? ThumbnailFileId { get; private set; }
     public string? ThumbnailUrl { get; private set; }
@@ -45,11 +45,11 @@ public class AssetModel : AggregateRoot, IAuditableEntity
         bool isCodeGenerated,
         NaturalKey code,
         string name,
+        Guid assetCategoryId,
+        Guid assetTypeId,
         string? description = null,
         string? notes = null,
         Guid? parentId = null,
-        Guid? assetCategoryId = null,
-        Guid? assetTypeId = null,
         bool isActive = true)
     {
 
@@ -104,8 +104,8 @@ public class AssetModel : AggregateRoot, IAuditableEntity
         string? description,
         string? notes,
         Guid? parentId,
-        Guid? assetCategoryId,
-        Guid? assetTypeId,
+        Guid assetCategoryId,
+        Guid assetTypeId,
         bool isActive)
     {
         ValidateParentId(parentId);

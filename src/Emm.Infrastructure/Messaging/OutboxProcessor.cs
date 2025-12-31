@@ -3,7 +3,6 @@ using LazyNet.Symphony.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Emm.Infrastructure.Messaging;
@@ -26,24 +25,19 @@ public sealed class OutboxProcessorOptions
 public sealed class OutboxProcessor : BackgroundService
 {
     private readonly IServiceScopeFactory _scopeFactory;
-    private readonly ILogger<OutboxProcessor> _log;
     private readonly OutboxProcessorOptions _opt;
     private readonly string _lockId = $"host-{Environment.MachineName}-{Guid.NewGuid():N}";
 
     public OutboxProcessor(
         IServiceScopeFactory scopeFactory,
-        IOptions<OutboxProcessorOptions> options,
-        ILogger<OutboxProcessor> log)
+        IOptions<OutboxProcessorOptions> options)
     {
         _scopeFactory = scopeFactory;
-        _log = log;
         _opt = options.Value;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _log.LogInformation("OutboxProcessor started with LockId={LockId}", _lockId);
-
         while (!stoppingToken.IsCancellationRequested)
         {
             try
@@ -56,14 +50,12 @@ public sealed class OutboxProcessor : BackgroundService
             {
                 // Application is shutting down
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                _log.LogError(ex, "Outbox processing loop encountered an error");
                 await Task.Delay(TimeSpan.FromSeconds(2), stoppingToken);
             }
         }
 
-        _log.LogInformation("OutboxProcessor stopped");
     }
 
     private async Task<int> ProcessBatch(CancellationToken ct)
@@ -148,14 +140,11 @@ public sealed class OutboxProcessor : BackgroundService
                 {
                     // Move to dead-letter: mark as processed to stop retrying
                     msg.ProcessedAt = DateTime.UtcNow;
-                    _log.LogError(ex, "Outbox message {Id} moved to dead-letter after {Attempt} attempts", msg.Id, msg.Attempt);
                 }
                 else
                 {
                     // Schedule retry with exponential backoff
                     msg.LockedUntil = DateTime.UtcNow + _opt.GetBackoff(msg.Attempt);
-                    _log.LogWarning(ex, "Outbox message {Id} failed attempt {Attempt}, will retry after {RetryAfter}",
-                        msg.Id, msg.Attempt, msg.LockedUntil);
                 }
             }
             finally

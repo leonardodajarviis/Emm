@@ -7,16 +7,13 @@ public class StartOperationShiftCommandHandler : IRequestHandler<StartOperationS
 {
     private readonly IOperationShiftRepository _repository;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IOutbox _outbox;
 
     public StartOperationShiftCommandHandler(
         IOperationShiftRepository repository,
-        IUnitOfWork unitOfWork,
-        IOutbox outbox)
+        IUnitOfWork unitOfWork)
     {
         _repository = repository;
         _unitOfWork = unitOfWork;
-        _outbox = outbox;
     }
 
     public async Task<Result<object>> Handle(StartOperationShiftCommand request, CancellationToken cancellationToken)
@@ -36,7 +33,7 @@ public class StartOperationShiftCommandHandler : IRequestHandler<StartOperationS
         {
             ShiftId = operationShift.Id,
             Status = operationShift.Status.ToString(),
-            ActualStartTime = operationShift.ActualStartTime
+            operationShift.ActualStartTime
         });
     }
 }

@@ -30,7 +30,6 @@ public class GenericRepository<TEntity, TKey> : IRepository<TEntity, TKey> where
     public virtual async Task AddAsync(TEntity entity, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(entity);
-
         await DbSet.AddAsync(entity, cancellationToken);
     }
 

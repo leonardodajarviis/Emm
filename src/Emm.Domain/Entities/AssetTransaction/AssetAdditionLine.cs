@@ -1,3 +1,5 @@
+using Emm.Domain.ValueObjects;
+
 namespace Emm.Domain.Entities.AssetTransaction;
 
 
@@ -6,7 +8,9 @@ public class AssetAdditionLine
     public Guid Id { get; private set; } = Guid.CreateVersion7();
     public Guid AssetAdditionId { get; private set; }
     public Guid AssetModelId { get; private set; }
-    public string AssetCode { get; private set; } = null!;
+    public string AssetDisplayName { get; private set; } = null!;
+    public NaturalKey AssetCode { get; private set; }
+    public bool IsCodeGenerated { get; private set; }
     public decimal UnitPrice { get; private set; }
 
     // Navigation property
@@ -14,18 +18,19 @@ public class AssetAdditionLine
 
     public AssetAdditionLine(
         Guid assetModelId,
-        string assetCode,
+        bool isCodeGenerated,
+        NaturalKey assetCode,
+        string assetDisplayName,
         decimal unitPrice)
     {
-        if (string.IsNullOrWhiteSpace(assetCode))
-            throw new ArgumentException("Asset code cannot be empty", nameof(assetCode));
-
         if (unitPrice < 0)
             throw new ArgumentException("Unit price must be non-negative", nameof(unitPrice));
 
         AssetModelId = assetModelId;
         AssetCode = assetCode;
         UnitPrice = unitPrice;
+        AssetDisplayName = assetDisplayName;
+        IsCodeGenerated = isCodeGenerated;
     }
 
     // EF Core constructor

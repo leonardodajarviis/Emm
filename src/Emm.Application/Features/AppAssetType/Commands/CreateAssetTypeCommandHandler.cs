@@ -1,5 +1,6 @@
 using Emm.Application.Abstractions;
 using Emm.Domain.Entities.AssetCatalog;
+using Emm.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 
 namespace Emm.Application.Features.AppAssetType.Commands;
@@ -8,51 +9,53 @@ public class CreateAssetTypeCommandHandler : IRequestHandler<CreateAssetTypeComm
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IAssetTypeRepository _repository;
-    private readonly IQueryContext _queryContext;
     private readonly IUserContextService _userContextService;
+    private readonly ICodeGenerator _codeGenerator;
 
     public CreateAssetTypeCommandHandler(
         IUnitOfWork unitOfWork,
         IAssetTypeRepository repository,
-        IQueryContext queryContext,
+        ICodeGenerator codeGenerator,
         IUserContextService userContextService)
     {
         _unitOfWork = unitOfWork;
         _repository = repository;
-        _queryContext = queryContext;
         _userContextService = userContextService;
+        _codeGenerator = codeGenerator;
     }
 
     public async Task<Result<object>> Handle(CreateAssetTypeCommand request, CancellationToken cancellationToken)
     {
-        return await _unitOfWork.ExecuteInTransactionAsync(async () =>
+        NaturalKey code = new();
+
+        if (request.IsCodeGenerated)
         {
-            var code = request.Code;
-            if (request.IsCodeGenerated)
-            {
-                code = await _unitOfWork.GenerateNextCodeAsync<AssetType>("LTS", 6, cancellationToken);
-            }
+            code = await _codeGenerator.GetNaturalKeyAsync<AssetType>("DTB", 6, cancellationToken);
+        }
+        else
+        {
+            code = NaturalKey.CreateRaw(request.Code);
+        }
 
-            var assetType = new AssetType(
-                request.IsCodeGenerated,
-                code: code,
-                name: request.Name,
-                assetCategoryId: request.AssetCategoryId,
-                description: request.Description,
-                isActive: request.IsActive
-            );
+        var assetType = new AssetType(
+            request.IsCodeGenerated,
+            code: code,
+            name: request.Name,
+            assetCategoryId: request.AssetCategoryId,
+            description: request.Description,
+            isActive: request.IsActive
+        );
 
-            var currentUserId = _userContextService.GetCurrentUserId();
-            assetType.AddParameters(request.ParameterIds);
+        var currentUserId = _userContextService.GetCurrentUserId();
+        assetType.AddParameters(request.ParameterIds);
 
-            await _repository.AddAsync(assetType);
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _repository.AddAsync(assetType);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            return Result<object>.Success(new
-            {
-                assetType.Id
-            });
-
+        return Result<object>.Success(new
+        {
+            assetType.Id
         });
+
     }
 }

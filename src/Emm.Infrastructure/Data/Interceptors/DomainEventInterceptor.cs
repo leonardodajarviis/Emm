@@ -1,5 +1,7 @@
 using Emm.Application.Abstractions;
 using Emm.Domain.Abstractions;
+using Emm.Infrastructure.Messaging;
+using LazyNet.Symphony.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
@@ -7,180 +9,112 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Emm.Infrastructure.Data.Interceptors;
 
 /// <summary>
-/// Interceptor that handles publishing domain events when SaveChanges is called.
+/// Handles Domain Events during SaveChanges using a safe DDD + Outbox approach.
 ///
-/// ARCHITECTURE DECISION:
-/// - Uses BOTH SavingChanges (for immediate events) and SavedChanges (for deferred events)
-/// - Immediate events are published BEFORE SaveChanges completes (within transaction)
-/// - Deferred events are queued to outbox AFTER SaveChanges completes (ensuring they're persisted)
-///
-/// Note: Uses IServiceScopeFactory to resolve scoped IOutbox to avoid circular dependency
-/// (DbContext → Interceptor → Outbox → Mediator → Handlers → DbContext)
-/// Since this interceptor is a singleton, it must create a scope to resolve scoped services.
+/// Rules:
+/// - Immediate events are published synchronously (NO DbContext mutation)
+/// - Deferred events are queued to Outbox (same transaction)
+/// - NO SaveChanges inside interceptor (EF Core best practice)
 /// </summary>
-public class DomainEventInterceptor : SaveChangesInterceptor
+public sealed class DomainEventInterceptor : SaveChangesInterceptor
 {
-    private readonly IServiceScopeFactory _serviceScopeFactory;
+    private readonly IServiceScopeFactory _scopeFactory;
 
-    public DomainEventInterceptor(IServiceScopeFactory serviceScopeFactory)
+    // Prevent re-entrancy per async flow
+    private static readonly AsyncLocal<bool> _handling = new();
+
+    public DomainEventInterceptor(IServiceScopeFactory scopeFactory)
     {
-        _serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
+        _scopeFactory = scopeFactory;
     }
 
-    /// <summary>
-    /// BEFORE SaveChanges: Publish immediate events within the transaction
-    /// </summary>
     public override async ValueTask<InterceptionResult<int>> SavingChangesAsync(
         DbContextEventData eventData,
         InterceptionResult<int> result,
         CancellationToken cancellationToken = default)
     {
-        if (eventData.Context != null)
+        if (_handling.Value || eventData.Context is null)
+            return result;
+
+        _handling.Value = true;
+        try
         {
-            await PublishImmediateEventsAsync(eventData.Context, cancellationToken);
+            await DispatchDomainEventsAsync(eventData.Context);
+        }
+        finally
+        {
+            _handling.Value = false;
         }
 
-        return await base.SavingChangesAsync(eventData, result, cancellationToken);
+        return result;
     }
 
-    /// <summary>
-    /// BEFORE SaveChanges: Publish immediate events within the transaction (sync version)
-    /// </summary>
     public override InterceptionResult<int> SavingChanges(
         DbContextEventData eventData,
         InterceptionResult<int> result)
     {
-        if (eventData.Context != null)
+        if (_handling.Value || eventData.Context is null)
+            return result;
+
+        _handling.Value = true;
+        try
         {
-            PublishImmediateEventsAsync(eventData.Context, CancellationToken.None)
+            DispatchDomainEventsAsync(eventData.Context)
                 .GetAwaiter()
                 .GetResult();
         }
-
-        return base.SavingChanges(eventData, result);
-    }
-
-    /// <summary>
-    /// AFTER SaveChanges: Queue deferred events to outbox for background processing
-    /// </summary>
-    public override async ValueTask<int> SavedChangesAsync(
-        SaveChangesCompletedEventData eventData,
-        int result,
-        CancellationToken cancellationToken = default)
-    {
-        if (eventData.Context != null)
+        finally
         {
-            await QueueDeferredEventsAsync(eventData.Context, cancellationToken);
+            _handling.Value = false;
         }
 
-        return await base.SavedChangesAsync(eventData, result, cancellationToken);
+        return result;
     }
 
-    /// <summary>
-    /// AFTER SaveChanges: Queue deferred events to outbox for background processing (sync version)
-    /// </summary>
-    public override int SavedChanges(
-        SaveChangesCompletedEventData eventData,
-        int result)
+    private async Task DispatchDomainEventsAsync(DbContext context)
     {
-        if (eventData.Context != null)
-        {
-            QueueDeferredEventsAsync(eventData.Context, CancellationToken.None)
-                .GetAwaiter()
-                .GetResult();
-        }
-
-        return base.SavedChanges(eventData, result);
-    }
-
-    /// <summary>
-    /// Publishes immediate events within the current transaction.
-    /// These events must be processed before the transaction commits.
-    /// </summary>
-    private async Task PublishImmediateEventsAsync(DbContext context, CancellationToken cancellationToken)
-    {
-        // Get all aggregate roots that have immediate events
-        var aggregateRoots = context.ChangeTracker
+        var aggregates = context.ChangeTracker
             .Entries<IAggregateRoot>()
-            .Where(e => e.Entity.ImmediateEvents.Any())
             .Select(e => e.Entity)
+            .Where(e => e.DomainEvents.Any())
             .ToList();
 
-        if (!aggregateRoots.Any())
+        if (aggregates.Count == 0)
             return;
 
-        // Create a scope to resolve scoped services (since interceptor is singleton)
-        using var scope = _serviceScopeFactory.CreateScope();
-        var outbox = scope.ServiceProvider.GetRequiredService<IOutbox>();
-
-        // Publish immediate events for each aggregate root
-        foreach (var aggregateRoot in aggregateRoots)
-        {
-            var immediateEvents = aggregateRoot.ImmediateEvents.ToList();
-            if (immediateEvents.Any())
-            {
-                await outbox.PublishImmediateRangeAsync(immediateEvents, cancellationToken);
-            }
-        }
-
-        // Note: We don't clear events here because SavedChanges hook still needs them
-    }
-
-    /// <summary>
-    /// Queues deferred events to outbox AFTER the main SaveChanges has completed.
-    /// This ensures the outbox messages are persisted in the same transaction.
-    /// </summary>
-    private async Task QueueDeferredEventsAsync(DbContext context, CancellationToken cancellationToken)
-    {
-        // Get all aggregate roots that have deferred events
-        var aggregateRoots = context.ChangeTracker
-            .Entries<IAggregateRoot>()
-            .Where(e => e.Entity.DeferredEvents.Any())
-            .Select(e => e.Entity)
+        var deferredEvents = aggregates
+            .SelectMany(a => a.DeferredEvents)
             .ToList();
 
-        if (!aggregateRoots.Any())
-        {
-            // Even if no deferred events, clear all events from aggregates that had immediate events
-            ClearAllDomainEvents(context);
-            return;
-        }
+        using var scope = _scopeFactory.CreateScope();
+        var serialize = scope.ServiceProvider.GetRequiredService<IEventSerializer>();
 
-        // Create a scope to resolve scoped services (since interceptor is singleton)
-        using var scope = _serviceScopeFactory.CreateScope();
-        var outbox = scope.ServiceProvider.GetRequiredService<IOutbox>();
-
-        // Queue deferred events to outbox
-        foreach (var aggregateRoot in aggregateRoots)
+        try
         {
-            var deferredEvents = aggregateRoot.DeferredEvents.ToList();
-            if (deferredEvents.Any())
+            if (deferredEvents.Count > 0)
             {
-                outbox.EnqueueRange(deferredEvents);
+                var xcontext = (XDbContext)context;
+                foreach (var defEvent in deferredEvents)
+                {
+                    xcontext.OutboxMessages.Add(new OutboxMessage
+                    {
+                        Id = Guid.NewGuid(),
+                        Type = defEvent.GetType().AssemblyQualifiedName!,
+                        Payload = serialize.Serialize(defEvent),
+                        CreatedAt = DateTime.UtcNow
+                    });
+                }
+            }
+
+            foreach (var aggregate in aggregates)
+            {
+                aggregate.ClearDomainEvents();
             }
         }
-
-        // Save the outbox messages (this will trigger another SaveChanges)
-        await context.SaveChangesAsync(cancellationToken);
-
-        // Clear all events from all aggregates
-        ClearAllDomainEvents(context);
-    }
-
-    /// <summary>
-    /// Clears domain events from all aggregate roots in the context
-    /// </summary>
-    private void ClearAllDomainEvents(DbContext context)
-    {
-        var aggregateRoots = context.ChangeTracker
-            .Entries<IAggregateRoot>()
-            .Where(e => e.Entity.DomainEvents.Any())
-            .Select(e => e.Entity)
-            .ToList();
-
-        foreach (var aggregateRoot in aggregateRoots)
+        catch
         {
-            aggregateRoot.ClearDomainEvents();
+            // ❌ Do NOT clear events → transaction rollback will retry safely
+            throw;
         }
     }
 }

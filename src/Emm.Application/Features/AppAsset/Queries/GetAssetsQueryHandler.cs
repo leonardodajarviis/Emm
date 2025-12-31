@@ -28,7 +28,7 @@ public class GetAssetsQueryHandler : IRequestHandler<GetAssetsQuery, Result<Page
             .Select(x => new AssetSummaryResponse
             {
                 Id = x.Id,
-                Code = x.Code,
+                Code = x.Code.Value,
                 DisplayName = x.DisplayName,
                 AssetModelId = x.AssetModelId,
                 Description = x.Description,

@@ -25,7 +25,6 @@ public static class InfrastructureExtensions
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         // Register Interceptors - must be registered before DbContext
-        services.AddScoped<AuditableEntityInterceptor>();
         services.AddSingleton<DomainEventInterceptor>();
 
         services.AddDbContext<XDbContext>(options =>
@@ -104,7 +103,7 @@ public static class InfrastructureExtensions
             cfg.IdleDelay = TimeSpan.FromMilliseconds(500);
         });
 
-        services.AddHostedService<OutboxProcessor>();
+        // services.AddHostedService<OutboxProcessor>();
         services.AddJwtAuthentication(configuration);
 
         return services;

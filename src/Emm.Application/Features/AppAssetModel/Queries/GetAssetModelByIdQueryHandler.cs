@@ -101,7 +101,7 @@ public class GetAssetModelByIdQueryHandler : IRequestHandler<GetAssetModelByIdQu
                     .Select(x => new AssetTypeResponse
                     {
                         Id = x.Id,
-                        Code = x.Code,
+                        Code = x.Code.Value,
                         Name = x.Name
                     }).FirstOrDefault(),
 

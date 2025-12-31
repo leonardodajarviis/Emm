@@ -44,7 +44,7 @@ public class AddAssetsCommandHandler : IRequestHandler<AddAssetsCommand, Result<
             {
                 shift.AddAsset(
                     assetId: existingAsset.Id,
-                    assetCode: existingAsset.Code,
+                    assetCode: existingAsset.Code.Value,
                     assetName: existingAsset.DisplayName,
                     isPrimary: false,
                     assetBoxId: request.AssetBoxId);

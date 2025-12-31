@@ -6,7 +6,7 @@ public record UpdateAssetModelCommand(
     string? Description,
     string? Notes,
     Guid? ParentId,
-    Guid? AssetCategoryId,
-    Guid? AssetTypeId,
+    Guid AssetCategoryId,
+    Guid AssetTypeId,
     bool IsActive
 ) : IRequest<Result<object>>;

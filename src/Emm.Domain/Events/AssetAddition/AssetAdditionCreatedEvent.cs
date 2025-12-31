@@ -1,8 +1,10 @@
 using Emm.Domain.Abstractions;
+using Emm.Domain.ValueObjects;
 
 namespace Emm.Domain.Events.AssetAddition;
 
-public record AssetAdditionCreatedEvent : IImmediateDomainEvent
+
+public record AssetAdditionCreatedEvent: IImmediateDomainEvent
 {
     public Guid AssetAdditionId { get; }
     public Guid LocationId { get; }
@@ -22,11 +24,15 @@ public record AssetAdditionCreatedEvent : IImmediateDomainEvent
 public sealed record AssetAdditionCreatedEventAssetLine
 {
     public Guid AssetModelId { get; }
-    public string AssetCode { get; }
+    public NaturalKey AssetCode { get; }
+    public string AssetDisplayName { get; }
+    public bool IsCodeGenerated { get; }
 
-    public AssetAdditionCreatedEventAssetLine(Guid assetModelId, string assetCode)
+    public AssetAdditionCreatedEventAssetLine(Guid assetModelId, bool isCodeGenerated, NaturalKey assetCode, string assetDisplayName)
     {
         AssetModelId = assetModelId;
+        AssetDisplayName = assetDisplayName;
+        IsCodeGenerated = isCodeGenerated;
         AssetCode = assetCode;
     }
 }

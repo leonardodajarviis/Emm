@@ -31,7 +31,7 @@ public class GetAssetAdditionsQueryHandler : IRequestHandler<GetAssetAdditionsQu
             .Select(x => new AssetAdditionSummaryResponse
             {
                 Id = x.Id,
-                Code = x.Code,
+                Code = x.Code.Value,
                 OrganizationUnitId = x.OrganizationUnitId,
                 OrganizationUnitName = _queryContext.Query<OrganizationUnit>()
                     .Where(ou => ou.Id == x.OrganizationUnitId)

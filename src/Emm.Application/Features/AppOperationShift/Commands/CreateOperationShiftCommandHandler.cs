@@ -130,7 +130,7 @@ public class CreateOperationShiftCommandHandler : IRequestHandler<CreateOperatio
                         var asset = assets.First(a => a.Id == assetRequest.AssetId);
                         operationShift.AddAsset(
                             assetId: asset.Id,
-                            assetCode: asset.Code,
+                            assetCode: asset.Code.Value,
                             assetName: asset.DisplayName,
                             isPrimary: assetRequest.IsPrimary,
                             assetBoxId: null
@@ -149,7 +149,7 @@ public class CreateOperationShiftCommandHandler : IRequestHandler<CreateOperatio
                         var asset = assets.First(a => a.Id == assetId);
                         operationShift.AddAsset(
                             assetId: asset.Id,
-                            assetCode: asset.Code,
+                            assetCode: asset.Code.Value,
                             assetName: asset.DisplayName,
                             isPrimary: false,
                             assetBoxId: box.Id

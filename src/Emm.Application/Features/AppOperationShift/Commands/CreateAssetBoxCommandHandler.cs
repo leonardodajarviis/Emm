@@ -89,7 +89,7 @@ public class CreateAssetBoxCommandHandler : IRequestHandler<CreateAssetBoxComman
                         newAssetIds.Add(asset.Id);
                         shift.AddAsset(
                             assetId: asset.Id,
-                            assetCode: asset.Code,
+                            assetCode: asset.Code.Value,
                             assetName: asset.DisplayName,
                             isPrimary: false,
                             assetBoxId: createdBox.Id);

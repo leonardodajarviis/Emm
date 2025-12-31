@@ -1,5 +1,7 @@
+using Emm.Domain.Entities;
 using Emm.Domain.Entities.AssetCatalog;
 using Emm.Domain.Events.AssetAddition;
+using Emm.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 
 namespace Emm.Application.Features.AppAsset.EventHandlers;
@@ -7,17 +9,14 @@ namespace Emm.Application.Features.AppAsset.EventHandlers;
 public class AssetAdditionCreatedEventHandler : IEventHandler<AssetAdditionCreatedEvent>
 {
     private readonly IQueryContext _queryContext;
-    private readonly IRepository<Asset, long> _assetRepository;
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IAssetRepository _assetRepository;
 
     public AssetAdditionCreatedEventHandler(
         IQueryContext queryContext,
-        IRepository<Asset, long> assetRepository,
-        IUnitOfWork unitOfWork)
+        IAssetRepository assetRepository)
     {
         _queryContext = queryContext;
         _assetRepository = assetRepository;
-        _unitOfWork = unitOfWork;
     }
 
     public async Task Handle(AssetAdditionCreatedEvent @event, CancellationToken cancellationToken = default)
@@ -32,7 +31,36 @@ public class AssetAdditionCreatedEventHandler : IEventHandler<AssetAdditionCreat
         var assetModels = await _queryContext.Query<AssetModel>()
             .Where(x => assetModelIds.Contains(x.Id))
             .Include(x => x.Parameters)
-            .ToDictionaryAsync(x => x.Id, cancellationToken: cancellationToken);
+            .ToDictionaryAsync(x => x.Id, cancellationToken);
+
+        var categoryIds = assetModels.Values
+            .Select(am => am.AssetCategoryId)
+            .Distinct()
+            .ToList();
+
+        var typeIds = assetModels.Values
+            .Select(am => am.AssetTypeId)
+            .Distinct()
+            .ToList();
+
+        var parameterIds = assetModels.Values
+            .SelectMany(am => am.Parameters)
+            .Select(p => p.ParameterId)
+            .Distinct()
+            .ToList();
+
+        var assetCategories = await _queryContext.Query<AssetCategory>()
+            .Where(ac => categoryIds.Contains(ac.Id))
+            .ToDictionaryAsync(ac => ac.Id, cancellationToken);
+
+        var assetTypes = await _queryContext.Query<AssetType>()
+            .Where(at => typeIds.Contains(at.Id))
+            .ToDictionaryAsync(at => at.Id, cancellationToken);
+
+        var parameters = await _queryContext.Query<ParameterCatalog>()
+            .Where(p => parameterIds.Contains(p.Id))
+            .ToDictionaryAsync(p => p.Id, cancellationToken);
+
 
         var assets = new List<Asset>();
 
@@ -43,9 +71,19 @@ public class AssetAdditionCreatedEventHandler : IEventHandler<AssetAdditionCreat
                 continue; // Skip if the asset model is not found
             }
 
+            if (!assetCategories.TryGetValue(assetModel.AssetCategoryId, out var assetCategory))
+            {
+                continue; // Skip if the asset category is not found
+            }
+
+            if (!assetTypes.TryGetValue(assetModel.AssetTypeId, out var assetType))
+            {
+                continue; // Skip if the asset type is not found
+            }
+
             var asset = new Asset(
                 code: line.AssetCode,
-                displayName: assetModel.Name,
+                displayName: line.AssetDisplayName,
                 assetModelId: line.AssetModelId,
                 assetCategoryId: assetModel.AssetCategoryId,
                 assetTypeId: assetModel.AssetTypeId,
@@ -54,16 +92,37 @@ public class AssetAdditionCreatedEventHandler : IEventHandler<AssetAdditionCreat
                 assetAdditionId: @event.AssetAdditionId,
                 description: assetModel.Description);
 
+            asset.MakeSnapshot(
+                assetModeCode: assetModel.Code.Value,
+                assetModelName: assetModel.Name,
+                assetTypeCode: assetType.Code.Value,
+                assetTypeName: assetType.Name,
+                assetCategoryCode: assetCategory.Code.Value,
+                assetCategoryName: assetCategory.Name);
+
             // Add parameters from the asset model
             if (assetModel.Parameters.Count > 0)
             {
-                asset.AddParameters([.. assetModel.Parameters.Select(p => p.ParameterId)]);
+                foreach (var assetModelParameter in assetModel.Parameters)
+                {
+                    if (!parameters.TryGetValue(assetModelParameter.ParameterId, out var parameterCatalog))
+                    {
+                        continue; // Skip if the parameter catalog is not found
+                    }
+                    asset.AddParameter(
+                        parameterId: assetModelParameter.ParameterId,
+                        isMaintenanceParameter: assetModelParameter.IsMaintenanceParameter,
+                        value: 0,
+                        valueToMaintenance: 0,
+                        parameterCode: parameterCatalog.Code,
+                        parameterName: parameterCatalog.Name);
+                }
             }
 
             assets.Add(asset);
         }
 
-        // Only add to repository - SaveChanges will be called by the outbox processor
+        // Add to repository and let interceptor save after all events processed
         _assetRepository.AddRange(assets);
     }
 }

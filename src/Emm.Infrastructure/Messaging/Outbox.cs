@@ -9,13 +9,10 @@ public class Outbox : IOutbox
 {
     private readonly XDbContext _context;
     private readonly IEventSerializer _serializer;
-    private readonly IMediator _mediator;
-
-    public Outbox(XDbContext context, IEventSerializer serializer, IMediator mediator)
+    public Outbox(XDbContext context, IEventSerializer serializer)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
         _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
-        _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
     }
     public void Enqueue(IDomainEvent @event)
     {
@@ -42,31 +39,6 @@ public class Outbox : IOutbox
                 Payload = _serializer.Serialize(e),
                 CreatedAt = now
             });
-        }
-    }
-
-    public async Task PublishImmediateAsync(IDomainEvent @event, CancellationToken cancellationToken = default)
-    {
-        if (@event == null)
-            throw new ArgumentNullException(nameof(@event));
-
-        // Publish the event immediately to all handlers within the current transaction
-        // Immediate events are NOT saved to outbox - they are processed synchronously
-        await _mediator.Publish((object)@event, cancellationToken);
-    }
-
-    public async Task PublishImmediateRangeAsync(IEnumerable<IDomainEvent> events, CancellationToken cancellationToken = default)
-    {
-        if (events == null)
-            throw new ArgumentNullException(nameof(events));
-
-        var eventList = events.ToList();
-
-        // Publish all events immediately to handlers within the current transaction
-        // Immediate events are NOT saved to outbox - they are processed synchronously
-        foreach (var @event in eventList)
-        {
-            await _mediator.Publish((object)@event, cancellationToken);
         }
     }
 }

@@ -9,9 +9,11 @@ public class AssetParameter
     public string? ParameterUnit { get; private set; }
     public decimal CurrentValue { get; private set; }
 
+    public bool IsMaintenanceParameter {get; private set;}
+
     public decimal ValueToMaintenance {get; private set;}
 
-    public AssetParameter(Guid parameterId, decimal value,decimal valueToMaintenance, string? parameterCode = null, string? parameterName = null, string? parameterUnit = null)
+    public AssetParameter(Guid parameterId, bool isMaintenanceParameter,  decimal value,decimal valueToMaintenance, string? parameterCode = null, string? parameterName = null, string? parameterUnit = null)
     {
         ParameterId = parameterId;
         CurrentValue = value;
@@ -19,6 +21,7 @@ public class AssetParameter
         ParameterCode = parameterCode;
         ParameterName = parameterName;
         ParameterUnit = parameterUnit;
+        IsMaintenanceParameter = isMaintenanceParameter;
     }
 
     internal void UpdateValue(decimal newValue)

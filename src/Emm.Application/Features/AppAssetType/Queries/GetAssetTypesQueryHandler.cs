@@ -28,7 +28,7 @@ public class GetAssetTypesQueryHandler : IRequestHandler<GetAssetTypesQuery, Res
             .Select(at => new AssetTypeResponse
             {
                 Id = at.Id,
-                Code = at.Code,
+                Code = at.Code.Value,
                 Name = at.Name,
                 IsCodeGenerated = at.IsCodeGenerated,
                 Description = at.Description,
