@@ -71,7 +71,7 @@ public sealed class DomainEventInterceptor : SaveChangesInterceptor
         return result;
     }
 
-    private async Task DispatchDomainEventsAsync(DbContext context)
+    private Task DispatchDomainEventsAsync(DbContext context)
     {
         var aggregates = context.ChangeTracker
             .Entries<IAggregateRoot>()
@@ -80,7 +80,7 @@ public sealed class DomainEventInterceptor : SaveChangesInterceptor
             .ToList();
 
         if (aggregates.Count == 0)
-            return;
+            return Task.CompletedTask;
 
         var deferredEvents = aggregates
             .SelectMany(a => a.DeferredEvents)
@@ -89,32 +89,28 @@ public sealed class DomainEventInterceptor : SaveChangesInterceptor
         using var scope = _scopeFactory.CreateScope();
         var serialize = scope.ServiceProvider.GetRequiredService<IEventSerializer>();
 
-        try
+        if (deferredEvents.Count > 0)
         {
-            if (deferredEvents.Count > 0)
-            {
-                var xcontext = (XDbContext)context;
-                foreach (var defEvent in deferredEvents)
-                {
-                    xcontext.OutboxMessages.Add(new OutboxMessage
-                    {
-                        Id = Guid.NewGuid(),
-                        Type = defEvent.GetType().AssemblyQualifiedName!,
-                        Payload = serialize.Serialize(defEvent),
-                        CreatedAt = DateTime.UtcNow
-                    });
-                }
-            }
+            var xcontext = (XDbContext)context;
 
-            foreach (var aggregate in aggregates)
+            foreach (var defEvent in deferredEvents)
             {
-                aggregate.ClearDomainEvents();
+                xcontext.OutboxMessages.Add(new OutboxMessage
+                {
+                    Id = Guid.NewGuid(),
+                    Type = defEvent.GetType().AssemblyQualifiedName!,
+                    Payload = serialize.Serialize(defEvent),
+                    CreatedAt = DateTime.UtcNow
+                });
             }
         }
-        catch
+
+        foreach (var aggregate in aggregates)
         {
-            // ❌ Do NOT clear events → transaction rollback will retry safely
-            throw;
+            aggregate.ClearDomainEvents();
         }
+
+        return Task.CompletedTask;
     }
+
 }
