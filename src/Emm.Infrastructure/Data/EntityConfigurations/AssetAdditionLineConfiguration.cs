@@ -1,5 +1,6 @@
 using Emm.Domain.Entities.AssetCatalog;
 using Emm.Domain.Entities.AssetTransaction;
+using Emm.Infrastructure.Data.Converters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -26,6 +27,7 @@ public class AssetAdditionLineConfiguration : IEntityTypeConfiguration<AssetAddi
             .IsRequired();
 
         builder.Property(x => x.AssetCode)
+            .HasConversion<NaturalKeyConverter>()
             .HasMaxLength(50)
             .IsRequired();
 
