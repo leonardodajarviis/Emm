@@ -29,7 +29,7 @@ public class GetAssetAdditionByIdQueryHandler : IRequestHandler<GetAssetAddition
                     .Select(ou => ou.Name)
                     .FirstOrDefault(),
                 LocationId = x.LocationId,
-                LocationName = _queryContext.Query<OrganizationUnit>()
+                LocationName = _queryContext.Query<Location>()
                     .Where(loc => loc.Id == x.LocationId)
                     .Select(loc => loc.Name)
                     .FirstOrDefault(),
