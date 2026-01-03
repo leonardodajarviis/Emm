@@ -1,5 +1,7 @@
 using Emm.Application.Features.AppAssetAddition.Dtos;
+using Emm.Domain.Entities.AssetCatalog;
 using Emm.Domain.Entities.AssetTransaction;
+using Emm.Domain.Entities.Organization;
 using Microsoft.EntityFrameworkCore;
 
 namespace Emm.Application.Features.AppAssetAddition.Queries;
@@ -22,7 +24,15 @@ public class GetAssetAdditionByIdQueryHandler : IRequestHandler<GetAssetAddition
                 Id = x.Id,
                 Code = x.Code.Value,
                 OrganizationUnitId = x.OrganizationUnitId,
+                OrganizationUnitName = _queryContext.Query<OrganizationUnit>()
+                    .Where(ou => ou.Id == x.OrganizationUnitId)
+                    .Select(ou => ou.Name)
+                    .FirstOrDefault(),
                 LocationId = x.LocationId,
+                LocationName = _queryContext.Query<OrganizationUnit>()
+                    .Where(loc => loc.Id == x.LocationId)
+                    .Select(loc => loc.Name)
+                    .FirstOrDefault(),
                 DecisionNumber = x.DecisionNumber,
                 DecisionDate = x.DecisionDate,
                 Reason = x.Reason,
@@ -34,6 +44,10 @@ public class GetAssetAdditionByIdQueryHandler : IRequestHandler<GetAssetAddition
                         Id = line.Id,
                         AssetAdditionId = line.AssetAdditionId,
                         AssetModelId = line.AssetModelId,
+                        AssetModelName = _queryContext.Query<AssetModel>()
+                            .Where(am => am.Id == line.AssetModelId)
+                            .Select(am => am.Name)
+                            .FirstOrDefault(),
                         AssetCode = line.AssetCode.Value,
                         UnitPrice = line.UnitPrice
                     })
