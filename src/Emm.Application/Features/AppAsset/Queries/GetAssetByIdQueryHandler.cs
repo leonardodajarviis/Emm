@@ -1,3 +1,4 @@
+using System.Reflection.Metadata;
 using Emm.Application.Features.AppAsset.Dtos;
 using Emm.Application.Features.AppAssetModel.Dtos;
 using Emm.Domain.Entities;
@@ -30,6 +31,16 @@ public class GetAssetByIdQueryHandler : IRequestHandler<GetAssetByIdQuery, Resul
                 AssetCategoryId = x.AssetCategoryId,
                 AssetCategoryCode = x.AssetCategoryCode,
                 AssetCategoryName = x.AssetCategoryName,
+                LocationId = x.LocationId,
+                LocationName = _qq.Query<Location>()
+                    .Where(loc => loc.Id == x.LocationId)
+                    .Select(loc => loc.Name)
+                    .FirstOrDefault(),
+                OrganizationUnitId = x.OrganizationUnitId,
+                OrganizationUnitName = _qq.Query<OrganizationUnit>()
+                    .Where(ou => ou.Id == x.OrganizationUnitId)
+                    .Select(ou => ou.Name)
+                    .FirstOrDefault(),
                 AssetModelId = x.AssetModelId,
                 AssetModelCode = x.AssetModelCode,
                 AssetModelName = x.AssetModelName,
@@ -40,6 +51,21 @@ public class GetAssetByIdQueryHandler : IRequestHandler<GetAssetByIdQuery, Resul
                 Status = (int)x.Status,
                 CreatedAt = x.Audit.CreatedAt,
                 ModifiedAt = x.Audit.ModifiedAt,
+
+                Parameters = _qq.Query<AssetParameter>()
+                    .Where(ap => ap.AssetId == x.Id)
+                    .Select(ap => new AssetParameterResponse
+                    {
+                        AssetId = ap.AssetId,
+                        ParameterId = ap.ParameterId,
+                        ParameterCode = ap.ParameterCode,
+                        ParameterName = ap.ParameterName,
+                        ParameterUnit = ap.ParameterUnit,
+                        CurrentValue = ap.CurrentValue,
+                        IsMaintenanceParameter = ap.IsMaintenanceParameter,
+                        ValueToMaintenance = ap.ValueToMaintenance
+                    })
+                    .ToList(),
 
                 // Lấy Maintenance Plan Definitions từ AssetModel
                 MaintenancePlanDefinitions = _qq.Query<MaintenancePlanDefinition>()
