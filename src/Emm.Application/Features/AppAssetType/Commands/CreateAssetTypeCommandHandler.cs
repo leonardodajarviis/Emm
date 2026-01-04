@@ -30,7 +30,7 @@ public class CreateAssetTypeCommandHandler : IRequestHandler<CreateAssetTypeComm
 
         if (request.IsCodeGenerated)
         {
-            code = await _codeGenerator.GetNaturalKeyAsync<AssetType>("DTB", 6, cancellationToken);
+            code = await _codeGenerator.GetNaturalKeyAsync<AssetType>("LTB", 6, cancellationToken);
         }
         else
         {

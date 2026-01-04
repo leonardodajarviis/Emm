@@ -25,7 +25,7 @@ public class CreateAssetAdditionCommandHandler : IRequestHandler<CreateAssetAddi
         var result = await _unitOfWork.ExecuteInTransactionAsync(async () =>
         {
             // Generate the next code for Asset Addition
-            var code = await _codeGenerator.GetNaturalKeyAsync<AssetAddition>("PNTB", 10, cancellationToken);
+            var code = await _codeGenerator.GetNaturalKeyAsync<AssetAddition>("PNTB", 6, cancellationToken);
 
             var assetAddition = new AssetAddition(
                 code: code,
@@ -42,7 +42,7 @@ public class CreateAssetAdditionCommandHandler : IRequestHandler<CreateAssetAddi
                 NaturalKey assetCode = new();
                 if (lineCommand.IsCodeGenerated)
                 {
-                    assetCode = await _codeGenerator.GetNaturalKeyAsync<Asset>("TB", 10, cancellationToken);
+                    assetCode = await _codeGenerator.GetNaturalKeyAsync<Asset>("TB", 6, cancellationToken);
                 }
                 if (!lineCommand.IsCodeGenerated)
                 {
