@@ -96,9 +96,9 @@ public class CreateOperationShiftCommandHandler : IRequestHandler<CreateOperatio
                     operationShift.CreateAssetBox(
                         boxName: boxRequest.BoxName,
                         role: boxRequest.Role,
-                        assetIds: boxRequest.AssetIds
+                        assetIds: boxRequest.AssetIds,
                         displayOrder: boxRequest.DisplayOrder,
-                        description: boxRequest.Description,
+                        description: boxRequest.Description
                     );
                 }
             }
