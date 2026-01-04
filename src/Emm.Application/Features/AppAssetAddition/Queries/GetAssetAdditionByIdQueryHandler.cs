@@ -44,6 +44,7 @@ public class GetAssetAdditionByIdQueryHandler : IRequestHandler<GetAssetAddition
                         Id = line.Id,
                         AssetAdditionId = line.AssetAdditionId,
                         AssetModelId = line.AssetModelId,
+                        AssetDisplayName = line.AssetDisplayName,
                         AssetModelName = _queryContext.Query<AssetModel>()
                             .Where(am => am.Id == line.AssetModelId)
                             .Select(am => am.Name)
