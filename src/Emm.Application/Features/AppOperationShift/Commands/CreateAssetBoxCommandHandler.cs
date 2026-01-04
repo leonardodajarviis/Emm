@@ -34,6 +34,7 @@ public class CreateAssetBoxCommandHandler : IRequestHandler<CreateAssetBoxComman
             shift.CreateAssetBox(
                 request.BoxName,
                 request.Role,
+                request.AssetIds,
                 request.DisplayOrder,
                 request.Description);
 
