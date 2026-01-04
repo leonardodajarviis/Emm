@@ -42,6 +42,7 @@ public class CreateAssetCommandHandler : IRequestHandler<CreateAssetCommand, Res
         }
 
         var asset = new Asset(
+            isCodeGenerated: request.IsCodeGenerated,
             code: code,
             displayName: request.DisplayName,
             assetModelId: request.AssetModelId,

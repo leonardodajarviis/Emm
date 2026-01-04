@@ -27,6 +27,8 @@ public class AssetConfiguration : IEntityTypeConfiguration<Asset>
             .HasMaxLength(50)
             .IsRequired();
 
+        builder.Property(x => x.IsCodeGenerated);
+
         builder.Property(x => x.DisplayName)
             .HasMaxLength(200)
             .IsRequired();

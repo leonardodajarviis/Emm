@@ -82,6 +82,7 @@ public class AssetAdditionCreatedEventHandler : IEventHandler<AssetAdditionCreat
             }
 
             var asset = new Asset(
+                isCodeGenerated: line.IsCodeGenerated,
                 code: line.AssetCode,
                 displayName: line.AssetDisplayName,
                 assetModelId: line.AssetModelId,

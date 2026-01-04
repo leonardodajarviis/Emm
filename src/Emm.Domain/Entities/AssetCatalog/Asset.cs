@@ -7,8 +7,8 @@ namespace Emm.Domain.Entities.AssetCatalog;
 public class Asset : AggregateRoot, IAuditableEntity
 {
     private const int MaxParametersPerAsset = 100;
-    // Id inherited from AggregateRoot (Guid)
     public NaturalKey Code { get; private set; }
+    public bool IsCodeGenerated { get; private set; }
     public string DisplayName { get; private set; } = null!;
     public Guid AssetCategoryId { get; private set; }
     public string? AssetCategoryCode { get; private set; }
@@ -38,6 +38,7 @@ public class Asset : AggregateRoot, IAuditableEntity
     }
 
     public Asset(
+        bool isCodeGenerated,
         NaturalKey code,
         string displayName,
         Guid assetModelId,
@@ -59,6 +60,7 @@ public class Asset : AggregateRoot, IAuditableEntity
 
         _parameters = [];
 
+        IsCodeGenerated = isCodeGenerated;
         Code = code;
         DisplayName = displayName;
         Description = description;
