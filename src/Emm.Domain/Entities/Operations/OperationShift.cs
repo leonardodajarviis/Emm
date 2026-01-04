@@ -400,6 +400,8 @@ public class OperationShift : AggregateRoot, IAuditableEntity
         var box = new OperationShiftAssetBox(
             Id, boxName, role, displayOrder, description);
 
+        _assetBoxes.Add(box);
+
         if (assetIds != null)
         {
             foreach (var assetId in assetIds)
@@ -407,8 +409,6 @@ public class OperationShift : AggregateRoot, IAuditableEntity
                 AssignAssetToBox(assetId, box.Id);
             }
         }
-
-        _assetBoxes.Add(box);
     }
 
     public void UpdateAssetBox(
