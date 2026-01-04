@@ -59,6 +59,7 @@ public class GetOperationShiftByIdQueryHandler : IRequestHandler<GetOperationShi
                     Id = a.Id,
                     OperationShiftId = a.OperationShiftId,
                     AssetId = a.AssetId,
+                    AssetBoxId = a.AssetBoxId,
                     AssetCode = a.AssetCode,
                     AssetName = a.AssetName,
                     IsPrimary = a.IsPrimary,

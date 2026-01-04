@@ -63,7 +63,7 @@ public record OperationShiftAssetResponse
     public required string AssetCode { get; set; }
     public required string AssetName { get; set; }
     public required bool IsPrimary { get; set; }
-    public Guid? AssetGroupId { get; set; }
+    public Guid? AssetBoxId { get; set; }
     public IEnumerable<OperationShiftAssetParameterResponse> Parameters { get; set; } = [];
     public DateTime? StartedAt { get; set; }
     public DateTime? CompletedAt { get; set; }
