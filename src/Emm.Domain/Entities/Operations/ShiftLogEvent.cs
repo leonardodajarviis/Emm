@@ -7,7 +7,7 @@ namespace Emm.Domain.Entities.Operations;
 /// </summary>
 public class ShiftLogEvent
 {
-    public Guid Id { get; private set; }
+    public Guid Id { get; private set; } = Guid.CreateVersion7();
     public Guid ShiftLogId { get; private set; }
     public ShiftLogEventType EventType { get; private set; }
     public DateTime StartTime { get; private set; }

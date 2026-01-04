@@ -5,7 +5,7 @@ namespace Emm.Domain.Entities.Operations;
 /// </summary>
 public class ShiftLogCheckpoint
 {
-    public Guid Id { get; private set; }
+    public Guid Id { get; private set; } = Guid.CreateVersion7();
     public Guid LinkedId { get; private set; }
     public Guid ShiftLogId { get; private set; }
     public string Name { get; private set; } = null!;

@@ -2,7 +2,7 @@ namespace Emm.Domain.Entities.Operations;
 
 public class ShiftLogItem
 {
-    public Guid Id { get; private set; }
+    public Guid Id { get; private set; } = Guid.CreateVersion7();
     public Guid ShiftLogId { get; private set; }
 
     public Guid? AssetId { get; private set; }

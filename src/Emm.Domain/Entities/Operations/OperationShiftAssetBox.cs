@@ -8,7 +8,7 @@ namespace Emm.Domain.Entities.Operations;
 /// </summary>
 public class OperationShiftAssetBox
 {
-    public Guid Id { get; private set; }
+    public Guid Id { get; private set; } = Guid.CreateVersion7();
     public Guid OperationShiftId { get; private set; }
     public string BoxName { get; private set; } = null!;
     public string? Description { get; private set; }

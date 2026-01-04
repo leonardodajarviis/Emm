@@ -5,7 +5,7 @@ namespace Emm.Domain.Entities.Operations;
 /// </summary>
 public class ShiftLogParameterReading
 {
-    public Guid Id { get; private set; }
+    public Guid Id { get; private set; } = Guid.CreateVersion7();
     public Guid? ShiftLogCheckpointLinkedId {get; private set;}
     public Guid ShiftLogId { get; private set; }
     public Guid AssetId { get; private set; }
