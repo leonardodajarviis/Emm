@@ -44,6 +44,16 @@ public class GetOperationShiftByIdQueryHandler : IRequestHandler<GetOperationShi
                 CreatedAt = x.Audit.CreatedAt,
                 ModifiedAt = x.Audit.ModifiedAt,
 
+                AssetBoxes = x.AssetBoxes.Select(ab => new OperationShiftAssetBoxResponse
+                {
+                    Id = ab.Id,
+                    OperationShiftId = ab.OperationShiftId,
+                    BoxName = ab.BoxName,
+                    Role = ab.Role,
+                    Description = ab.Description,
+                    DisplayOrder = ab.DisplayOrder,
+                }).ToList(),
+
                 Assets = x.Assets.Select(a => new OperationShiftAssetResponse
                 {
                     Id = a.Id,

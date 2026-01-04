@@ -42,7 +42,7 @@ public record OperationShiftResponse
 
     // Related data
     public List<OperationShiftAssetResponse> Assets { get; set; } = [];
-    public List<OperationShiftAssetBoxResponse> AssetGroups { get; set; } = [];
+    public List<OperationShiftAssetBoxResponse> AssetBoxes { get; set; } = [];
     public List<ShiftLogResponse> ShiftLogs { get; set; } = [];
 }
 
@@ -74,11 +74,10 @@ public record OperationShiftAssetBoxResponse
 {
     public required Guid Id { get; set; }
     public required Guid OperationShiftId { get; set; }
-    public required string GroupName { get; set; }
+    public required string BoxName { get; set; }
     public string? Description { get; set; }
     public required BoxRole Role { get; set; }
     public required int DisplayOrder { get; set; }
-    public required DateTime CreatedAt { get; set; }
 }
 
 public record ShiftLogResponse
