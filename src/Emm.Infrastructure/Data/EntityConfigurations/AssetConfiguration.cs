@@ -1,6 +1,8 @@
 using Emm.Domain.Entities.AssetCatalog;
 using Emm.Domain.Entities.AssetTransaction;
+using Emm.Domain.Entities.Operations;
 using Emm.Domain.Entities.Organization;
+using Emm.Domain.ValueObjects;
 using Emm.Infrastructure.Data.Converters;
 using Emm.Infrastructure.Data.EntityConfigurations.Extensions;
 using Microsoft.EntityFrameworkCore;
@@ -27,7 +29,14 @@ public class AssetConfiguration : IEntityTypeConfiguration<Asset>
             .HasMaxLength(50)
             .IsRequired();
 
+        builder.Property(x => x.Status)
+            .HasConversion(
+                v => v.Value,
+                v => AssetStatus.From(v) // bạn tự implement
+            );
+
         builder.Property(x => x.IsCodeGenerated);
+        builder.Property(x => x.IsActive);
 
         builder.Property(x => x.DisplayName)
             .HasMaxLength(200)

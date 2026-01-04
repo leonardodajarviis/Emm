@@ -49,7 +49,7 @@ public class GetAssetByIdQueryHandler : IRequestHandler<GetAssetByIdQuery, Resul
                 AssetTypeCode = x.AssetTypeCode,
                 AssetTypeName = x.AssetTypeName,
                 Description = x.Description,
-                Status = (int)x.Status,
+                Status = x.Status.Value,
                 CreatedAt = x.Audit.CreatedAt,
                 ModifiedAt = x.Audit.ModifiedAt,
 

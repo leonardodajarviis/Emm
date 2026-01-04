@@ -9,7 +9,7 @@ public record AssetSummaryResponse
     public required string DisplayName { get; init; }
     public required Guid AssetModelId { get; init; }
     public string? Description { get; init; }
-    public int Status { get; init; }
+    public required string Status { get; init; }
     public required DateTime CreatedAt { get; init; }
     public required DateTime? ModifiedAt { get; init; }
 }
@@ -36,8 +36,8 @@ public class AssetResponse
     public string? LocationName { get; init; }
     public string? Description { get; init; }
     public required DateTime CreatedAt { get; init; }
-    public required DateTime? ModifiedAt { get; init; }
-    public int Status { get; init; }
+    public DateTime? ModifiedAt { get; init; }
+    public required string Status { get; init; }
 
     // Maintenance Plan Definitions từ AssetModel
     public IReadOnlyCollection<MaintenancePlanDefinitionResponse> MaintenancePlanDefinitions { get; init; } = [];

@@ -32,7 +32,7 @@ public class GetAssetsQueryHandler : IRequestHandler<GetAssetsQuery, Result<Page
                 DisplayName = x.DisplayName,
                 AssetModelId = x.AssetModelId,
                 Description = x.Description,
-                Status = (int)x.Status,
+                Status = x.Status.Value,
                 CreatedAt = x.Audit.CreatedAt,
                 ModifiedAt = x.Audit.ModifiedAt
             })

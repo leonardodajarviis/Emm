@@ -35,10 +35,6 @@ public class OperationShiftAssetConfiguration : IEntityTypeConfiguration<Operati
 
         builder.Property(x => x.AssetBoxId);
 
-        builder.Property(x => x.Status)
-            .IsRequired()
-            .HasConversion<int>();
-
         builder.Property(x => x.StartedAt);
 
         builder.Property(x => x.CompletedAt);
@@ -52,8 +48,6 @@ public class OperationShiftAssetConfiguration : IEntityTypeConfiguration<Operati
         builder.HasIndex(x => x.AssetId);
 
         builder.HasIndex(x => x.AssetCode);
-
-        builder.HasIndex(x => x.Status);
 
         builder.HasIndex(x => x.AssetBoxId);
 

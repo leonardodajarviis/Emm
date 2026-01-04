@@ -14,7 +14,6 @@ public class OperationShiftAsset
     public string AssetName { get; private set; } = null!;
     public bool IsPrimary { get; private set; }
     public Guid? AssetBoxId { get; private set; }
-    public AssetStatus Status { get; private set; }
     public DateTime? StartedAt { get; private set; }
     public DateTime? CompletedAt { get; private set; }
     public string? Notes { get; private set; }
@@ -33,7 +32,6 @@ public class OperationShiftAsset
         AssetName = assetName;
         IsPrimary = isPrimary;
         AssetBoxId = assetBoxId;
-        Status = AssetStatus.Scheduled;
     }
 
     public void AssignToGroup(Guid? assetBoxId)
@@ -41,62 +39,6 @@ public class OperationShiftAsset
         AssetBoxId = assetBoxId;
     }
 
-    public void StartOperation(string? notes = null)
-    {
-        if (Status != AssetStatus.Scheduled && Status != AssetStatus.Standby)
-            throw new DomainException($"Cannot start asset operation in {Status} status. Asset must be in Scheduled or Standby status.");
-
-        Status = AssetStatus.InOperation;
-        StartedAt = DateTime.UtcNow;
-        Notes = notes;
-    }
-
-    public void CompleteOperation(string? notes = null)
-    {
-        if (Status != AssetStatus.InOperation)
-            throw new DomainException($"Cannot complete asset operation in {Status} status. Asset must be in InOperation status.");
-
-        Status = AssetStatus.Completed;
-        CompletedAt = DateTime.UtcNow;
-        if (!string.IsNullOrEmpty(notes))
-            Notes = notes;
-    }
-
-    public void SetMaintenance(string reason)
-    {
-        if (string.IsNullOrWhiteSpace(reason))
-            throw new DomainException("Maintenance reason is required");
-
-        if (Status == AssetStatus.Completed)
-            throw new DomainException("Cannot set maintenance status for completed asset");
-
-        Status = AssetStatus.Maintenance;
-        Notes = reason;
-    }
-
-    public void SetFailed(string reason)
-    {
-        if (string.IsNullOrWhiteSpace(reason))
-            throw new DomainException("Failure reason is required");
-
-        if (Status == AssetStatus.Completed)
-            throw new DomainException("Cannot set failed status for completed asset");
-
-        Status = AssetStatus.Failed;
-        Notes = reason;
-    }
-
-    public void SetStandby(string? reason = null)
-    {
-        if (Status == AssetStatus.InOperation)
-            throw new DomainException("Cannot set standby status while asset is in operation. Complete or fail the operation first.");
-
-        if (Status == AssetStatus.Completed)
-            throw new DomainException("Cannot set standby status for completed asset");
-
-        Status = AssetStatus.Standby;
-        Notes = reason;
-    }
 
     public void UpdateNotes(string? notes)
     {
@@ -114,14 +56,4 @@ public record OperationShiftAssetSpec
     public string AssetName { get; init; } = null!;
     public string AssetType { get; init; } = null!;
     public bool IsPrimary { get; init; }
-}
-
-public enum AssetStatus
-{
-    Scheduled = 0,
-    InOperation = 1,
-    Completed = 2,
-    Maintenance = 3,
-    Failed = 4,
-    Standby = 5
 }

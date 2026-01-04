@@ -24,6 +24,7 @@ public class Asset : AggregateRoot, IAuditableEntity
     public Guid LocationId { get; private set; }
     public string? Description { get; private set; }
     public bool IsLooked { get; private set; }
+    public bool IsActive { get; private set; }
     public AssetStatus Status { get; private set; }
 
     public AuditMetadata Audit { get; private set; } = null!;
@@ -35,6 +36,7 @@ public class Asset : AggregateRoot, IAuditableEntity
     private Asset()
     {
         _parameters = [];
+        Status = AssetStatus.Idle;
     }
 
     public Asset(
@@ -70,6 +72,8 @@ public class Asset : AggregateRoot, IAuditableEntity
         OrganizationUnitId = organizationUnitId;
         LocationId = locationId;
         AssetAdditionId = assetAdditionId;
+        Status = AssetStatus.Idle;
+        IsActive = true;
 
         // RaiseDomainEvent(new AssetCreatedEvent(Id, code, displayName));
     }
@@ -187,12 +191,4 @@ public class Asset : AggregateRoot, IAuditableEntity
         if (displayName.Length > 200)
             throw new DomainException("Display name cannot exceed 200 characters");
     }
-}
-
-public enum AssetStatus
-{
-    Maintenance = 1,     // Đang bảo trì
-    Incident = 2,        // Đang gặp sự cố
-    Operating = 3,       // Đang vận hành
-    Idle = 4             // Đang rảnh
 }
