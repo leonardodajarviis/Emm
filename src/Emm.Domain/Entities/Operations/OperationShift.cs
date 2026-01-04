@@ -386,6 +386,7 @@ public class OperationShift : AggregateRoot, IAuditableEntity
     public void CreateAssetBox(
         string boxName,
         BoxRole role = BoxRole.Secondary,
+        IEnumerable<Guid>? assetIds = null,
         int displayOrder = 0,
         string? description = null)
     {
@@ -398,6 +399,14 @@ public class OperationShift : AggregateRoot, IAuditableEntity
 
         var box = new OperationShiftAssetBox(
             Id, boxName, role, displayOrder, description);
+
+        if (assetIds != null)
+        {
+            foreach (var assetId in assetIds)
+            {
+                AssignAssetToBox(assetId, box.Id);
+            }
+        }
 
         _assetBoxes.Add(box);
     }

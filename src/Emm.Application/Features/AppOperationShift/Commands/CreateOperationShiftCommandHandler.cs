@@ -65,8 +65,29 @@ public class CreateOperationShiftCommandHandler : IRequestHandler<CreateOperatio
                 notes: request.Notes
             );
 
-            // === PHASE 1: Create Boxes and save to get IDs ===
-            var boxNameToAssetIdsMap = new Dictionary<string, List<Guid>>();
+            if (request.Assets?.Count > 0)
+            {
+                var assetIds = request.Assets.Select(a => a.AssetId).ToList();
+                var existingAssets = await _qq.Query<Asset>()
+                    .Where(a => assetIds.Contains(a.Id))
+                    .ToDictionaryAsync(a => a.Id, cancellationToken);
+
+                foreach (var assetRequest in request.Assets)
+                {
+                    existingAssets.TryGetValue(assetRequest.AssetId, out var asset);
+
+                    if (asset == null)
+                    {
+                        return Result<object>.Invalid($"Asset with ID {assetRequest.AssetId} does not exist.");
+                    }
+
+                    operationShift.AddAsset(
+                        assetId: asset.Id,
+                        assetCode: asset.Code.Value,
+                        assetName: asset.DisplayName
+                    );
+                }
+            }
 
             if (request.AssetBoxes?.Count > 0)
             {
@@ -75,91 +96,17 @@ public class CreateOperationShiftCommandHandler : IRequestHandler<CreateOperatio
                     operationShift.CreateAssetBox(
                         boxName: boxRequest.BoxName,
                         role: boxRequest.Role,
+                        assetIds: boxRequest.AssetIds
                         displayOrder: boxRequest.DisplayOrder,
-                        description: boxRequest.Description
+                        description: boxRequest.Description,
                     );
-
-                    // Store mapping for later
-                    if (boxRequest.AssetIds?.Any() == true)
-                    {
-                        boxNameToAssetIdsMap[boxRequest.BoxName] = boxRequest.AssetIds.ToList();
-                    }
                 }
             }
 
-            // Save to get Box IDs
+
+            operationShift.StartShift(DateTime.UtcNow);
             await _repository.AddAsync(operationShift, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-            // === PHASE 2: Add Assets with Box IDs ===
-            // Collect all asset IDs from both direct assets and box assets
-            var allAssetIds = new HashSet<Guid>();
-            if (request.Assets?.Count > 0)
-            {
-                foreach (var asset in request.Assets)
-                    allAssetIds.Add(asset.AssetId);
-            }
-            foreach (var assetIds in boxNameToAssetIdsMap.Values)
-            {
-                foreach (var assetId in assetIds)
-                    allAssetIds.Add(assetId);
-            }
-
-            if (allAssetIds.Count > 0)
-            {
-                // Fetch all assets from database
-                var assets = await _qq.Query<Asset>()
-                    .Where(a => allAssetIds.Contains(a.Id))
-                    .ToListAsync(cancellationToken);
-
-                // Validate all requested assets exist
-                var foundAssetIds = assets.Select(a => a.Id).ToHashSet();
-                var missingAssetIds = allAssetIds.Where(id => !foundAssetIds.Contains(id)).ToList();
-                if (missingAssetIds.Count > 0)
-                {
-                    return Result<object>.Validation(
-                        $"Assets not found: {string.Join(", ", missingAssetIds)}",
-                        ValidationErrorCodes.FieldRequired);
-                }
-
-                // Add direct assets (without box)
-                if (request.Assets?.Count > 0)
-                {
-                    foreach (var assetRequest in request.Assets)
-                    {
-                        var asset = assets.First(a => a.Id == assetRequest.AssetId);
-                        operationShift.AddAsset(
-                            assetId: asset.Id,
-                            assetCode: asset.Code.Value,
-                            assetName: asset.DisplayName,
-                            isPrimary: assetRequest.IsPrimary,
-                            assetBoxId: null
-                        );
-                    }
-                }
-
-                // Add assets to boxes
-                foreach (var (boxName, assetIds) in boxNameToAssetIdsMap)
-                {
-                    var box = operationShift.AssetBoxes.FirstOrDefault(b => b.BoxName == boxName);
-                    if (box == null) continue;
-
-                    foreach (var assetId in assetIds)
-                    {
-                        var asset = assets.First(a => a.Id == assetId);
-                        operationShift.AddAsset(
-                            assetId: asset.Id,
-                            assetCode: asset.Code.Value,
-                            assetName: asset.DisplayName,
-                            isPrimary: false,
-                            assetBoxId: box.Id
-                        );
-                    }
-                }
-            }
-
-            // Start the shift
-            operationShift.StartShift(DateTime.UtcNow);
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
