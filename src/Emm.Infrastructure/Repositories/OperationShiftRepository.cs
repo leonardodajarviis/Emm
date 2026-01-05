@@ -15,6 +15,7 @@ public class OperationShiftRepository : GenericRepository<OperationShift, Guid>,
     {
         return await DbSet
             .Include(s => s.Assets)
+            .Include(s => s.AssetBoxes)
             .FirstOrDefaultAsync(shift => shift.Id == id, cancellationToken: cancellationToken);
     }
 }
