@@ -83,6 +83,8 @@ public class GetOperationShiftByIdQueryHandler : IRequestHandler<GetOperationShi
                 Id = t.Id,
                 OperationShiftId = t.OperationShiftId,
                 Name = t.Name,
+                BoxId = t.BoxId,
+                AssetId = t.AssetId,
                 Description = t.Description,
                 StartTime = t.StartTime,
                 EndTime = t.EndTime,

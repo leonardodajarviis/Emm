@@ -86,6 +86,8 @@ public record ShiftLogResponse
     public required Guid OperationShiftId { get; set; }
     public required string Name { get; set; }
     public string? Description { get; set; }
+    public Guid? AssetId { get; set; }
+    public Guid? BoxId { get; set; }
     public IReadOnlyCollection<ShiftLogCheckpointResponse> Checkpoints { get; set; } = [];
     public IReadOnlyCollection<ShiftLogParameterReadingResponse> Readings { get; set; } = [];
     public IReadOnlyCollection<ShiftLogItemResponse> Items { get; set; } = [];
