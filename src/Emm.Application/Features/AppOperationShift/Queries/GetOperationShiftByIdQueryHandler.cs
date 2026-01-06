@@ -90,6 +90,15 @@ public class GetOperationShiftByIdQueryHandler : IRequestHandler<GetOperationShi
                 EndTime = t.EndTime,
                 Notes = t.Notes,
 
+                Events = t.Events.Select(e => new ShiftLogEventResponse
+                {
+                    Id = e.Id,
+                    ShiftLogId = e.ShiftLogId,
+                    StartTime = e.StartTime,
+                    EndTime = e.EndTime,
+                    EventType = (int)e.EventType,
+                }).ToList(),
+
                 Checkpoints = t.Checkpoints.Select(c => new ShiftLogCheckpointResponse
                 {
                     Id = c.Id,

@@ -21,6 +21,7 @@ public record OperationShiftSummaryResponse
     public required DateTime CreatedAt { get; set; }
     public required DateTime? ModifiedAt { get; set; }
 }
+
 public record OperationShiftResponse
 {
     public required Guid Id { get; set; }
@@ -88,6 +89,7 @@ public record ShiftLogResponse
     public string? Description { get; set; }
     public Guid? AssetId { get; set; }
     public Guid? BoxId { get; set; }
+    public IReadOnlyCollection<ShiftLogEventResponse> Events { get; set; } = [];
     public IReadOnlyCollection<ShiftLogCheckpointResponse> Checkpoints { get; set; } = [];
     public IReadOnlyCollection<ShiftLogParameterReadingResponse> Readings { get; set; } = [];
     public IReadOnlyCollection<ShiftLogItemResponse> Items { get; set; } = [];
@@ -140,4 +142,13 @@ public class ShiftLogItemResponse
     public string? AssetName { get; set; }
     public Guid? UnitOfMeasureId { get; set; }
     public string? UnitOfMeasureName { get; set; }
+}
+
+public class ShiftLogEventResponse
+{
+    public Guid Id { get; set; }
+    public Guid ShiftLogId { get; set; }
+    public DateTime StartTime { get; set; }
+    public DateTime? EndTime { get; set; }
+    public int EventType { get; set; }
 }
