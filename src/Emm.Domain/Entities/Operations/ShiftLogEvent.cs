@@ -17,14 +17,37 @@ public class ShiftLogEvent
     public ShiftLogEvent(
         Guid operationTaskId,
         ShiftLogEventType eventType,
-        DateTime startTime
-        )
+        DateTime startTime,
+        DateTime? endTime = null)
     {
         DomainGuard.AgainstInvalidForeignKey(operationTaskId, nameof(operationTaskId));
 
         ShiftLogId = operationTaskId;
         StartTime = startTime;
         EventType = eventType;
+        if (endTime.HasValue)
+        {
+            EndEvent(endTime.Value);
+        }
+    }
+
+    public void Update(
+        ShiftLogEventType eventType,
+        DateTime startTime,
+        DateTime? endTime = null)
+    {
+        EventType = eventType;
+        StartTime = startTime;
+
+        if (endTime.HasValue)
+        {
+            EndEvent(endTime.Value);
+        }
+        else
+        {
+            EndTime = null;
+            Duration = null;
+        }
     }
 
     /// <summary>

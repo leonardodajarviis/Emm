@@ -205,7 +205,8 @@ public class AddShiftLogCommandHandler : IRequestHandler<AddShiftLogCommand, Res
             {
                 newShiftLog.RecordEvent(
                     eventType: history.EventType,
-                    startTime: history.StartTime);
+                    startTime: history.StartTime,
+                    endTime: history.EndTime);
             }
         }
 

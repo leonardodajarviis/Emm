@@ -187,14 +187,15 @@ public class UpdateShiftLogCommandHandler : IRequestHandler<UpdateShiftLogComman
                 if (history.Id.HasValue)
                 {
                     // Update existing
-                    var existingEvent = shiftLog.GetEvent(history.Id.Value);
+                    shiftLog.UpdateEvent(history.Id.Value, history.EventType, history.StartTime, history.EndTime);
                 }
                 else
                 {
                     // Add new
                     shiftLog.RecordEvent(
                         eventType: history.EventType,
-                        startTime: history.StartTime);
+                        startTime: history.StartTime,
+                        endTime: history.EndTime);
                 }
             }
         }

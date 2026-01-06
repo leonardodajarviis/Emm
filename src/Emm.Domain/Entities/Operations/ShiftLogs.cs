@@ -90,6 +90,19 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
         EndTime = endTime;
     }
 
+    public void UpdateEvent(
+        Guid eventId,
+        ShiftLogEventType eventType,
+        DateTime startTime,
+        DateTime? endTime = null)
+    {
+        var statusHistory = _events.FirstOrDefault(h => h.Id == eventId);
+        if (statusHistory == null)
+            throw new DomainException($"Event with ID {eventId} not found");
+
+        statusHistory.Update(eventType, startTime, endTime);
+    }
+
     #region Asset and Group Management
 
     /// <summary>
@@ -304,10 +317,11 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
     /// </summary>
     public void RecordEvent(
         ShiftLogEventType eventType,
-        DateTime startTime)
+        DateTime startTime,
+        DateTime? endTime = null)
     {
 
-        var statusHistory = new ShiftLogEvent(Id, eventType, startTime);
+        var statusHistory = new ShiftLogEvent(Id, eventType, startTime, endTime);
 
         _events.Add(statusHistory);
     }
