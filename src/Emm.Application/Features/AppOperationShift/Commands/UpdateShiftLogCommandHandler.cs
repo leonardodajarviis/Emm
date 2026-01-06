@@ -42,7 +42,7 @@ public class UpdateShiftLogCommandHandler : IRequestHandler<UpdateShiftLogComman
             .Distinct()
             .ToDictionary(a => a.AssetId, a => a);
 
-        var shiftLog = await _taskRepository.GetTaskWithDetailsAsync(request.ShiftLogId, cancellationToken);
+        var shiftLog = await _taskRepository.GetByIdAsync(request.ShiftLogId, cancellationToken);
         if (shiftLog == null)
         {
             return Result.NotFound("Shift log not found", ShiftLogErrorCodes.NotFound);

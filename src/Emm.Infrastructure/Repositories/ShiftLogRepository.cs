@@ -11,7 +11,7 @@ public class ShiftLogRepository : GenericRepository<ShiftLog, Guid>, IShiftLogRe
     {
     }
 
-    public override async Task<Domain.Entities.Operations.ShiftLog?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public override async Task<ShiftLog?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return await DbSet
             .Include(t => t.Readings)
@@ -28,10 +28,5 @@ public class ShiftLogRepository : GenericRepository<ShiftLog, Guid>, IShiftLogRe
             .Include(t => t.Events)
             .Where(t => t.OperationShiftId == shiftId)
             .ToListAsync(cancellationToken);
-    }
-
-    public async Task<ShiftLog?> GetTaskWithDetailsAsync(Guid taskId, CancellationToken cancellationToken = default)
-    {
-        return await GetByIdAsync(taskId, cancellationToken);
     }
 }
