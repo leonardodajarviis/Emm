@@ -1,7 +1,5 @@
-using Emm.Application.Abstractions;
 using Emm.Domain.Abstractions;
 using Emm.Infrastructure.Messaging;
-using LazyNet.Symphony.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
