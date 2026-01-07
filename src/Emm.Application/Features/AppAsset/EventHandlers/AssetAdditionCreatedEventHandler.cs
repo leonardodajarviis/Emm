@@ -113,10 +113,11 @@ public class AssetAdditionCreatedEventHandler : IEventHandler<AssetAdditionCreat
                     asset.AddParameter(
                         parameterId: assetModelParameter.ParameterId,
                         isMaintenanceParameter: assetModelParameter.IsMaintenanceParameter,
-                        value: 0,
-                        valueToMaintenance: 0,
                         parameterCode: parameterCatalog.Code,
-                        parameterName: parameterCatalog.Name);
+                        parameterName: parameterCatalog.Name,
+                        unitOfMeasureId: parameterCatalog.UnitOfMeasureId,
+                        value: 0
+                    );
                 }
             }
 

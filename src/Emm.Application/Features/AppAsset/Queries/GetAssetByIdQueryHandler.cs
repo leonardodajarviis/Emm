@@ -20,10 +20,15 @@ public class GetAssetByIdQueryHandler : IRequestHandler<GetAssetByIdQuery, Resul
 
     public async Task<Result<AssetResponse>> Handle(GetAssetByIdQuery request, CancellationToken cancellationToken)
     {
-        var asset = await _qq.Query<Asset>()
-            .AsQueryable()
-            .Where(x => x.Id == request.Id)
-            .Select(x => new AssetResponse
+        // Query 1: Asset chính với Location và OrganizationUnit
+        var asset = await (
+            from x in _qq.Query<Asset>().AsQueryable()
+            join loc in _qq.Query<Location>() on x.LocationId equals loc.Id into locGroup
+            from loc in locGroup.DefaultIfEmpty()
+            join ou in _qq.Query<OrganizationUnit>() on x.OrganizationUnitId equals ou.Id into ouGroup
+            from ou in ouGroup.DefaultIfEmpty()
+            where x.Id == request.Id
+            select new AssetResponse
             {
                 Id = x.Id,
                 Code = x.Code.Value,
@@ -33,15 +38,9 @@ public class GetAssetByIdQueryHandler : IRequestHandler<GetAssetByIdQuery, Resul
                 AssetCategoryCode = x.AssetCategoryCode,
                 AssetCategoryName = x.AssetCategoryName,
                 LocationId = x.LocationId,
-                LocationName = _qq.Query<Location>()
-                    .Where(loc => loc.Id == x.LocationId)
-                    .Select(loc => loc.Name)
-                    .FirstOrDefault(),
+                LocationName = loc.Name,
                 OrganizationUnitId = x.OrganizationUnitId,
-                OrganizationUnitName = _qq.Query<OrganizationUnit>()
-                    .Where(ou => ou.Id == x.OrganizationUnitId)
-                    .Select(ou => ou.Name)
-                    .FirstOrDefault(),
+                OrganizationUnitName = ou.Name,
                 AssetModelId = x.AssetModelId,
                 AssetModelCode = x.AssetModelCode,
                 AssetModelName = x.AssetModelName,
@@ -52,105 +51,143 @@ public class GetAssetByIdQueryHandler : IRequestHandler<GetAssetByIdQuery, Resul
                 Status = x.Status.Value,
                 CreatedAt = x.Audit.CreatedAt,
                 ModifiedAt = x.Audit.ModifiedAt,
-
-                Parameters = _qq.Query<AssetParameter>()
-                    .Where(ap => ap.AssetId == x.Id)
-                    .Select(ap => new AssetParameterResponse
-                    {
-                        AssetId = ap.AssetId,
-                        ParameterId = ap.ParameterId,
-                        ParameterCode = ap.ParameterCode,
-                        ParameterName = ap.ParameterName,
-                        ParameterUnit = ap.ParameterUnit,
-                        CurrentValue = ap.CurrentValue,
-                        IsMaintenanceParameter = ap.IsMaintenanceParameter,
-                        ValueToMaintenance = ap.ValueToMaintenance
-                    })
-                    .ToList(),
-
-                // Lấy Maintenance Plan Definitions từ AssetModel
-                MaintenancePlanDefinitions = _qq.Query<MaintenancePlanDefinition>()
-                    .Where(mp => mp.AssetModelId == x.AssetModelId)
-                    .Select(mp => new MaintenancePlanDefinitionResponse
-                    {
-                        Id = mp.Id,
-                        Name = mp.Name,
-                        Description = mp.Description,
-                        PlanType = mp.PlanType,
-                        IsActive = mp.IsActive,
-                        AssetModelId = mp.AssetModelId,
-                        RRule = mp.RRule,
-                        CreatedAt = mp.Audit.CreatedAt,
-                        ModifiedAt = mp.Audit.ModifiedAt,
-
-                        ParameterBasedTrigger = mp.ParameterBasedTrigger != null ? new ParameterBasedMaintenanceTriggerResponse
-                        {
-                            Id = mp.ParameterBasedTrigger.Id,
-                            ParameterId = mp.ParameterBasedTrigger.ParameterId,
-                            TriggerValue = mp.ParameterBasedTrigger.TriggerValue,
-                            MinValue = mp.ParameterBasedTrigger.MinValue,
-                            MaxValue = mp.ParameterBasedTrigger.MaxValue,
-                            TriggerCondition = mp.ParameterBasedTrigger.TriggerCondition,
-                            IsActive = mp.ParameterBasedTrigger.IsActive
-                        } : null,
-
-                        JobSteps = _qq.Query<MaintenancePlanJobStepDefinition>()
-                            .Where(js => js.MaintenancePlanDefinitionId == mp.Id)
-                            .Select(js => new MaintenancePlanJobStepDefinitionResponse
-                            {
-                                Id = js.Id,
-                                MaintenancePlanDefinitionId = js.MaintenancePlanDefinitionId,
-                                Name = js.Name,
-                                OrganizationUnitId = js.OrganizationUnitId,
-                                OrganizationUnit = js.OrganizationUnitId != null ? _qq.Query<OrganizationUnit>()
-                                    .Where(ou => ou.Id == js.OrganizationUnitId)
-                                    .Select(ou => new OrganizationUnitResponse
-                                    {
-                                        Id = ou.Id,
-                                        Code = ou.Code,
-                                        Name = ou.Name
-                                    })
-                                    .FirstOrDefault() : null,
-                                Note = js.Note,
-                                Order = js.Order,
-                            })
-                            .ToList(),
-
-                        RequiredItems = _qq.Query<MaintenancePlanRequiredItem>()
-                            .Where(ri => ri.MaintenancePlanDefinitionId == mp.Id)
-                            .Select(ri => new MaintenancePlanRequiredItemResponse
-                            {
-                                Id = ri.Id,
-                                MaintenancePlanDefinitionId = ri.MaintenancePlanDefinitionId,
-                                ItemGroupId = ri.ItemGroupId,
-                                ItemGroupName = _qq.Query<ItemGroup>()
-                                    .Where(ig => ig.Id == ri.ItemGroupId)
-                                    .Select(ig => ig.Name)
-                                    .FirstOrDefault(),
-                                ItemId = ri.ItemId,
-                                ItemName = _qq.Query<Item>()
-                                    .Where(i => i.Id == ri.ItemId)
-                                    .Select(i => i.Name)
-                                    .FirstOrDefault(),
-                                UnitOfMeasureId = ri.UnitOfMeasureId,
-                                UnitOfMeasureName = _qq.Query<UnitOfMeasure>()
-                                    .Where(u => u.Id == ri.UnitOfMeasureId)
-                                    .Select(u => u.Name)
-                                    .FirstOrDefault(),
-                                Quantity = ri.Quantity,
-                                IsRequired = ri.IsRequired,
-                                Note = ri.Note
-                            })
-                            .ToList()
-                    })
-                    .ToList()
-            })
-            .FirstOrDefaultAsync(cancellationToken);
+            }
+        ).FirstOrDefaultAsync(cancellationToken);
 
         if (asset == null)
         {
             return Result<AssetResponse>.Failure(ErrorType.NotFound, "Asset not found");
         }
+
+        // Query 2: Parameters với UnitOfMeasure
+        asset.Parameters = await (
+            from ap in _qq.Query<AssetParameter>()
+            join u in _qq.Query<UnitOfMeasure>() on ap.UnitOfMeasureId equals u.Id into uGroup
+            from u in uGroup.DefaultIfEmpty()
+            where ap.AssetId == request.Id
+            select new AssetParameterResponse
+            {
+                AssetId = ap.AssetId,
+                ParameterId = ap.ParameterId,
+                ParameterCode = ap.ParameterCode,
+                ParameterName = ap.ParameterName,
+                CurrentValue = ap.CurrentValue,
+                IsMaintenanceParameter = ap.IsMaintenanceParameter,
+                UnitOfMeasureId = ap.UnitOfMeasureId,
+                UnitOfMeasureName = u.Name ?? "",
+                UnitOfMeasureSymbol = u.Symbol ?? ""
+            }
+        ).ToListAsync(cancellationToken);
+
+        // Query 3: MaintenancePlans (nếu có AssetModelId)
+        var maintenancePlans = await (
+            from mp in _qq.Query<MaintenancePlanDefinition>()
+            where mp.AssetModelId == asset.AssetModelId
+            select new MaintenancePlanDefinitionResponse
+            {
+                Id = mp.Id,
+                Name = mp.Name,
+                Description = mp.Description,
+                PlanType = mp.PlanType,
+                IsActive = mp.IsActive,
+                AssetModelId = mp.AssetModelId,
+                RRule = mp.RRule,
+                CreatedAt = mp.Audit.CreatedAt,
+                ModifiedAt = mp.Audit.ModifiedAt,
+                ParameterBasedTrigger = mp.ParameterBasedTrigger != null ? new ParameterBasedMaintenanceTriggerResponse
+                {
+                    Id = mp.ParameterBasedTrigger.Id,
+                    ParameterId = mp.ParameterBasedTrigger.ParameterId,
+                    TriggerValue = mp.ParameterBasedTrigger.TriggerValue,
+                    MinValue = mp.ParameterBasedTrigger.MinValue,
+                    MaxValue = mp.ParameterBasedTrigger.MaxValue,
+                    TriggerCondition = mp.ParameterBasedTrigger.TriggerCondition,
+                    IsActive = mp.ParameterBasedTrigger.IsActive
+                } : null,
+                JobSteps = new List<MaintenancePlanJobStepDefinitionResponse>(),
+                RequiredItems = new List<MaintenancePlanRequiredItemResponse>()
+            }
+        ).ToListAsync(cancellationToken);
+
+        if (maintenancePlans.Any())
+        {
+            var planIds = maintenancePlans.Select(mp => mp.Id).ToArray();
+
+            // Query 4: Tất cả JobSteps cho các MaintenancePlans
+            var allJobSteps = await (
+                from js in _qq.Query<MaintenancePlanJobStepDefinition>()
+                join ou2 in _qq.Query<OrganizationUnit>() on js.OrganizationUnitId equals ou2.Id into ou2Group
+                from ou2 in ou2Group.DefaultIfEmpty()
+                where planIds.Contains(js.MaintenancePlanDefinitionId)
+                select new
+                {
+                    JobStep = new MaintenancePlanJobStepDefinitionResponse
+                    {
+                        Id = js.Id,
+                        MaintenancePlanDefinitionId = js.MaintenancePlanDefinitionId,
+                        Name = js.Name,
+                        OrganizationUnitId = js.OrganizationUnitId,
+                        OrganizationUnit = js.OrganizationUnitId != null ? new OrganizationUnitResponse
+                        {
+                            Id = ou2.Id,
+                            Code = ou2.Code,
+                            Name = ou2.Name
+                        } : null,
+                        Note = js.Note,
+                        Order = js.Order,
+                    },
+                    PlanId = js.MaintenancePlanDefinitionId
+                }
+            ).ToListAsync(cancellationToken);
+
+            // Query 5: Tất cả RequiredItems cho các MaintenancePlans
+            var allRequiredItems = await (
+                from ri in _qq.Query<MaintenancePlanRequiredItem>()
+                join ig in _qq.Query<ItemGroup>() on ri.ItemGroupId equals ig.Id into igGroup
+                from ig in igGroup.DefaultIfEmpty()
+                join i in _qq.Query<Item>() on ri.ItemId equals i.Id into iGroup
+                from i in iGroup.DefaultIfEmpty()
+                join u in _qq.Query<UnitOfMeasure>() on ri.UnitOfMeasureId equals u.Id into uGroup
+                from u in uGroup.DefaultIfEmpty()
+                where planIds.Contains(ri.MaintenancePlanDefinitionId)
+                select new
+                {
+                    RequiredItem = new MaintenancePlanRequiredItemResponse
+                    {
+                        Id = ri.Id,
+                        MaintenancePlanDefinitionId = ri.MaintenancePlanDefinitionId,
+                        ItemGroupId = ri.ItemGroupId,
+                        ItemGroupName = ig.Name,
+                        ItemId = ri.ItemId,
+                        ItemName = i.Name,
+                        UnitOfMeasureId = ri.UnitOfMeasureId,
+                        UnitOfMeasureName = u.Name,
+                        Quantity = ri.Quantity,
+                        IsRequired = ri.IsRequired,
+                        Note = ri.Note
+                    },
+                    PlanId = ri.MaintenancePlanDefinitionId
+                }
+            ).ToListAsync(cancellationToken);
+
+            // Assemble data in memory
+            foreach (var plan in maintenancePlans)
+            {
+                plan.JobSteps = (
+                    from js in allJobSteps
+                    where js.PlanId == plan.Id
+                    select js.JobStep
+                ).ToList();
+
+                plan.RequiredItems = (
+                    from ri in allRequiredItems
+                    where ri.PlanId == plan.Id
+                    select ri.RequiredItem
+                ).ToList();
+            }
+        }
+
+        asset.MaintenancePlanDefinitions = maintenancePlans;
 
         return Result<AssetResponse>.Success(asset);
     }

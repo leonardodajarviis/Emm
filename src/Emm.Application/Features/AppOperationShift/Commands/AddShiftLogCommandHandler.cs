@@ -164,10 +164,10 @@ public class AddShiftLogCommandHandler : IRequestHandler<AddShiftLogCommand, Res
                     assetCode: asset.AssetCode,
                     assetName: asset.AssetName,
                     parameterId: reading.ParameterId,
-                    parameterName: parameter.ParameterName ?? "unknown",
-                    parameterCode: parameter.ParameterCode ?? "unknown",
+                    parameterName: parameter.ParameterName,
+                    parameterCode: parameter.ParameterCode,
+                    unitOfMeasureId: parameter.UnitOfMeasureId,
                     value: reading.Value,
-                    unit: parameter.ParameterUnit ?? "unknown",
                     shiftLogCheckPointLinkedId: reading.TaskCheckpointLinkedId);
             }
         }

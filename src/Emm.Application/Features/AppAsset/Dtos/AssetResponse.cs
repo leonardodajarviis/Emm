@@ -40,9 +40,9 @@ public class AssetResponse
     public required string Status { get; init; }
 
     // Maintenance Plan Definitions từ AssetModel
-    public IReadOnlyCollection<MaintenancePlanDefinitionResponse> MaintenancePlanDefinitions { get; init; } = [];
+    public IReadOnlyCollection<MaintenancePlanDefinitionResponse> MaintenancePlanDefinitions { get; set; } = [];
 
-    public IReadOnlyCollection<AssetParameterResponse> Parameters { get; init; } = [];
+    public IReadOnlyCollection<AssetParameterResponse> Parameters { get; set; } = [];
 }
 
 
@@ -52,8 +52,9 @@ public record AssetParameterResponse
     public Guid ParameterId { get; init; }
     public string? ParameterCode { get; init; }
     public string? ParameterName { get; init; }
-    public string? ParameterUnit { get; init; }
     public decimal CurrentValue { get; init; }
     public bool IsMaintenanceParameter { get; init; }
-    public decimal ValueToMaintenance { get; init;}
+    public required Guid UnitOfMeasureId { get; set; }
+    public required string UnitOfMeasureName { get; set; }
+    public required string UnitOfMeasureSymbol { get; set; }
 }

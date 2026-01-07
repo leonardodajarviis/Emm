@@ -16,7 +16,7 @@ public class ShiftLogParameterReading
     public string ParameterCode { get; private set; } = null!;
     public decimal Value { get; private set; }
     public string? StringValue { get; private set; }
-    public string Unit { get; private set; } = null!;
+    public Guid UnitOfMeasureId { get; private set; }
     public DateTime ReadingTime { get; private set; }
     public string? Notes { get; private set; }
     public bool IsLooked { get; private set; }
@@ -29,8 +29,8 @@ public class ShiftLogParameterReading
         Guid parameterId,
         string parameterName,
         string parameterCode,
+        Guid unitOfMeasureId,
         decimal value,
-        string unit,
         Guid? shiftLogCheckpointLinkedId = null,
         string? stringValue = null,
         string? notes = null)
@@ -44,7 +44,7 @@ public class ShiftLogParameterReading
         ParameterCode = parameterCode;
         Value = value;
         StringValue = stringValue;
-        Unit = unit;
+        UnitOfMeasureId = unitOfMeasureId;
         ReadingTime = DateTime.UtcNow;
         Notes = notes;
         ShiftLogCheckpointLinkedId = shiftLogCheckpointLinkedId;

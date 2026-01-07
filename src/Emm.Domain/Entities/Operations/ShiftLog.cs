@@ -190,8 +190,8 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
         Guid parameterId,
         string parameterName,
         string parameterCode,
+        Guid unitOfMeasureId,
         decimal value,
-        string unit,
         Guid? shiftLogCheckPointLinkedId = null)
     {
         DomainGuard.AgainstInvalidForeignKey(assetId, nameof(assetId));
@@ -200,8 +200,8 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
 
         var reading = new ShiftLogParameterReading(
             Id, assetId, assetCode, assetName,
-            parameterId, parameterName, parameterCode,
-            value, unit, shiftLogCheckPointLinkedId);
+            parameterId, parameterName, parameterCode, unitOfMeasureId,
+            value, shiftLogCheckPointLinkedId);
 
         _readings.Add(reading);
     }

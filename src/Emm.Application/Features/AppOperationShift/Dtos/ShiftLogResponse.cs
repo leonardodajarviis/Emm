@@ -10,7 +10,7 @@ public record OperationShiftSummaryResponse
     public string? Description { get; set; }
     public required Guid OrganizationUnitId { get; set; }
     public required Guid PrimaryUserId { get; set; }
-    public required bool IsCheckpointLogEnabled {get; set;}
+    public required bool IsCheckpointLogEnabled { get; set; }
     public string? PrimaryUserDisplayName { get; set; }
     public required DateTime ScheduledStartTime { get; set; }
     public required DateTime ScheduledEndTime { get; set; }
@@ -30,7 +30,7 @@ public record OperationShiftResponse
     public string? Description { get; set; }
     public required Guid OrganizationUnitId { get; set; }
     public required Guid PrimaryUserId { get; set; }
-    public required bool IsCheckpointLogEnabled {get; set;}
+    public required bool IsCheckpointLogEnabled { get; set; }
     public string? PrimaryUserDisplayName { get; set; }
     public required DateTime ScheduledStartTime { get; set; }
     public required DateTime ScheduledEndTime { get; set; }
@@ -49,11 +49,13 @@ public record OperationShiftResponse
 
 public record OperationShiftAssetParameterResponse
 {
-    public required Guid AssetId { get; set; }
-    public required Guid ParameterId { get; set; }
-    public string? ParameterCode { get; set; }
-    public string? ParameterName { get; set; }
-    public string? ParameterUnit { get; set; }
+    public required Guid AssetId { get; init; }
+    public required Guid ParameterId { get; init; }
+    public required string ParameterCode { get; init; }
+    public required string ParameterName { get; init; }
+    public required Guid UnitOfMeasureId { get; set; }
+    public required string UnitOfMeasureName { get; set; }
+    public required string UnitOfMeasureSymbol { get; set; }
 }
 
 public record OperationShiftAssetResponse
@@ -100,21 +102,23 @@ public record ShiftLogResponse
 
 public record ShiftLogParameterReadingResponse
 {
-    public Guid Id { get; set; }
-    public Guid OperationTaskId { get; set; }
-    public Guid AssetId { get; set; }
-    public Guid? TaskCheckpointId { get; set; }
-    public Guid? ShiftLogCheckpointLinkedId { get; set; }
-    public string AssetCode { get; set; } = null!;
-    public string AssetName { get; set; } = null!;
-    public Guid ParameterId { get; set; }
-    public string ParameterName { get; set; } = null!;
-    public string ParameterCode { get; set; } = null!;
-    public decimal Value { get; set; }
-    public string? StringValue { get; set; }
-    public string Unit { get; set; } = null!;
-    public DateTime ReadingTime { get; set; }
-    public string? Notes { get; set; }
+    public Guid Id { get; init; }
+    public Guid OperationTaskId { get; init; }
+    public Guid AssetId { get; init; }
+    public Guid? TaskCheckpointId { get; init; }
+    public Guid? ShiftLogCheckpointLinkedId { get; init; }
+    public string AssetCode { get; init; } = null!;
+    public string AssetName { get; init; } = null!;
+    public Guid ParameterId { get; init; }
+    public string ParameterName { get; init; } = null!;
+    public string ParameterCode { get; init; } = null!;
+    public decimal Value { get; init; }
+    public string? StringValue { get; init; }
+    public Guid UnitOfMeasureId { get; init; }
+    public string UnitOfMeasureName { get; init; } = null!;
+    public string UnitOfMeasureSymbol { get; init; } = null!;
+    public DateTime ReadingTime { get; init; }
+    public string? Notes { get; init; }
 }
 
 public class ShiftLogCheckpointResponse

@@ -112,7 +112,13 @@ public class Asset : AggregateRoot, IAuditableEntity
         // RaiseDomainEvent(new AssetUpdatedEvent(Id, DisplayName));
     }
 
-    public void AddParameter(Guid parameterId, bool isMaintenanceParameter = false, decimal value = 0, decimal valueToMaintenance = 0, string? parameterCode = null, string? parameterName = null, string? unit = null)
+    public void AddParameter(
+        Guid parameterId,
+        string parameterCode,
+        string parameterName,
+        Guid unitOfMeasureId,
+        decimal value = 0,
+        bool isMaintenanceParameter = false)
     {
         DomainGuard.AgainstInvalidForeignKey(parameterId, nameof(parameterId));
 
@@ -124,26 +130,15 @@ public class Asset : AggregateRoot, IAuditableEntity
 
         var parameter = new AssetParameter(
             parameterId,
-            isMaintenanceParameter,
-            value,
-            valueToMaintenance,
             parameterCode,
             parameterName,
-            unit);
+            unitOfMeasureId,
+            value,
+            isMaintenanceParameter
+            );
         _parameters.Add(parameter);
 
         // RaiseDomainEvent(new AssetParameterAddedEvent(Id, parameterId));
-    }
-
-    public void AddParameters(params Guid[] parameterIds)
-    {
-        if (parameterIds == null || parameterIds.Length == 0)
-            return;
-
-        foreach (var parameterId in parameterIds)
-        {
-            AddParameter(parameterId);
-        }
     }
 
     public void Operate()

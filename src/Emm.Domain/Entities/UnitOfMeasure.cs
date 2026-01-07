@@ -13,6 +13,7 @@ public class UnitOfMeasure : AggregateRoot
     public Guid? BaseUnitId { get; private set; }
     public decimal? ConversionFactor { get; private set; }
     public bool IsActive { get; private set; }
+    public bool IsLooked { get; private set; }
     private readonly List<UnitOfMeasure> _derivedUnits;
     public IReadOnlyCollection<UnitOfMeasure> DerivedUnits => _derivedUnits.AsReadOnly();
 
@@ -34,7 +35,6 @@ public class UnitOfMeasure : AggregateRoot
         BaseUnitId = baseUnitId;
         ConversionFactor = conversionFactor;
         IsActive = true;
-        // ValidateConversionFactor();
     }
 
     public void Update(

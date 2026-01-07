@@ -18,9 +18,10 @@ public class AssetParameterConfiguration : IEntityTypeConfiguration<AssetParamet
             .HasColumnType("decimal(18,2)")
             .IsRequired();
 
-        builder.Property(ap => ap.ValueToMaintenance)
-            .HasColumnType("decimal(18,2)")
-            .IsRequired();
+        builder.HasOne<UnitOfMeasure>()
+            .WithMany()
+            .HasForeignKey(x => x.UnitOfMeasureId)
+            .OnDelete(DeleteBehavior.NoAction);
 
         builder.HasOne<ParameterCatalog>()
             .WithMany()

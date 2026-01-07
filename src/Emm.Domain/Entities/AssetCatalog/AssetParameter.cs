@@ -4,24 +4,20 @@ public class AssetParameter
 {
     public Guid AssetId { get; private set; }
     public Guid ParameterId { get; private set; }
-    public string? ParameterCode { get; private set; }
-    public string? ParameterName { get; private set; }
-    public string? ParameterUnit { get; private set; }
+    public string ParameterCode { get; private set; } = null!;
+    public string ParameterName { get; private set; } = null!;
+    public Guid UnitOfMeasureId { get; private set; }
     public decimal CurrentValue { get; private set; }
+    public bool IsMaintenanceParameter { get; private set; }
 
-    public bool IsMaintenanceParameter {get; private set;}
-
-    public decimal ValueToMaintenance {get; private set;}
-
-    public AssetParameter(Guid parameterId, bool isMaintenanceParameter,  decimal value,decimal valueToMaintenance, string? parameterCode = null, string? parameterName = null, string? parameterUnit = null)
+    public AssetParameter(Guid parameterId, string parameterCode, string parameterName, Guid unitOfMeasureId, decimal value = 0, bool isMaintenanceParameter = false)
     {
         ParameterId = parameterId;
         CurrentValue = value;
-        ValueToMaintenance = valueToMaintenance;
         ParameterCode = parameterCode;
         ParameterName = parameterName;
-        ParameterUnit = parameterUnit;
         IsMaintenanceParameter = isMaintenanceParameter;
+        UnitOfMeasureId = unitOfMeasureId;
     }
 
     internal void UpdateValue(decimal newValue)

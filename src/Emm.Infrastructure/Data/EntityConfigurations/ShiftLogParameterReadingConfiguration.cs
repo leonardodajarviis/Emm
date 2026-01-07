@@ -1,3 +1,4 @@
+using Emm.Domain.Entities;
 using Emm.Domain.Entities.Operations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -49,15 +50,16 @@ public class ShiftLogParameterReadingConfiguration : IEntityTypeConfiguration<Sh
         builder.Property(x => x.StringValue)
             .HasMaxLength(500);
 
-        builder.Property(x => x.Unit)
-            .IsRequired()
-            .HasMaxLength(50);
-
         builder.Property(x => x.ReadingTime)
             .IsRequired();
 
         builder.Property(x => x.Notes)
             .HasMaxLength(1000);
+
+        builder.HasOne<UnitOfMeasure>()
+            .WithMany()
+            .HasForeignKey(x => x.UnitOfMeasureId)
+            .OnDelete(DeleteBehavior.NoAction);
 
         // Indexes
         builder.HasIndex(x => x.ShiftLogId);
