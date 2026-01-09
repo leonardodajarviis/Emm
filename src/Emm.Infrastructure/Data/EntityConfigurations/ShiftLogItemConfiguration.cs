@@ -22,6 +22,10 @@ public class ShiftLogItemConfiguration : IEntityTypeConfiguration<ShiftLogItem>
         builder.Property(x => x.ItemId)
             .IsRequired();
 
+        builder.Property(x => x.ItemCode)
+            .HasMaxLength(50)
+            .IsRequired();
+
         builder.Property(x => x.ItemName)
             .IsRequired()
             .HasMaxLength(200);

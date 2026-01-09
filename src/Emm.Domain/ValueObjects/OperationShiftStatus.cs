@@ -2,12 +2,13 @@ using Emm.Domain.Exceptions;
 
 namespace Emm.Domain.ValueObjects;
 
-public sealed class OperationShiftStatus : IEquatable<AssetStatus>
+public sealed class OperationShiftStatus : IEquatable<OperationShiftStatus>
 {
-    public static readonly OperationShiftStatus Maintenance = new("maintenance");
-    public static readonly OperationShiftStatus Incident = new("incident");
-    public static readonly OperationShiftStatus Operating = new("operating");
-    public static readonly OperationShiftStatus Idle = new("idle");
+    public static readonly OperationShiftStatus Scheduled = new("scheduled");
+    public static readonly OperationShiftStatus InProgress = new("in_progress");
+    public static readonly OperationShiftStatus Completed = new("completed");
+    public static readonly OperationShiftStatus Cancelled = new("cancelled");
+    public static readonly OperationShiftStatus Paused = new("paused");
     public string Value { get; }
 
     private OperationShiftStatus(string value)
@@ -17,7 +18,7 @@ public sealed class OperationShiftStatus : IEquatable<AssetStatus>
 
     public override string ToString() => Value;
 
-    public bool Equals(AssetStatus? other)
+    public bool Equals(OperationShiftStatus? other)
     {
         if (other is null) return false;
         return Value == other.Value;
@@ -25,13 +26,14 @@ public sealed class OperationShiftStatus : IEquatable<AssetStatus>
 
     public static OperationShiftStatus From(string value)
     {
-        return value.ToLowerInvariant() switch
+        return value.ToLower() switch
         {
-            "maintenance" => Maintenance,
-            "incident" => Incident,
-            "operating" => Operating,
-            "idle" => Idle,
-            _ => throw new DomainException($"Invalid asset status: {value}")
+            "scheduled" => Scheduled,
+            "in_progress" => InProgress,
+            "completed" => Completed,
+            "cancelled" => Cancelled,
+            "paused" => Paused,
+            _ => throw new DomainException($"Invalid OperationShiftStatus value: {value}")
         };
     }
 

@@ -1,5 +1,6 @@
 using Emm.Application.ErrorCodes;
 using Emm.Domain.Entities.Operations;
+using Emm.Domain.ValueObjects;
 
 namespace Emm.Application.Features.AppOperationShift.Commands;
 

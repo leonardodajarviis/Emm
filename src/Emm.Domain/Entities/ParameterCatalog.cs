@@ -8,6 +8,7 @@ public class ParameterCatalog : AggregateRoot, IAuditableEntity
     public string Code { get; private set; } = null!;
     public string Name { get; private set; } = null!;
     public Guid UnitOfMeasureId { get; private set; }
+    public ParameterType Type { get; private set; }
     public string? Description { get; private set; }
     public bool IsCodeGenerated { get; private set; }
     public AuditMetadata Audit { get; private set; } = null!;
@@ -27,4 +28,10 @@ public class ParameterCatalog : AggregateRoot, IAuditableEntity
     }
 
     private ParameterCatalog() { } // EF Core constructor
+}
+
+public enum ParameterType
+{
+    Snapshot,
+    Cumulative
 }

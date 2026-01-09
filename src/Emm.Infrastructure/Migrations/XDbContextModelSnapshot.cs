@@ -88,7 +88,8 @@ namespace Emm.Infrastructure.Migrations
 
                     b.Property<string>("Status")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.HasKey("Id");
 
@@ -284,6 +285,9 @@ namespace Emm.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
                     b.Property<Guid>("UnitOfMeasureId")
                         .HasColumnType("uniqueidentifier");
 
@@ -294,6 +298,33 @@ namespace Emm.Infrastructure.Migrations
                     b.HasIndex("UnitOfMeasureId");
 
                     b.ToTable("AssetParameters", (string)null);
+                });
+
+            modelBuilder.Entity("Emm.Domain.Entities.AssetCatalog.AssetParameterMaintenance", b =>
+                {
+                    b.Property<Guid>("AssetId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("MaintenancePlanId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("MinusTolerance")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<Guid>("ParameterId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("PlusTolerance")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("ThresholdValue")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("AssetId", "MaintenancePlanId");
+
+                    b.HasIndex("MaintenancePlanId");
+
+                    b.ToTable("AssetParameterMaintenances", (string)null);
                 });
 
             modelBuilder.Entity("Emm.Domain.Entities.AssetCatalog.AssetType", b =>
@@ -483,19 +514,19 @@ namespace Emm.Infrastructure.Migrations
                     b.Property<Guid>("MaintenancePlanDefinitionId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<decimal>("MaxValue")
-                        .HasColumnType("decimal(18,4)");
-
-                    b.Property<decimal>("MinValue")
+                    b.Property<decimal>("MinusTolerance")
                         .HasColumnType("decimal(18,4)");
 
                     b.Property<Guid>("ParameterId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<decimal>("PlusTolerance")
+                        .HasColumnType("decimal(18,4)");
+
                     b.Property<int>("TriggerCondition")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("TriggerValue")
+                    b.Property<decimal>("Value")
                         .HasColumnType("decimal(18,4)");
 
                     b.HasKey("Id");
@@ -988,8 +1019,10 @@ namespace Emm.Infrastructure.Migrations
                     b.Property<DateTime>("ScheduledStartTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.HasKey("Id");
 
@@ -1113,7 +1146,6 @@ namespace Emm.Infrastructure.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
@@ -1241,6 +1273,11 @@ namespace Emm.Infrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
+                    b.Property<string>("ItemCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.Property<Guid>("ItemId")
                         .HasColumnType("uniqueidentifier");
 
@@ -1262,6 +1299,9 @@ namespace Emm.Infrastructure.Migrations
                     b.Property<string>("UnitOfMeasureName")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<Guid?>("WarehouseIssueSlipId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
@@ -1501,6 +1541,9 @@ namespace Emm.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
 
                     b.Property<Guid>("UnitOfMeasureId")
                         .HasColumnType("uniqueidentifier");
@@ -2056,6 +2099,21 @@ namespace Emm.Infrastructure.Migrations
                         .WithMany()
                         .HasForeignKey("UnitOfMeasureId")
                         .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Emm.Domain.Entities.AssetCatalog.AssetParameterMaintenance", b =>
+                {
+                    b.HasOne("Emm.Domain.Entities.AssetCatalog.Asset", null)
+                        .WithMany("ParameterMaintenances")
+                        .HasForeignKey("AssetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Emm.Domain.Entities.AssetCatalog.MaintenancePlanDefinition", null)
+                        .WithMany()
+                        .HasForeignKey("MaintenancePlanId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
@@ -2967,6 +3025,8 @@ namespace Emm.Infrastructure.Migrations
 
             modelBuilder.Entity("Emm.Domain.Entities.AssetCatalog.Asset", b =>
                 {
+                    b.Navigation("ParameterMaintenances");
+
                     b.Navigation("Parameters");
                 });
 

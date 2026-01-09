@@ -29,4 +29,13 @@ public class AssetRepository : GenericRepository<Asset, Guid>, IAssetRepository
             asset.Operate();
         }
     }
+
+    public async Task<List<Asset>> GetMultiByIdsAsync(IEnumerable<Guid> assetIds, CancellationToken cancellationToken = default)
+    {
+        var assets = await DbSet
+            .Include(a => a.ParameterMaintenances)
+            .Include(a => a.Parameters)
+            .Where(a => assetIds.Contains(a.Id)).ToListAsync(cancellationToken: cancellationToken);
+        return assets;
+    }
 }

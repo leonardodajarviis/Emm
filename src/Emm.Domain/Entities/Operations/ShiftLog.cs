@@ -1,5 +1,4 @@
 using Emm.Domain.Abstractions;
-using Emm.Domain.Events.Operations;
 using Emm.Domain.Exceptions;
 using Emm.Domain.ValueObjects;
 
@@ -10,7 +9,7 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
     public int LogOrder { get; private set; }
     public Guid OperationShiftId { get; private set; }
     public string Name { get; private set; } = null!;
-    public string Description { get; private set; } = null!;
+    public string? Description { get; private set; }
     public DateTime? StartTime { get; private set; }
     public DateTime? EndTime { get; private set; }
     public string? Notes { get; private set; }
@@ -45,7 +44,6 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
     public ShiftLog(
         Guid operationShiftId,
         string name,
-        string description,
         DateTime startTime,
         DateTime? endTime = null,
         Guid? assetId = null,
@@ -55,9 +53,6 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
 
         if (string.IsNullOrWhiteSpace(name))
             throw new DomainException("Task name is required");
-
-        if (string.IsNullOrWhiteSpace(description))
-            throw new DomainException("Task description is required");
 
         // Validation: Không được set cả AssetId và GroupId cùng lúc
         if (assetId.HasValue && boxId.HasValue)
@@ -70,7 +65,6 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
 
         OperationShiftId = operationShiftId;
         Name = name;
-        Description = description;
         StartTime = startTime;
         EndTime = endTime;
         AssetId = assetId;
@@ -207,36 +201,11 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
     }
 
     /// <summary>
-    /// Thêm nhiều readings cùng lúc
-    /// </summary>
-    public void AddReadings(IEnumerable<ShiftLogParameterReading> readings)
-    {
-        foreach (var reading in readings)
-        {
-            _readings.Add(reading);
-        }
-    }
-
-    /// <summary>
-    /// Lấy reading theo ID
-    /// </summary>
-    public ShiftLogParameterReading GetReading(Guid readingId)
-    {
-        var reading = _readings.FirstOrDefault(r => r.Id == readingId);
-        if (reading == null)
-            throw new DomainException($"Reading with ID {readingId} not found");
-
-        return reading;
-    }
-
-    /// <summary>
     /// Xóa reading theo ID
     /// </summary>
     public void RemoveReading(Guid readingId)
     {
-        var reading = _readings.FirstOrDefault(r => r.Id == readingId);
-        if (reading == null)
-            throw new DomainException($"Reading with ID {readingId} not found");
+        var reading = _readings.FirstOrDefault(r => r.Id == readingId) ?? throw new DomainException($"Reading with ID {readingId} not found");
 
         _readings.Remove(reading);
     }
@@ -247,36 +216,43 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
         reading.UpdateValue(newValue);
     }
 
-    public void AddCheckpoint(Guid linkedId, string name, Guid locationId, string locationName, bool isWithAttachedMaterial = false, Guid? itemId = null, string? itemCode = null, string? itemName = null)
+    public void AddCheckpoint(Guid linkedId, string name, Guid locationId, string locationName)
     {
         if (string.IsNullOrWhiteSpace(name))
             throw new DomainException("Checkpoint name is required");
 
-        var checkpoint = new ShiftLogCheckpoint(Id, linkedId, name, locationId, locationName, isWithAttachedMaterial, itemId, itemCode, itemName);
+        var checkpoint = new ShiftLogCheckpoint(
+            Id,
+            linkedId,
+            name,
+            locationId,
+            locationName
+        );
+
         _checkpoints.Add(checkpoint);
     }
 
-    /// <summary>
-    /// Thêm nhiều checkpoints cùng lúc
-    /// </summary>
-    public void AddCheckpoints(IEnumerable<(Guid linkedId, string name, Guid locationId, string locationName, bool isWithAttachedMaterial, Guid? itemId, string? itemCode, string? itemName)> checkpoints)
-    {
-        foreach (var (linkedId, name, locationId, locationName, isWithAttachedMaterial, itemId, itemCode, itemName) in checkpoints)
-        {
-            AddCheckpoint(linkedId, name, locationId, locationName, isWithAttachedMaterial, itemId, itemCode, itemName);
-        }
-    }
-
-    /// <summary>
-    /// Lấy checkpoint theo ID để thao tác
-    /// </summary>
-    public ShiftLogCheckpoint GetCheckpoint(Guid checkpointId)
+    public void MakeAttchedMaterialInCheckpoint(Guid checkpointId, Guid itemId, string itemCode, string itemName)
     {
         var checkpoint = _checkpoints.FirstOrDefault(c => c.Id == checkpointId);
         if (checkpoint == null)
             throw new DomainException($"Checkpoint with ID {checkpointId} not found");
 
-        return checkpoint;
+        if (checkpoint.ItemId == itemId)
+            return; // Already set
+
+        checkpoint.MakeAttachedMaterial(itemId, itemCode, itemName);
+    }
+
+    public void UpdateLocationInCheckpoint(Guid checkpointId, Guid locationId, string locationName)
+    {
+        var checkpoint = _checkpoints.FirstOrDefault(c => c.Id == checkpointId);
+        if (checkpoint == null)
+            throw new DomainException($"Checkpoint with ID {checkpointId} not found");
+
+        if (checkpoint.LocationId == locationId) return;
+
+        checkpoint.UpdateLocation(locationId, locationName);
     }
 
     /// <summary>
@@ -289,27 +265,6 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
             throw new DomainException($"Checkpoint with ID {checkpointId} not found");
 
         _checkpoints.Remove(checkpoint);
-    }
-
-    public void UpdateNotes(string? notes)
-    {
-        Notes = notes;
-    }
-
-    public void UpdateName(string name)
-    {
-        if (string.IsNullOrWhiteSpace(name))
-            throw new DomainException("Task name is required");
-
-        Name = name;
-    }
-
-    public void UpdateDescription(string description)
-    {
-        if (string.IsNullOrWhiteSpace(description))
-            throw new DomainException("Task description is required");
-
-        Description = description;
     }
 
     /// <summary>
@@ -326,16 +281,7 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
         _events.Add(statusHistory);
     }
 
-    /// <summary>
-    /// Ghi nhận nhiều sự kiện cùng lúc
-    /// </summary>
-    public void RecordEvents(IEnumerable<(ShiftLogEventType eventType, DateTime startTime)> events)
-    {
-        foreach (var evt in events)
-        {
-            RecordEvent(evt.eventType, evt.startTime);
-        }
-    }
+    // Removed RecordEvents - use ShiftLogSyncService.RecordBulkEvents instead
 
     /// <summary>
     /// Kết thúc sự kiện đang mở (nghỉ ca, sự cố)
@@ -347,18 +293,6 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
             throw new DomainException($"Event with ID {eventId} not found");
 
         statusHistory.EndEvent(endTime);
-    }
-
-    /// <summary>
-    /// Lấy event theo ID
-    /// </summary>
-    public ShiftLogEvent GetEvent(Guid eventId)
-    {
-        var statusHistory = _events.FirstOrDefault(h => h.Id == eventId);
-        if (statusHistory == null)
-            throw new DomainException($"Event with ID {eventId} not found");
-
-        return statusHistory;
     }
 
     /// <summary>
@@ -378,6 +312,8 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
     /// </summary>
     public void AddItem(
         Guid itemId,
+        Guid? warehouseIssueSlipId,
+        string itemCode,
         string itemName,
         decimal quantity,
         Guid? assetId = null,
@@ -391,39 +327,14 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
         if (string.IsNullOrWhiteSpace(itemName))
             throw new DomainException("Item name is required");
 
-        if (quantity <= 0)
-            throw new DomainException("Quantity must be greater than zero");
-
         var item = new ShiftLogItem(
-            Id, itemId, itemName, quantity,
+            Id, warehouseIssueSlipId, itemId, itemName, itemCode, quantity,
             assetId, assetCode, assetName,
             unitOfMeasureId, unitOfMeasureName);
 
         _items.Add(item);
     }
 
-    /// <summary>
-    /// Thêm nhiều items cùng lúc
-    /// </summary>
-    public void AddItems(IEnumerable<(Guid itemId, string itemName, decimal quantity, Guid? assetId, string? assetCode, string? assetName, Guid? unitOfMeasureId, string? unitOfMeasureName)> items)
-    {
-        foreach (var (itemId, itemName, quantity, assetId, assetCode, assetName, unitOfMeasureId, unitOfMeasureName) in items)
-        {
-            AddItem(itemId, itemName, quantity, assetId, assetCode, assetName, unitOfMeasureId, unitOfMeasureName);
-        }
-    }
-
-    /// <summary>
-    /// Lấy item theo ID
-    /// </summary>
-    public ShiftLogItem GetItem(Guid itemId)
-    {
-        var item = _items.FirstOrDefault(i => i.Id == itemId);
-        if (item == null)
-            throw new DomainException($"Item with ID {itemId} not found");
-
-        return item;
-    }
 
     /// <summary>
     /// Xóa item theo ID
@@ -437,12 +348,13 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
         _items.Remove(item);
     }
 
-    /// <summary>
-    /// Xóa tất cả items
-    /// </summary>
-    public void ClearItems()
+    public void UpdateItemQuantity(Guid itemId, decimal newQuantity)
     {
-        _items.Clear();
+        var item = _items.FirstOrDefault(i => i.Id == itemId);
+        if (item == null)
+            throw new DomainException($"Item with ID {itemId} not found");
+
+        item.UpdateQuantity(newQuantity);
     }
 
     private ShiftLog()

@@ -2,6 +2,7 @@ using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using LazyNet.Symphony.Extensions;
 using Emm.Application.Behaviors;
+using Emm.Application.Features.AppOperationShift.Builder;
 
 namespace Emm.Application.Extensions;
 
@@ -16,6 +17,8 @@ public static class ApplicationExtensions
 
         // Register validation services
         services.AddScoped<IForeignKeyValidator, ForeignKeyValidator>();
+
+        services.AddShiftLogBuilderHandlers();
 
         return services;
     }

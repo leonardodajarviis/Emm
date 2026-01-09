@@ -78,9 +78,9 @@ public class AddMaintenancePlanCommandHandler : IRequestHandler<AddMaintenancePl
                     name: bodyRequest.Name,
                     description: bodyRequest.Description,
                     parameterId: bodyRequest.ParameterId.Value,
-                    triggerValue: bodyRequest.TriggerValue.Value,
-                    minValue: bodyRequest.MinValue.Value,
-                    maxValue: bodyRequest.MaxValue.Value,
+                    thresholdValue: bodyRequest.TriggerValue.Value,
+                    plusTolerance: bodyRequest.MinValue.Value,
+                    minusTolerance: bodyRequest.MaxValue.Value,
                     triggerCondition: MaintenanceTriggerCondition.Equal,
                     jobSteps: jobSteps,
                     isActive: bodyRequest.IsActive

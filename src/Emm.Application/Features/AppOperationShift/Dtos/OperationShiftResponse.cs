@@ -16,7 +16,7 @@ public record OperationShiftSummaryResponse
     public required DateTime ScheduledEndTime { get; set; }
     public DateTime? ActualStartTime { get; set; }
     public DateTime? ActualEndTime { get; set; }
-    public required OperationShiftStatus Status { get; set; }
+    public required string Status { get; set; }
     public string? Notes { get; set; }
     public required DateTime CreatedAt { get; set; }
     public required DateTime? ModifiedAt { get; set; }
@@ -36,7 +36,7 @@ public record OperationShiftResponse
     public required DateTime ScheduledEndTime { get; set; }
     public DateTime? ActualStartTime { get; set; }
     public DateTime? ActualEndTime { get; set; }
-    public required OperationShiftStatus Status { get; set; }
+    public required string Status { get; set; }
     public string? Notes { get; set; }
     public required DateTime CreatedAt { get; set; }
     public required DateTime? ModifiedAt { get; set; }

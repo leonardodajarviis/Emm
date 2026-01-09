@@ -1,10 +1,7 @@
-using System.Runtime.InteropServices;
-using System.Security.Cryptography.X509Certificates;
 using Emm.Application.Features.AppOperationShift.Dtos;
 using Emm.Domain.Entities;
 using Emm.Domain.Entities.Operations;
 using Gridify;
-using LazyNet.Symphony.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Emm.Application.Features.AppOperationShift.Queries;
@@ -54,7 +51,7 @@ public class GetOperationShiftsQueryHandler : IRequestHandler<GetOperationShifts
                 ScheduledEndTime = os.ScheduledEndTime,
                 ActualStartTime = os.ActualStartTime,
                 ActualEndTime = os.ActualEndTime,
-                Status = os.Status,
+                Status = os.Status.Value,
                 Notes = os.Notes,
                 CreatedAt = os.Audit.CreatedAt,
                 ModifiedAt = os.Audit.ModifiedAt

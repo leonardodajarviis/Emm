@@ -47,13 +47,3 @@ public class OperationShiftAsset
 
     private OperationShiftAsset() { } // EF Core constructor
 }
-
-public record OperationShiftAssetSpec
-{
-    public Guid OperationShiftId { get; init; }
-    public Guid AssetId { get; init; }
-    public string AssetCode { get; init; } = null!;
-    public string AssetName { get; init; } = null!;
-    public string AssetType { get; init; } = null!;
-    public bool IsPrimary { get; init; }
-}

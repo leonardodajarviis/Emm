@@ -1,11 +1,9 @@
 using Emm.Application.Features.AppOperationShift.Commands;
-using Emm.Application.Features.AppOperationShift.Dtos;
 using Emm.Application.Features.AppOperationShift.Queries;
 using Emm.Application.Common;
 using Emm.Presentation.Extensions;
 using LazyNet.Symphony.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Org.BouncyCastle.Ocsp;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Emm.Presentation.Controllers;
@@ -30,7 +28,7 @@ public class OperationShiftController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateOperationShift updateOperationShift)
+    public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateOperationShiftCommand updateOperationShift)
     {
         var command = new UpdateOperationShiftCommand(
             Id: id,
@@ -91,32 +89,29 @@ public class OperationShiftController : ControllerBase
         return result.ToActionResult();
     }
 
-    [HttpPost("{id}/cancel")]
-    public async Task<IActionResult> Cancel([FromRoute] Guid id, [FromBody] CancelShiftRequest request)
+
+    [HttpPost("{id}/shift-logs")]
+    public async Task<IActionResult> AddShiftLog([FromRoute] Guid id, [FromBody] CreateShiftLogData data)
     {
-        var command = new CancelShiftCommand
+        var command = new CreateShiftLogCommand
         {
-            ShiftId = id,
-            Reason = request.Reason
+            OperationShiftId = id,
+            Data = data
         };
         var result = await _mediator.Send(command);
         return result.ToActionResult();
     }
 
-    [HttpPost("{id}/shift-logs")]
-    public async Task<IActionResult> AddShiftLog([FromRoute] Guid id, [FromBody] AddShiftLogCommand request)
-    {
-        request.OperationShiftId = id;
-        var result = await _mediator.Send(request);
-        return result.ToActionResult();
-    }
-
     [HttpPut("{id}/shift-logs/{shiftLogId}")]
-    public async Task<IActionResult> UpdateShiftLog([FromRoute] Guid id, [FromRoute] Guid shiftLogId, [FromBody] UpdateShiftLogCommand request)
+    public async Task<IActionResult> UpdateShiftLog([FromRoute] Guid id, [FromRoute] Guid shiftLogId, [FromBody] UpdateShiftLogData data)
     {
-        request.OperationShiftId = id;
-        request.ShiftLogId = shiftLogId;
-        var result = await _mediator.Send(request);
+        var command = new UpdateShiftLogCommand
+        {
+            OperationShiftId = id,
+            ShiftLogId = shiftLogId,
+            Data = data
+        };
+        var result = await _mediator.Send(command);
         return result.ToActionResult();
     }
 
@@ -133,12 +128,12 @@ public class OperationShiftController : ControllerBase
     }
 
     [HttpPost("{id}/assets")]
-    public async Task<IActionResult> AddAssets([FromRoute] Guid id, [FromBody] AddAssetsRequest request)
+    public async Task<IActionResult> AddAssets([FromRoute] Guid id, [FromBody] AddAssetsData data)
     {
         var command = new AddAssetsCommand
         {
             ShiftId = id,
-            AssetIds = request.AssetIds
+            Data = data
         };
         var result = await _mediator.Send(command);
         return result.ToActionResult();

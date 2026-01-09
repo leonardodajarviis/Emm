@@ -23,15 +23,15 @@ public class ParameterBasedMaintenanceTriggerConfiguration : IEntityTypeConfigur
             .IsRequired();
 
         // Required Properties
-        builder.Property(x => x.TriggerValue)
+        builder.Property(x => x.Value)
             .IsRequired()
             .HasColumnType("decimal(18,4)");
 
-        builder.Property(x => x.MinValue)
+        builder.Property(x => x.PlusTolerance)
             .IsRequired()
             .HasColumnType("decimal(18,4)");
 
-        builder.Property(x => x.MaxValue)
+        builder.Property(x => x.MinusTolerance)
             .IsRequired()
             .HasColumnType("decimal(18,4)");
 

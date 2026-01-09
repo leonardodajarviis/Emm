@@ -41,7 +41,7 @@ public class GetOperationShiftByIdQueryHandler : IRequestHandler<GetOperationShi
                 ScheduledEndTime = x.ScheduledEndTime,
                 ActualStartTime = x.ActualStartTime,
                 ActualEndTime = x.ActualEndTime,
-                Status = x.Status,
+                Status = x.Status.Value,
                 Notes = x.Notes,
                 CreatedAt = x.Audit.CreatedAt,
                 ModifiedAt = x.Audit.ModifiedAt,
@@ -197,7 +197,7 @@ public class GetOperationShiftByIdQueryHandler : IRequestHandler<GetOperationShi
 
         foreach (var asset in operationShift.Assets)
         {
-            asset.Parameters = [.. (from ap in assetParameters where ap.AssetId == asset.AssetId select ap)];
+            asset.Parameters = [.. from ap in assetParameters where ap.AssetId == asset.AssetId select ap];
         }
 
         return Result<OperationShiftResponse>.Success(operationShift);

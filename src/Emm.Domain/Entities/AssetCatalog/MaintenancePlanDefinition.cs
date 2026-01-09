@@ -3,7 +3,7 @@ using Emm.Domain.ValueObjects;
 
 namespace Emm.Domain.Entities.AssetCatalog;
 
-public class MaintenancePlanDefinition: IAuditableEntity
+public class MaintenancePlanDefinition : IAuditableEntity
 {
     public Guid Id { get; private set; } = Guid.CreateVersion7();
     public bool IsActive { get; private set; }
@@ -54,15 +54,15 @@ public class MaintenancePlanDefinition: IAuditableEntity
         string name,
         string? description,
         Guid parameterId,
-        decimal triggerValue,
-        decimal minValue,
-        decimal maxValue,
+        decimal thresholdValue,
+        decimal plusTolerance,
+        decimal minusTolerance,
         MaintenanceTriggerCondition triggerCondition = MaintenanceTriggerCondition.GreaterThanOrEqual,
         IReadOnlyCollection<MaintenancePlanJobStepDefinitionSpec>? jobSteps = null,
         IReadOnlyCollection<MaintenancePlanRequiredItemDefinitionSpec>? requiredItems = null,
         bool isActive = true)
     {
-        return new MaintenancePlanDefinition(assetModelId, name, description, parameterId, triggerValue, minValue, maxValue, triggerCondition, jobSteps, requiredItems, isActive);
+        return new MaintenancePlanDefinition(assetModelId, name, description, parameterId, thresholdValue, plusTolerance, minusTolerance, triggerCondition, jobSteps, requiredItems, isActive);
     }
 
     // Constructor cho Time-based maintenance plan
@@ -123,9 +123,9 @@ public class MaintenancePlanDefinition: IAuditableEntity
         string name,
         string? description,
         Guid parameterId,
-        decimal triggerValue,
-        decimal minValue,
-        decimal maxValue,
+        decimal value,
+        decimal plusTolerance,
+        decimal minusTolerance,
         MaintenanceTriggerCondition triggerCondition = MaintenanceTriggerCondition.GreaterThanOrEqual,
         IReadOnlyCollection<MaintenancePlanJobStepDefinitionSpec>? jobSteps = null,
         IReadOnlyCollection<MaintenancePlanRequiredItemDefinitionSpec>? requiredItems = null,
@@ -143,9 +143,9 @@ public class MaintenancePlanDefinition: IAuditableEntity
 
         _parameterBasedTrigger = new ParameterBasedMaintenanceTrigger(
             parameterId: parameterId,
-            triggerValue: triggerValue,
-            minValue: minValue,
-            maxValue: maxValue,
+            value: value,
+            plusTolerance: plusTolerance,
+            minusTolerance: minusTolerance,
             triggerCondition: triggerCondition,
             isActive: isActive
         );
@@ -180,40 +180,6 @@ public class MaintenancePlanDefinition: IAuditableEntity
         }
     }
 
-    // Constructor với job steps
-    private MaintenancePlanDefinition(
-        Guid assetModelId,
-        string name,
-        string? description,
-        MaintenancePlanType planType,
-        IReadOnlyCollection<MaintenancePlanJobStepDefinitionSpec>? jobSteps = null,
-        bool isActive = true)
-    {
-        _jobSteps = [];
-        _requiredItems = [];
-        // EfJobSteps = _jobSteps;
-
-        AssetModelId = assetModelId;
-        Name = name;
-        Description = description;
-        PlanType = planType;
-        IsActive = isActive;
-
-
-        if (jobSteps is not null)
-        {
-            foreach (var step in jobSteps)
-            {
-                AddJobStep(
-                    name: step.Name,
-                    organizationUnitId: step.OrganizationUnitId,
-                    note: step.Note,
-                    order: step.Order
-                );
-            }
-        }
-    }
-
     public void Update(string name, string? description, bool isActive)
     {
         Name = name;
@@ -241,9 +207,9 @@ public class MaintenancePlanDefinition: IAuditableEntity
     public void UpdateParameterBasedPlan(
         string name,
         string? description,
-        decimal triggerValue,
-        decimal minValue,
-        decimal maxValue,
+        decimal thresholdValue,
+        decimal plusTolerance,
+        decimal minusTolerance,
         MaintenanceTriggerCondition triggerCondition,
         bool isActive)
     {
@@ -258,9 +224,9 @@ public class MaintenancePlanDefinition: IAuditableEntity
         IsActive = isActive;
 
         _parameterBasedTrigger.Update(
-            triggerValue: triggerValue,
-            minValue: minValue,
-            maxValue: maxValue,
+            value: thresholdValue,
+            plusTolerance: plusTolerance,
+            minusTolerance: minusTolerance,
             triggerCondition: triggerCondition,
             isActive: isActive
         );
@@ -294,7 +260,6 @@ public class MaintenancePlanDefinition: IAuditableEntity
 
     public void SyncJobSteps(IReadOnlyCollection<MaintenancePlanJobStepDefinitionSpec> jobStepSpecs)
     {
-        // Xóa các job steps không còn trong danh sách mới
         var incomingIds = jobStepSpecs
             .Where(spec => spec.Id.HasValue)
             .Select(spec => spec.Id!.Value)
@@ -339,7 +304,7 @@ public class MaintenancePlanDefinition: IAuditableEntity
 
     public void AddRequiredItem(Guid itemGroupId, Guid itemId, Guid unitOfMeasureId, decimal quantity, bool isRequired, string? note = null)
     {
-        var requiredItem = new MaintenancePlanRequiredItem(itemGroupId ,itemId, unitOfMeasureId, quantity, isRequired, note);
+        var requiredItem = new MaintenancePlanRequiredItem(itemGroupId, itemId, unitOfMeasureId, quantity, isRequired, note);
         _requiredItems.Add(requiredItem);
     }
 

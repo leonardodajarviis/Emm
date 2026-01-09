@@ -1,11 +1,10 @@
-using Emm.Application.Abstractions;
 using Emm.Application.ErrorCodes;
 using Emm.Domain.Entities.AssetCatalog;
 using Microsoft.EntityFrameworkCore;
 
 namespace Emm.Application.Features.AppOperationShift.Commands;
 
-public class AddAssetsCommandHandler : IRequestHandler<AddAssetsCommand, Result<object>>
+public class AddAssetsCommandHandler : IRequestHandler<AddAssetsCommand, Result>
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IOperationShiftRepository _repository;
@@ -21,24 +20,26 @@ public class AddAssetsCommandHandler : IRequestHandler<AddAssetsCommand, Result<
         _qq = queryContext;
     }
 
-    public async Task<Result<object>> Handle(AddAssetsCommand request, CancellationToken cancellationToken)
+    public async Task<Result> Handle(AddAssetsCommand request, CancellationToken cancellationToken)
     {
+        var data = request.Data;
         var shift = await _repository.GetByIdAsync(request.ShiftId, cancellationToken);
+
         if (shift == null)
         {
-            return Result<object>.NotFound("Operation shift not found", ShiftErrorCodes.NotFound);
+            return Result.NotFound("Operation shift not found", ShiftErrorCodes.NotFound);
         }
 
-        if (request.AssetIds.Count == 0)
+        if (data.AssetIds.Count == 0)
         {
-            return Result<object>.Validation("No assets provided", ValidationErrorCodes.FieldRequired);
+            return Result.Validation("No assets provided", ValidationErrorCodes.FieldRequired);
         }
 
         var assetDict = await _qq.Query<Asset>()
-            .Where(a => request.AssetIds.Contains(a.Id))
+            .Where(a => data.AssetIds.Contains(a.Id))
             .ToDictionaryAsync(a => a.Id, cancellationToken);
 
-        foreach (var assetId in request.AssetIds)
+        foreach (var assetId in data.AssetIds)
         {
             if (assetDict.TryGetValue(assetId, out var existingAsset))
             {
@@ -47,12 +48,12 @@ public class AddAssetsCommandHandler : IRequestHandler<AddAssetsCommand, Result<
                     assetCode: existingAsset.Code.Value,
                     assetName: existingAsset.DisplayName,
                     isPrimary: false,
-                    assetBoxId: request.AssetBoxId);
+                    assetBoxId: data.AssetBoxId);
             }
         }
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return Result<object>.Success("Assets added successfully");
+        return Result.Success("Assets added successfully");
     }
 }

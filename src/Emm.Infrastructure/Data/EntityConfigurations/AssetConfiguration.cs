@@ -30,6 +30,7 @@ public class AssetConfiguration : IEntityTypeConfiguration<Asset>
             .IsRequired();
 
         builder.Property(x => x.Status)
+            .HasMaxLength(20)
             .HasConversion(
                 v => v.Value,
                 v => AssetStatus.From(v) // bạn tự implement
@@ -79,6 +80,14 @@ public class AssetConfiguration : IEntityTypeConfiguration<Asset>
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.Navigation(x => x.Parameters)
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+        builder.HasMany(e => e.ParameterMaintenances)
+            .WithOne()
+            .HasForeignKey(e => e.AssetId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Navigation(x => x.ParameterMaintenances)
             .UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }

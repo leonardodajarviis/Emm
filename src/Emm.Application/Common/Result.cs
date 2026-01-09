@@ -5,13 +5,16 @@ public class Result
     public bool IsSuccess { get; }
     public ErrorResult? Error { get; }
 
-    protected Result(bool isSuccess, ErrorResult? error = null)
+    public object? Value { get; set; }
+
+    protected Result(bool isSuccess, object? value = null, ErrorResult? error = null)
     {
         IsSuccess = isSuccess;
         Error = error;
+        Value = value;
     }
 
-    public static Result Success() => new(true);
+    public static Result Success(object? value = null) => new(true, value);
 
     public static Result Failure(ErrorType errorType, string? errorMessage = null, string? errorCode = null) =>
         new(false, new ErrorResult(errorType, errorCode, errorMessage));

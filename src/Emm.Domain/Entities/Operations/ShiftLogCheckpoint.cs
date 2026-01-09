@@ -22,36 +22,29 @@ public class ShiftLogCheckpoint
         Guid linkedId,
         string name,
         Guid locationId,
-        string locationName,
-        bool isWithAttachedMaterial = false,
-        Guid? itemId = null,
-        string? itemCode = null,
-        string? itemName = null)
+        string locationName
+    )
     {
         LinkedId = linkedId;
         LocationId = locationId;
         LocationName = locationName;
-        ItemId = itemId;
-        ItemCode = itemCode;
-        ItemName = itemName;
-        IsWithAttachedMaterial = isWithAttachedMaterial;
 
         ShiftLogId = operationTaskId;
         Name = name;
     }
 
-    /// <summary>
-    /// Update checkpoint properties
-    /// </summary>
-    public void Update(string name, Guid locationId, string locationName, bool isWithAttachedMaterial = false, Guid? itemId = null, string? itemCode = null, string? itemName = null)
+    public void MakeAttachedMaterial(Guid itemId, string itemCode, string itemName)
     {
-        Name = name;
-        LocationId = locationId;
-        LocationName = locationName;
-        IsWithAttachedMaterial = isWithAttachedMaterial;
+        IsWithAttachedMaterial = true;
         ItemId = itemId;
         ItemCode = itemCode;
         ItemName = itemName;
+    }
+
+    public void UpdateLocation(Guid locationId,  string locationName)
+    {
+        LocationId = locationId;
+        LocationName = locationName;
     }
 
     private ShiftLogCheckpoint()

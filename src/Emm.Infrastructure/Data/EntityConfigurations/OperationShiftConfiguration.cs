@@ -1,4 +1,5 @@
 using Emm.Domain.Entities.Operations;
+using Emm.Domain.ValueObjects;
 using Emm.Infrastructure.Data.EntityConfigurations.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -46,8 +47,11 @@ public class OperationShiftConfiguration : IEntityTypeConfiguration<OperationShi
         builder.Property(x => x.ActualEndTime);
 
         builder.Property(x => x.Status)
-            .IsRequired()
-            .HasConversion<int>();
+            .HasMaxLength(20)
+            .HasConversion(
+                v => v.Value,
+                v => OperationShiftStatus.From(v)
+            );
 
         builder.Property(x => x.Notes)
             .HasMaxLength(1000);

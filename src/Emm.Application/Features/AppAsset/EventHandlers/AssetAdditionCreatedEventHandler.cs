@@ -1,7 +1,6 @@
 using Emm.Domain.Entities;
 using Emm.Domain.Entities.AssetCatalog;
 using Emm.Domain.Events.AssetAddition;
-using Emm.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 
 namespace Emm.Application.Features.AppAsset.EventHandlers;
@@ -19,10 +18,8 @@ public class AssetAdditionCreatedEventHandler : IEventHandler<AssetAdditionCreat
         _assetRepository = assetRepository;
     }
 
-    public async Task Handle(AssetAdditionCreatedEvent @event, CancellationToken cancellationToken = default)
+    public async Task Handle(AssetAdditionCreatedEvent @event, CancellationToken cancellationToken)
     {
-        ArgumentNullException.ThrowIfNull(@event);
-
         var assetModelIds = @event.AssetLines
             .Select(line => line.AssetModelId)
             .Distinct()
@@ -119,6 +116,25 @@ public class AssetAdditionCreatedEventHandler : IEventHandler<AssetAdditionCreat
                         value: 0
                     );
                 }
+            }
+
+            var maintenancePlans = await _queryContext.Query<MaintenancePlanDefinition>()
+                .Include(mp => mp.ParameterBasedTrigger)
+                .Where(mp => mp.AssetModelId == assetModel.Id && mp.PlanType == MaintenancePlanType.ParameterBased)
+                .ToListAsync(cancellationToken);
+
+            foreach (var plan in maintenancePlans)
+            {
+                var timeBaseMaintenance = plan.ParameterBasedTrigger;
+                if (timeBaseMaintenance == null) continue;
+
+                asset.AddParameterMaintenance(
+                    parameterId: timeBaseMaintenance.ParameterId,
+                    maintenancePlanId: plan.Id,
+                    thresholdValue: timeBaseMaintenance.Value,
+                    plusTolerance: timeBaseMaintenance.PlusTolerance,
+                    minusTolerance: timeBaseMaintenance.MinusTolerance
+                );
             }
 
             assets.Add(asset);

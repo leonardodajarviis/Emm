@@ -31,6 +31,7 @@ public class AssetModel : AggregateRoot, IAuditableEntity
     private readonly List<AssetModelImage> _images;
     public IReadOnlyCollection<AssetModelImage> Images => _images;
 
+
     public AuditMetadata Audit { get; private set; } = null!;
     public void SetAudit(AuditMetadata audit) => Audit = audit;
 

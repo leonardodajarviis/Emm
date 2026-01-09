@@ -1,4 +1,5 @@
 using Emm.Domain.Abstractions;
+using Emm.Domain.Entities.Operations.CreationData;
 using Emm.Domain.Events.Operations;
 using Emm.Domain.Exceptions;
 using Emm.Domain.ValueObjects;
@@ -39,40 +40,22 @@ public class OperationShift : AggregateRoot, IAuditableEntity
         Guid organizationUnitId,
         DateTime scheduledStartTime,
         DateTime scheduledEndTime,
+        IEnumerable<AssignAssetData> assets,
+        string? description = null,
         string? notes = null)
     {
-        // Validation
-        ValidateCode(code);
-        ValidateName(name);
+        DomainGuard.AgainstNullOrEmpty(code, nameof(Code));
+        DomainGuard.AgainstTooLong(code, 50, nameof(Code));
+
+        DomainGuard.AgainstNullOrEmpty(name, nameof(Name));
+        DomainGuard.AgainstTooLong(name, 200, nameof(Name));
+
         ValidateScheduleTimes(scheduledStartTime, scheduledEndTime);
 
-        _assets = [];
-        _assetBoxes = [];
-
-        Code = code;
-        Name = name;
-        Notes = notes;
-        PrimaryUserId = primaryUserId;
-        OrganizationUnitId = organizationUnitId;
-        ScheduledStartTime = scheduledStartTime;
-        ScheduledEndTime = scheduledEndTime;
-        Status = OperationShiftStatus.Scheduled;
-    }
-
-    public OperationShift(
-        string code,
-        string name,
-        Guid primaryUserId,
-        Guid organizationUnitId,
-        DateTime scheduledStartTime,
-        DateTime scheduledEndTime,
-        IEnumerable<OperationShiftAssetSpec> assets,
-        string? description = null)
-    {
-        // Validation
-        ValidateCode(code);
-        ValidateName(name);
-        ValidateScheduleTimes(scheduledStartTime, scheduledEndTime);
+        if (assets == null || !assets.Any())
+        {
+            throw new DomainException("At least one asset must be assigned to the operation shift");
+        }
 
         _assets = [];
         _assetBoxes = [];
@@ -84,6 +67,7 @@ public class OperationShift : AggregateRoot, IAuditableEntity
         ScheduledStartTime = scheduledStartTime;
         ScheduledEndTime = scheduledEndTime;
         Description = description;
+        Notes = notes;
         Status = OperationShiftStatus.Scheduled;
 
         foreach (var asset in assets)
@@ -232,7 +216,6 @@ public class OperationShift : AggregateRoot, IAuditableEntity
             "CannotChangeScheduleInProgress",
             "Cannot change schedule times for shift in progress");
 
-        ValidateName(name);
         ValidateScheduleTimes(scheduledStartTime, scheduledEndTime);
 
         DomainGuard.AgainstInvalidForeignKey(locationId, nameof(locationId));
@@ -298,30 +281,6 @@ public class OperationShift : AggregateRoot, IAuditableEntity
 
         // Raise domain event
         Raise(new OperationShiftResumedEvent(Id, notes));
-    }
-
-    public void MarkAsOverdue(string reason)
-    {
-        DomainGuard.AgainstNullOrEmpty(reason, "OverdueReason");
-
-        DomainGuard.AgainstInvalidState(
-            Status == OperationShiftStatus.Completed || Status == OperationShiftStatus.Cancelled,
-            nameof(OperationShift),
-            Status.ToString(),
-            $"Cannot mark shift as overdue in {Status} status");
-
-        DomainGuard.AgainstBusinessRule(
-            DateTime.UtcNow <= ScheduledEndTime,
-            "ShiftNotYetOverdue",
-            "Cannot mark shift as overdue before scheduled end time");
-
-        Status = OperationShiftStatus.Overdue;
-        Notes = string.IsNullOrEmpty(Notes)
-            ? $"Overdue: {reason}"
-            : $"{Notes}\nOverdue: {reason}";
-
-        // Raise domain event
-        Raise(new OperationShiftOverdueEvent(Id, reason));
     }
 
     public void Reschedule(
@@ -460,7 +419,7 @@ public class OperationShift : AggregateRoot, IAuditableEntity
         asset!.AssignToGroup(assetBoxId);
     }
 
-    public IEnumerable<OperationShiftAsset> GetAssetsBybox(Guid assetBoxId)
+    public IEnumerable<OperationShiftAsset> GetAssetsByBox(Guid assetBoxId)
     {
         return _assets.Where(a => a.AssetBoxId == assetBoxId);
     }
@@ -473,19 +432,6 @@ public class OperationShift : AggregateRoot, IAuditableEntity
     #endregion
 
     #region Validation Methods
-
-    private static void ValidateCode(string code)
-    {
-        DomainGuard.AgainstNullOrEmpty(code, nameof(Code));
-        DomainGuard.AgainstTooLong(code, 50, nameof(Code));
-    }
-
-    private static void ValidateName(string name)
-    {
-        DomainGuard.AgainstNullOrEmpty(name, nameof(Name));
-        DomainGuard.AgainstTooLong(name, 200, nameof(Name));
-    }
-
     private static void ValidateScheduleTimes(DateTime startTime, DateTime endTime)
     {
         DomainGuard.AgainstBusinessRule(
@@ -505,15 +451,6 @@ public class OperationShift : AggregateRoot, IAuditableEntity
     {
         _assets = [];
         _assetBoxes = [];
-    } // EF Core constructor
-}
-
-public enum OperationShiftStatus
-{
-    Scheduled = 0,
-    InProgress = 1,
-    Completed = 2,
-    Cancelled = 3,
-    Overdue = 4,
-    Paused = 5
+        Status = OperationShiftStatus.Scheduled;
+    }
 }

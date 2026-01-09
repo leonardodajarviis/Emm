@@ -152,11 +152,6 @@ dotnet_remove_unnecessary_suppression_exclusions = none                         
 # C# preferences - Quy tắc riêng cho C#
 [*.cs]
 
-# var preferences - Sử dụng từ khóa var
-# csharp_style_var_for_built_in_types = false:suggestion                    # Không dùng var cho int, string
-# csharp_style_var_when_type_is_apparent = true:suggestion                  # Dùng var khi type rõ ràng
-# csharp_style_var_elsewhere = false:suggestion                             # Không dùng var ở chỗ khác
-
 # Expression-bodied members - Sử dụng => syntax
 csharp_style_expression_bodied_methods = false:silent                     # Không dùng => cho method
 csharp_style_expression_bodied_constructors = false:silent                # Không dùng => cho constructor
