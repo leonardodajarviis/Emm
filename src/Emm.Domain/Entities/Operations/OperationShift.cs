@@ -50,8 +50,6 @@ public class OperationShift : AggregateRoot, IAuditableEntity
         DomainGuard.AgainstNullOrEmpty(name, nameof(Name));
         DomainGuard.AgainstTooLong(name, 200, nameof(Name));
 
-        ValidateScheduleTimes(scheduledStartTime, scheduledEndTime);
-
         if (assets == null || !assets.Any())
         {
             throw new DomainException("At least one asset must be assigned to the operation shift");
@@ -216,8 +214,6 @@ public class OperationShift : AggregateRoot, IAuditableEntity
             "CannotChangeScheduleInProgress",
             "Cannot change schedule times for shift in progress");
 
-        ValidateScheduleTimes(scheduledStartTime, scheduledEndTime);
-
         DomainGuard.AgainstInvalidForeignKey(locationId, nameof(locationId));
 
         Name = name;
@@ -295,8 +291,6 @@ public class OperationShift : AggregateRoot, IAuditableEntity
             Status.ToString(),
             $"Cannot reschedule shift in {Status} status. Shift must be in Scheduled status.");
 
-        ValidateScheduleTimes(newScheduledStartTime, newScheduledEndTime);
-
         var oldStartTime = ScheduledStartTime;
         var oldEndTime = ScheduledEndTime;
 
@@ -323,8 +317,6 @@ public class OperationShift : AggregateRoot, IAuditableEntity
             nameof(OperationShift),
             Status.ToString(),
             $"Cannot reactivate shift in {Status} status. Shift must be in Cancelled status.");
-
-        ValidateScheduleTimes(newScheduledStartTime, newScheduledEndTime);
 
         Status = OperationShiftStatus.Scheduled;
         ScheduledStartTime = newScheduledStartTime;
@@ -429,22 +421,6 @@ public class OperationShift : AggregateRoot, IAuditableEntity
         return _assets.Where(a => !a.AssetBoxId.HasValue);
     }
 
-    #endregion
-
-    #region Validation Methods
-    private static void ValidateScheduleTimes(DateTime startTime, DateTime endTime)
-    {
-        DomainGuard.AgainstBusinessRule(
-            endTime <= startTime,
-            "ShiftEndTimeMustBeAfterStartTime",
-            "Scheduled end time must be after start time");
-
-        var duration = endTime - startTime;
-        DomainGuard.AgainstBusinessRule(
-            duration.TotalHours > 24,
-            "ShiftDurationExceeds24Hours",
-            "Shift duration cannot exceed 24 hours");
-    }
     #endregion
 
     private OperationShift()
