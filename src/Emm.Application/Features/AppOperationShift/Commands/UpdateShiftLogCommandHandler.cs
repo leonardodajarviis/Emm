@@ -57,7 +57,7 @@ public class UpdateShiftLogCommandHandler : IRequestHandler<UpdateShiftLogComman
         {
             return result;
         }
-
+        shiftLog.RaiseReadingEvents();
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         return Result.Success();
     }

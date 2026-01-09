@@ -55,9 +55,14 @@ public class ShiftLogParameterReading
         IsLooked = true;
     }
 
-    public void UpdateValue(decimal value)
+    public bool UpdateValue(decimal value)
     {
-        Value = value;
+        if (value != Value)
+        {
+            Value = value;
+            return true;
+        }
+        return false;
     }
 
     public void SetWarning(string reason)

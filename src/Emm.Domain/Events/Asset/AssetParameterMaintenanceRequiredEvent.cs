@@ -2,7 +2,7 @@ using Emm.Domain.Abstractions;
 
 namespace Emm.Domain.Events.Asset;
 
-public record AssetParameterMaintenanceRequiredEvent : IDomainEvent
+public record AssetParameterMaintenanceRequiredEvent : IDeferredDomainEvent
 {
     public DateTime OccurredOn => DateTime.UtcNow;
 

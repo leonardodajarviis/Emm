@@ -69,6 +69,7 @@ public class CreateShiftLogCommandHandler : IRequestHandler<CreateShiftLogComman
         }
 
         // Add task to repository
+        newShiftLog.RaiseReadingEvents();
         await _shiftLogRepository.AddAsync(newShiftLog, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 

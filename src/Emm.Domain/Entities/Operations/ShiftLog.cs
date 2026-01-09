@@ -42,6 +42,8 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
     public AuditMetadata Audit { get; private set; } = null!;
     public void SetAudit(AuditMetadata audit) => Audit = audit;
 
+    private readonly List<ShiftLogParameterReadingEventData> _readingEvents = [];
+
     public ShiftLog(
         Guid operationShiftId,
         string name,
@@ -199,7 +201,12 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
             value, shiftLogCheckPointLinkedId);
 
         _readings.Add(reading);
-        Raise(new ShiftLogReadingEvent(Id, Readings.Select(r => new ShiftLogParameterReadingEventData { ParameterId = r.ParameterId, Value = r.Value })));
+        _readingEvents.Add(new ShiftLogParameterReadingEventData
+        {
+            AssetId = assetId,
+            ParameterId = parameterId,
+            Value = value
+        });
     }
 
 
@@ -216,8 +223,35 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
     public void UpdateReadingValue(Guid readingId, decimal newValue)
     {
         var reading = _readings.FirstOrDefault(r => r.Id == readingId) ?? throw new DomainException($"Reading with ID {readingId} not found");
-        reading.UpdateValue(newValue);
-        Raise(new ShiftLogReadingEvent(Id, Readings.Select(r => new ShiftLogParameterReadingEventData { ParameterId = r.ParameterId, Value = r.Value })));
+        var change =  reading.UpdateValue(newValue);
+        if (change)
+        {
+            _readingEvents.Add(new ShiftLogParameterReadingEventData
+            {
+                AssetId = reading.AssetId,
+                ParameterId = reading.ParameterId,
+                Value = newValue
+            });
+        }
+    }
+
+    public int GetReadingEventCount()
+    {
+        return _readingEvents.Count;
+    }
+
+    public int RaiseReadingEvents()
+    {
+        var count = _readingEvents.Count;
+        if (count == 0) return 0;
+
+        Raise(new ShiftLogReadingEvent(
+            shiftLogId: Id,
+            parameterReadings: [.. _readingEvents]
+        ));
+
+        _readingEvents.Clear();
+        return count;
     }
 
     public void AddCheckpoint(Guid linkedId, string name, Guid locationId, string locationName)

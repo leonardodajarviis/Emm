@@ -49,8 +49,8 @@ public class Asset : AggregateRoot, IAuditableEntity
         NaturalKey code,
         string displayName,
         Guid assetModelId,
-        Guid? assetCategoryId,
-        Guid? assetTypeId,
+        Guid assetCategoryId,
+        Guid assetTypeId,
         Guid organizationUnitId,
         Guid locationId,
         Guid? assetAdditionId,
@@ -72,8 +72,8 @@ public class Asset : AggregateRoot, IAuditableEntity
         DisplayName = displayName;
         Description = description;
         AssetModelId = assetModelId;
-        AssetCategoryId = assetCategoryId ?? Guid.Empty;
-        AssetTypeId = assetTypeId ?? Guid.Empty;
+        AssetCategoryId = assetCategoryId;
+        AssetTypeId = assetTypeId;
         OrganizationUnitId = organizationUnitId;
         LocationId = locationId;
         AssetAdditionId = assetAdditionId;
