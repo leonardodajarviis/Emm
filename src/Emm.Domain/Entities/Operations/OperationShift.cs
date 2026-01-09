@@ -80,16 +80,11 @@ public class OperationShift : AggregateRoot, IAuditableEntity
 
     public void StartShift(DateTime actualStartTime, string? notes = null)
     {
-        // DomainGuard.AgainstInvalidState(
-        //     Status != OperationShiftStatus.Scheduled,
-        //     nameof(OperationShift),
-        //     Status.ToString(),
-        //     $"Cannot start shift in {Status} status. Shift must be in Scheduled status.");
-
-        // DomainGuard.AgainstBusinessRule(
-        //     actualStartTime > DateTime.UtcNow.AddMinutes(5),
-        //     "ShiftCannotStartInFuture",
-        //     "Cannot start shift with future time");
+        DomainGuard.AgainstInvalidState(
+            Status != OperationShiftStatus.Scheduled,
+            nameof(OperationShift),
+            Status.ToString(),
+            $"Cannot start shift in {Status} status. Shift must be in Scheduled status.");
 
         ActualStartTime = actualStartTime;
         Status = OperationShiftStatus.InProgress;

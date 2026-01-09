@@ -1,5 +1,6 @@
 using Emm.Application.Abstractions;
 using Emm.Application.ErrorCodes;
+using Emm.Domain.Abstractions;
 
 namespace  Emm.Application.Features.AppOperationShift.Commands;
 
@@ -7,13 +8,16 @@ public class StartOperationShiftCommandHandler : IRequestHandler<StartOperationS
 {
     private readonly IOperationShiftRepository _repository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IDateTimeProvider _clock;
 
     public StartOperationShiftCommandHandler(
         IOperationShiftRepository repository,
+        IDateTimeProvider clock,
         IUnitOfWork unitOfWork)
     {
         _repository = repository;
         _unitOfWork = unitOfWork;
+        _clock = clock;
     }
 
     public async Task<Result<object>> Handle(StartOperationShiftCommand request, CancellationToken cancellationToken)
@@ -24,7 +28,7 @@ public class StartOperationShiftCommandHandler : IRequestHandler<StartOperationS
             return Result<object>.NotFound("Operation shift not found", ShiftErrorCodes.NotFound);
         }
 
-        operationShift.StartShift(DateTime.UtcNow);
+        operationShift.StartShift(actualStartTime: _clock.Now);
 
         _repository.Update(operationShift);
         await _unitOfWork.SaveChangesAsync(cancellationToken);

@@ -1,4 +1,5 @@
 using Emm.Domain.Abstractions;
+using Emm.Domain.Events.ShiftLogs;
 using Emm.Domain.Exceptions;
 using Emm.Domain.ValueObjects;
 
@@ -198,6 +199,7 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
             value, shiftLogCheckPointLinkedId);
 
         _readings.Add(reading);
+        Raise(new ShiftLogReadingEvent(Id, Readings));
     }
 
     /// <summary>

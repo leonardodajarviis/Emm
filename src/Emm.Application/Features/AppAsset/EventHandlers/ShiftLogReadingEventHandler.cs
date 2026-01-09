@@ -6,10 +6,12 @@ namespace Emm.Application.Features.AppAsset.EventHandlers;
 
 public class ShiftLogReadingEventHandler : IEventHandler<ShiftLogReadingEvent>
 {
+    private readonly IUnitOfWork _unitOfWork;
     private readonly IAssetRepository _assetRepository;
-    public ShiftLogReadingEventHandler(IAssetRepository assetRepository)
+    public ShiftLogReadingEventHandler(IAssetRepository assetRepository, IUnitOfWork unitOfWork)
     {
         _assetRepository = assetRepository;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task Handle(ShiftLogReadingEvent @event, CancellationToken cancellationToken = default)
@@ -31,5 +33,7 @@ public class ShiftLogReadingEventHandler : IEventHandler<ShiftLogReadingEvent>
                 asset.RecordParameter(reading.ParameterId, reading.Value);
             }
         }
+
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 }

@@ -7,8 +7,13 @@ public static class ResultToActionResultExtensions
 {
     public static IActionResult ToActionResult(this Result result)
     {
-        if (result.IsSuccess)
+        if (result.IsSuccess && result.Value is null)
             return new NoContentResult();
+        else
+        {
+            if (result.IsSuccess)
+                return new OkObjectResult(result.Value);
+        }
 
         var errorResponse =
             result.Error is not null ? new ApiErrorResponse(result.Error.Code, result.Error.Message) : new ApiErrorResponse();
