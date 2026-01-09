@@ -18,6 +18,7 @@ public class ShiftLogReadingEvent: IDeferredDomainEvent
 
 public record ShiftLogParameterReadingEventData
 {
+    public Guid AssetId { get; init; }
     public Guid ParameterId { get; init; }
     public decimal Value { get; init; }
 }
