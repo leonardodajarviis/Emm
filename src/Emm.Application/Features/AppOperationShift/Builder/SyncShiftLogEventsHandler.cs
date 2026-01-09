@@ -5,7 +5,7 @@ public class SyncShiftLogEventsHandler : IUpdateShiftLogBuilderHandler
     public SyncShiftLogEventsHandler()
     {
     }
-    public async Task<Result> Handle(UpdateShiftLogContext context, CancellationToken cancellationToken)
+    public Task<Result> Handle(UpdateShiftLogContext context, CancellationToken cancellationToken)
     {
         var requestEventIds = context.Data.Events
             .Where(e => e.Id.HasValue)
@@ -40,6 +40,6 @@ public class SyncShiftLogEventsHandler : IUpdateShiftLogBuilderHandler
             }
         }
 
-        return Result.Success();
+        return Task.FromResult(Result.Success());
     }
 }

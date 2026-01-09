@@ -1,8 +1,6 @@
 using Emm.Application.Abstractions;
 using Emm.Application.Authorization;
-using Emm.Application.Common;
 using LazyNet.Symphony.Core;
-using Microsoft.Extensions.Logging;
 
 namespace Emm.Application.Behaviors;
 
