@@ -35,13 +35,7 @@ public class SyncShiftLogReadingsHandler : IUpdateShiftLogBuilderHandler
         {
             if (reading.Id.HasValue)
             {
-                // Existing reading, update value
-                var existingReading = shiftLog.Readings.FirstOrDefault(r => r.Id == reading.Id.Value);
-                if (existingReading == null)
-                {
-                    return Result.Validation($"Shift log reading with ID {reading.Id.Value} does not exist");
-                }
-                existingReading.UpdateValue(reading.Value);
+                shiftLog.UpdateReadingValue(reading.Id.Value, reading.Value);
             }
             else
             {

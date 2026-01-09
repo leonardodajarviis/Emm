@@ -103,7 +103,7 @@ public static class InfrastructureExtensions
             cfg.IdleDelay = TimeSpan.FromMilliseconds(500);
         });
 
-        // services.AddHostedService<OutboxProcessor>();
+        services.AddHostedService<OutboxProcessor>();
         services.AddJwtAuthentication(configuration);
 
         return services;

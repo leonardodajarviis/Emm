@@ -199,8 +199,9 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
             value, shiftLogCheckPointLinkedId);
 
         _readings.Add(reading);
-        Raise(new ShiftLogReadingEvent(Id, Readings));
+        Raise(new ShiftLogReadingEvent(Id, Readings.Select(r => new ShiftLogParameterReadingEventData { ParameterId = r.ParameterId, Value = r.Value })));
     }
+
 
     /// <summary>
     /// Xóa reading theo ID
@@ -216,6 +217,7 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
     {
         var reading = _readings.FirstOrDefault(r => r.Id == readingId) ?? throw new DomainException($"Reading with ID {readingId} not found");
         reading.UpdateValue(newValue);
+        Raise(new ShiftLogReadingEvent(Id, Readings.Select(r => new ShiftLogParameterReadingEventData { ParameterId = r.ParameterId, Value = r.Value })));
     }
 
     public void AddCheckpoint(Guid linkedId, string name, Guid locationId, string locationName)
