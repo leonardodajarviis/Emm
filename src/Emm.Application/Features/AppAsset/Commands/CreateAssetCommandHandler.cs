@@ -24,7 +24,7 @@ public class CreateAssetCommandHandler : IRequestHandler<CreateAssetCommand, Res
     {
     }
 
-    public async Task<Result<object>> Handle(CreateAssetCommand request, CancellationToken cancellationToken)
+    public Task<Result<object>> Handle(CreateAssetCommand request, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }
