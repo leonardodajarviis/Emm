@@ -63,6 +63,7 @@ public class CreateOperationShiftCommandHandler : IRequestHandler<CreateOperatio
             var assetIds = request.Assets.Select(a => a.AssetId).ToList();
 
             var existingAssets = await _queryContext.Query<Asset>()
+                .Include(a => a.Parameters)
                 .Where(a => assetIds.Contains(a.Id))
                 .ToDictionaryAsync(a => a.Id, cancellationToken);
 
@@ -96,6 +97,17 @@ public class CreateOperationShiftCommandHandler : IRequestHandler<CreateOperatio
                 description: request.Description,
                 notes: request.Notes
             );
+
+            foreach(var parameters in existingAssets.Values.Select(a => a.Parameters))
+            {
+                foreach(var parameter in parameters)
+                {
+                    operationShift.AddReadingSnapshot(
+                        parameter.AssetId,
+                        parameter.ParameterId,
+                        parameter.CurrentValue);
+                }
+            }
 
             if (request.AssetBoxes.Count > 0)
             {

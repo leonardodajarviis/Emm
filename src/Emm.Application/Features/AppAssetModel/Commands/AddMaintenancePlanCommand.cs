@@ -19,8 +19,8 @@ public record AddMaintenancePlanCommandBody(
     // For Parameter-based maintenance plans
     Guid? ParameterId,
     decimal? TriggerValue,
-    decimal? MinValue,
-    decimal? MaxValue,
+    decimal? PlusTolerance,
+    decimal? MinusTolerance,
     MaintenanceTriggerCondition? TriggerCondition,
 
     // Job steps (common for both types)

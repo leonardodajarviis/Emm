@@ -22,10 +22,13 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
     public Guid? AssetId { get; private set; }
 
     /// <summary>
-    /// Group ID cho trường hợp ghi log cho nhiều assets theo group
+    /// Box ID cho trường hợp ghi log cho nhiều assets theo group
     /// Null nếu là shift-level log hoặc ghi log cho 1 asset cụ thể
     /// </summary>
     public Guid? BoxId { get; private set; }
+
+    public Guid? LocationId { get; private set; }
+    public string? LocationName { get; private set; }
 
     private readonly List<ShiftLogParameterReading> _readings;
     public IReadOnlyCollection<ShiftLogParameterReading> Readings => _readings;
@@ -41,16 +44,19 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
 
     public AuditMetadata Audit { get; private set; } = null!;
     public void SetAudit(AuditMetadata audit) => Audit = audit;
-
     private readonly List<ShiftLogParameterReadingEventData> _readingEvents = [];
+    public bool IsLooked { get; private set; }
 
     public ShiftLog(
+        int logOrder,
         Guid operationShiftId,
         string name,
         DateTime startTime,
-        DateTime? endTime = null,
-        Guid? assetId = null,
-        Guid? boxId = null)
+        DateTime? endTime,
+        Guid? assetId,
+        Guid? boxId,
+        Guid? locationId,
+        string? locationName)
     {
         DomainGuard.AgainstInvalidForeignKey(operationShiftId, nameof(operationShiftId));
 
@@ -66,25 +72,15 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
         _events = [];
         _items = [];
 
+        LogOrder = logOrder;
         OperationShiftId = operationShiftId;
         Name = name;
         StartTime = startTime;
         EndTime = endTime;
         AssetId = assetId;
         BoxId = boxId;
-    }
-
-    public void UpdateStartTime(DateTime startTime)
-    {
-        StartTime = startTime;
-    }
-
-    public void UpdateEndTime(DateTime endTime)
-    {
-        if (endTime < StartTime)
-            throw new DomainException("End time cannot be before start time");
-
-        EndTime = endTime;
+        LocationId = locationId;
+        LocationName = locationName;
     }
 
     public void UpdateEvent(
@@ -99,69 +95,6 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
 
         statusHistory.Update(eventType, startTime, endTime);
     }
-
-    #region Asset and Group Management
-
-    /// <summary>
-    /// Gán ShiftLog cho một asset cụ thể
-    /// </summary>
-    public void AssignToAsset(Guid assetId)
-    {
-        DomainGuard.AgainstInvalidForeignKey(assetId, nameof(assetId));
-
-        if (BoxId.HasValue)
-            throw new DomainException("Cannot assign to asset when already assigned to a group");
-
-        AssetId = assetId;
-    }
-
-    /// <summary>
-    /// Gán ShiftLog cho một group (nhiều assets)
-    /// </summary>
-    public void AssignToBox(Guid boxId)
-    {
-        DomainGuard.AgainstInvalidForeignKey(boxId, nameof(boxId));
-
-        if (AssetId.HasValue)
-            throw new DomainException("Cannot assign to group when already assigned to an asset");
-
-        BoxId = boxId;
-    }
-
-    /// <summary>
-    /// Bỏ gán asset/group (chuyển về shift-level log)
-    /// </summary>
-    public void UnassignAssetOrBox()
-    {
-        AssetId = null;
-        BoxId = null;
-    }
-
-    /// <summary>
-    /// Kiểm tra xem ShiftLog có gắn với asset/group không
-    /// </summary>
-    public bool IsAssigned()
-    {
-        return AssetId.HasValue || BoxId.HasValue;
-    }
-
-    /// <summary>
-    /// Kiểm tra xem ShiftLog có gắn với một asset cụ thể không
-    /// </summary>
-    public bool IsAssignedToAsset()
-    {
-        return AssetId.HasValue;
-    }
-
-    /// <summary>
-    /// Kiểm tra xem ShiftLog có gắn với group không
-    /// </summary>
-    public bool IsAssignedToBox()
-    {
-        return BoxId.HasValue;
-    }
-
-    #endregion
 
     public void LockReading(Guid readingId)
     {
@@ -187,8 +120,11 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
         Guid parameterId,
         string parameterName,
         string parameterCode,
+        ParameterType parameterType,
         Guid unitOfMeasureId,
         decimal value,
+        DateTime readingTime,
+        int groupNumber,
         Guid? shiftLogCheckPointLinkedId = null)
     {
         DomainGuard.AgainstInvalidForeignKey(assetId, nameof(assetId));
@@ -197,8 +133,8 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
 
         var reading = new ShiftLogParameterReading(
             Id, assetId, assetCode, assetName,
-            parameterId, parameterName, parameterCode, unitOfMeasureId,
-            value, shiftLogCheckPointLinkedId);
+            parameterId, parameterName, parameterCode, parameterType, unitOfMeasureId,
+            value, groupNumber, readingTime, OperationShiftId, shiftLogCheckPointLinkedId);
 
         _readings.Add(reading);
         _readingEvents.Add(new ShiftLogParameterReadingEventData
@@ -209,21 +145,10 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
         });
     }
 
-
-    /// <summary>
-    /// Xóa reading theo ID
-    /// </summary>
-    public void RemoveReading(Guid readingId)
-    {
-        var reading = _readings.FirstOrDefault(r => r.Id == readingId) ?? throw new DomainException($"Reading with ID {readingId} not found");
-
-        _readings.Remove(reading);
-    }
-
     public void UpdateReadingValue(Guid readingId, decimal newValue)
     {
         var reading = _readings.FirstOrDefault(r => r.Id == readingId) ?? throw new DomainException($"Reading with ID {readingId} not found");
-        var change =  reading.UpdateValue(newValue);
+        var change = reading.UpdateValue(newValue);
         if (change)
         {
             _readingEvents.Add(new ShiftLogParameterReadingEventData
@@ -315,22 +240,7 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
     {
 
         var statusHistory = new ShiftLogEvent(Id, eventType, startTime, endTime);
-
         _events.Add(statusHistory);
-    }
-
-    // Removed RecordEvents - use ShiftLogSyncService.RecordBulkEvents instead
-
-    /// <summary>
-    /// Kết thúc sự kiện đang mở (nghỉ ca, sự cố)
-    /// </summary>
-    public void EndEvent(Guid eventId, DateTime endTime)
-    {
-        var statusHistory = _events.FirstOrDefault(h => h.Id == eventId);
-        if (statusHistory == null)
-            throw new DomainException($"Event with ID {eventId} not found");
-
-        statusHistory.EndEvent(endTime);
     }
 
     /// <summary>

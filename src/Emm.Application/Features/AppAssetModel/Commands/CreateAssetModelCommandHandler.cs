@@ -163,9 +163,9 @@ public class CreateAssetModelCommandHandler : IRequestHandler<CreateAssetModelCo
 
                 case MaintenancePlanType.ParameterBased:
                     if (!definition.ParameterId.HasValue || !definition.TriggerValue.HasValue ||
-                        !definition.MinValue.HasValue || !definition.MaxValue.HasValue)
+                        !definition.PlusTolerance.HasValue || !definition.MinusTolerance.HasValue)
                     {
-                        throw new ArgumentException("ParameterId, TriggerValue, MinValue, and MaxValue are required for parameter-based maintenance plans");
+                        throw new ArgumentException("ParameterId, TriggerValue, PlusTolerance, and MinusTolerance are required for parameter-based maintenance plans");
                     }
 
                     maintenancePlanService.AddParameterBasedMaintenancePlan(
@@ -174,8 +174,8 @@ public class CreateAssetModelCommandHandler : IRequestHandler<CreateAssetModelCo
                         description: definition.Description,
                         parameterId: definition.ParameterId.Value,
                         thresholdValue: definition.TriggerValue.Value,
-                        plusTolerance: definition.MinValue.Value,
-                        minusTolerance: definition.MaxValue.Value,
+                        plusTolerance: definition.PlusTolerance.Value,
+                        minusTolerance: definition.MinusTolerance.Value,
                         triggerCondition: definition.TriggerCondition ?? MaintenanceTriggerCondition.GreaterThanOrEqual,
                         jobSteps: jobSteps,
                         requiredItems: requiredItems,

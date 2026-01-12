@@ -85,8 +85,8 @@ public record ParameterBasedMaintenanceTriggerResponse
     public required Guid Id { get; set; }
     public required Guid ParameterId { get; set; }
     public required decimal TriggerValue { get; set; }
-    public required decimal MinValue { get; set; }
-    public required decimal MaxValue { get; set; }
+    public required decimal PlusTolerance { get; set; }
+    public required decimal MinusTolerance { get; set; }
     public required MaintenanceTriggerCondition TriggerCondition { get; set; }
     public bool IsActive { get; set; }
 }

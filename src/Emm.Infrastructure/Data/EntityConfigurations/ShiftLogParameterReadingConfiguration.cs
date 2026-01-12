@@ -21,6 +21,9 @@ public class ShiftLogParameterReadingConfiguration : IEntityTypeConfiguration<Sh
         builder.Property(x => x.ShiftLogId)
             .IsRequired();
 
+        builder.Property(x => x.OperationShiftId)
+            .IsRequired();
+
         builder.Property(x => x.AssetId)
             .IsRequired();
 
@@ -60,6 +63,16 @@ public class ShiftLogParameterReadingConfiguration : IEntityTypeConfiguration<Sh
             .WithMany()
             .HasForeignKey(x => x.UnitOfMeasureId)
             .OnDelete(DeleteBehavior.NoAction);
+
+        builder.HasOne<OperationShift>()
+            .WithMany()
+            .HasForeignKey(x => x.OperationShiftId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        builder.HasOne<ShiftLog>()
+            .WithMany()
+            .HasForeignKey(x => x.ShiftLogId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         // Indexes
         builder.HasIndex(x => x.ShiftLogId);

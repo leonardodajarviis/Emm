@@ -8,6 +8,7 @@ public class ShiftLogCheckpoint
     public Guid Id { get; private set; } = Guid.CreateVersion7();
     public Guid LinkedId { get; private set; }
     public Guid ShiftLogId { get; private set; }
+    public int CheckpointOrder { get; private set; }
     public string Name { get; private set; } = null!;
     public Guid LocationId { get; private set; }
     public string LocationName { get; private set; } = null!;
@@ -33,6 +34,11 @@ public class ShiftLogCheckpoint
         Name = name;
     }
 
+    public void MakeOrder(int order)
+    {
+        CheckpointOrder = order;
+    }
+
     public void MakeAttachedMaterial(Guid itemId, string itemCode, string itemName)
     {
         IsWithAttachedMaterial = true;
@@ -50,12 +56,4 @@ public class ShiftLogCheckpoint
     private ShiftLogCheckpoint()
     {
     } // EF Core constructor
-}
-
-public enum CheckpointStatus
-{
-    Pending = 0,
-    Completed = 1,
-    Skipped = 2,
-    Failed = 3
 }

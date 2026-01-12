@@ -7,11 +7,14 @@ public class ShiftLogParameterReading
 {
     public Guid Id { get; private set; } = Guid.CreateVersion7();
     public Guid? ShiftLogCheckpointLinkedId {get; private set;}
+    public Guid OperationShiftId { get; private set; }
+    public int GroupNumber { get; private set; }
     public Guid ShiftLogId { get; private set; }
     public Guid AssetId { get; private set; }
     public string AssetCode { get; private set; } = null!;
     public string AssetName { get; private set; } = null!;
     public Guid ParameterId { get; private set; }
+    public ParameterType ParameterType { get; private set; }
     public string ParameterName { get; private set; } = null!;
     public string ParameterCode { get; private set; } = null!;
     public decimal Value { get; private set; }
@@ -29,11 +32,13 @@ public class ShiftLogParameterReading
         Guid parameterId,
         string parameterName,
         string parameterCode,
+        ParameterType parameterType,
         Guid unitOfMeasureId,
         decimal value,
-        Guid? shiftLogCheckpointLinkedId = null,
-        string? stringValue = null,
-        string? notes = null)
+        int groupNumber,
+        DateTime readingTime,
+        Guid operationShiftId,
+        Guid? shiftLogCheckpointLinkedId)
     {
         ShiftLogId = operationTaskId;
         AssetId = assetId;
@@ -43,11 +48,12 @@ public class ShiftLogParameterReading
         ParameterName = parameterName;
         ParameterCode = parameterCode;
         Value = value;
-        StringValue = stringValue;
         UnitOfMeasureId = unitOfMeasureId;
-        ReadingTime = DateTime.UtcNow;
-        Notes = notes;
+        ReadingTime = readingTime;
         ShiftLogCheckpointLinkedId = shiftLogCheckpointLinkedId;
+        ParameterType = parameterType;
+        GroupNumber = groupNumber;
+        OperationShiftId = operationShiftId;
     }
 
     public void Locked()

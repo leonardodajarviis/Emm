@@ -1,4 +1,5 @@
 using Emm.Domain.Entities.Operations;
+using Emm.Domain.Entities.Organization;
 using Emm.Infrastructure.Data.EntityConfigurations.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -38,6 +39,18 @@ public class ShiftLogConfiguration : IEntityTypeConfiguration<ShiftLog>
         builder.Property(x => x.AssetId);
 
         builder.Property(x => x.BoxId);
+
+        builder.Property(x => x.LocationId);
+
+        builder.Property(x => x.LocationName)
+            .HasMaxLength(500);
+
+        builder.Property(x => x.LogOrder)
+            .IsRequired();
+
+        builder.Property(x => x.IsLooked)
+            .IsRequired();
+
 
         builder.ConfigureAuditEntity();
         // Foreign key reference to OperationShift (separate aggregate)
@@ -80,5 +93,10 @@ public class ShiftLogConfiguration : IEntityTypeConfiguration<ShiftLog>
 
         builder.Navigation(x => x.Items)
             .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+        builder.HasOne<Location>()
+            .WithMany()
+            .HasForeignKey(x => x.LocationId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

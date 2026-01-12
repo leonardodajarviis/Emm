@@ -163,8 +163,8 @@ public class MaintenancePlanManagementService
         string name,
         string? description,
         decimal triggerValue,
-        decimal maxValue,
-        decimal minValue,
+        decimal plusTolerance,
+        decimal minusTolerance,
         MaintenanceTriggerCondition triggerCondition,
         bool isActive)
     {
@@ -177,8 +177,8 @@ public class MaintenancePlanManagementService
             name,
             description,
             triggerValue,
-            minValue,
-            maxValue,
+            minusTolerance,
+            plusTolerance,
             triggerCondition,
             isActive
         );

@@ -49,12 +49,12 @@ public class UpdateMaintenancePlanCommandHandler : IRequestHandler<UpdateMainten
 
             case MaintenancePlanType.ParameterBased:
                 if (!bodyRequest.TriggerValue.HasValue ||
-                    !bodyRequest.MinValue.HasValue ||
-                    !bodyRequest.MaxValue.HasValue)
+                    !bodyRequest.MinusTolerance.HasValue ||
+                    !bodyRequest.PlusTolerance.HasValue)
                 {
                     return Result<object>.Failure(
                         ErrorType.Validation,
-                        "TriggerValue, MinValue, MaxValue, and TriggerCondition are required for parameter-based maintenance plans.");
+                        "TriggerValue, MinusTolerance, PlusTolerance, and TriggerCondition are required for parameter-based maintenance plans.");
                 }
 
                 _maintenancePlanService.UpdateParameterBasedMaintenancePlan(
@@ -63,8 +63,8 @@ public class UpdateMaintenancePlanCommandHandler : IRequestHandler<UpdateMainten
                     name: bodyRequest.Name,
                     description: bodyRequest.Description,
                     triggerValue: bodyRequest.TriggerValue.Value,
-                    minValue: bodyRequest.MinValue.Value,
-                    maxValue: bodyRequest.MaxValue.Value,
+                    minusTolerance: bodyRequest.MinusTolerance.Value,
+                    plusTolerance: bodyRequest.PlusTolerance.Value,
                     triggerCondition: MaintenanceTriggerCondition.Equal,
                     isActive: bodyRequest.IsActive
                 );

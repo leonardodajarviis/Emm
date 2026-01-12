@@ -99,8 +99,8 @@ public class GetAssetByIdQueryHandler : IRequestHandler<GetAssetByIdQuery, Resul
                     Id = mp.ParameterBasedTrigger.Id,
                     ParameterId = mp.ParameterBasedTrigger.ParameterId,
                     TriggerValue = mp.ParameterBasedTrigger.Value,
-                    MinValue = mp.ParameterBasedTrigger.PlusTolerance,
-                    MaxValue = mp.ParameterBasedTrigger.MinusTolerance,
+                    PlusTolerance = mp.ParameterBasedTrigger.PlusTolerance,
+                    MinusTolerance = mp.ParameterBasedTrigger.MinusTolerance,
                     TriggerCondition = mp.ParameterBasedTrigger.TriggerCondition,
                     IsActive = mp.ParameterBasedTrigger.IsActive
                 } : null,

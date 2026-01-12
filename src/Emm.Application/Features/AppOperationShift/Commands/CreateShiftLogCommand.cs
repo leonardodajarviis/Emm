@@ -11,7 +11,7 @@ public class CreateShiftLogCommand : IRequest<Result>
 
 public record CreateShiftLogData
 {
-    public string Name { get; set; } = null!;
+    public string Name { get; init; } = null!;
     public DateTime StartTime { get; set; }
     public DateTime? EndTime { get; set; }
 
@@ -24,6 +24,9 @@ public record CreateShiftLogData
     /// Box ID cho trường hợp ghi log cho nhiều assets theo group
     /// </summary>
     public Guid? BoxId { get; set; }
+
+    public Guid? LocationId {get; set;}
+    public string? LocationName {get; set;}
 
     public IEnumerable<ParameterReadingRequest> Readings { get; set; } = [];
     public IEnumerable<CheckpointRequest> Checkpoints { get; set; } = [];

@@ -21,6 +21,7 @@ public class OperationShift : AggregateRoot, IAuditableEntity
     public DateTime ScheduledEndTime { get; private set; }
     public DateTime? ActualStartTime { get; private set; }
     public DateTime? ActualEndTime { get; private set; }
+    public Guid? CurrentShiftLogId { get; private set; }
     public OperationShiftStatus Status { get; private set; }
     public string? Notes { get; private set; }
     public AuditMetadata Audit { get; private set; } = null!;
@@ -32,6 +33,9 @@ public class OperationShift : AggregateRoot, IAuditableEntity
 
     private readonly List<OperationShiftAssetBox> _assetBoxes;
     public IReadOnlyCollection<OperationShiftAssetBox> AssetBoxes => _assetBoxes;
+
+    private readonly List<OperationShiftReadingSnapshot> _readingSnapshots;
+    public IReadOnlyCollection<OperationShiftReadingSnapshot> GetReadingSnapshots() => _readingSnapshots;
 
     public OperationShift(
         string code,
@@ -57,6 +61,8 @@ public class OperationShift : AggregateRoot, IAuditableEntity
 
         _assets = [];
         _assetBoxes = [];
+        _readingSnapshots = [];
+
 
         Code = code;
         Name = name;
@@ -174,20 +180,6 @@ public class OperationShift : AggregateRoot, IAuditableEntity
         Raise(new OperationShiftAssetAddedEvent(Id, assetId, assetCode, isPrimary));
     }
 
-    public void RemoveAsset(Guid assetId)
-    {
-        DomainGuard.AgainstInvalidState(
-            Status != OperationShiftStatus.Scheduled,
-            nameof(OperationShift),
-            Status.ToString(),
-            $"Cannot remove assets from shift in {Status} status. Shift must be in Scheduled status.");
-
-        var asset = _assets.FirstOrDefault(a => a.AssetId == assetId);
-        DomainGuard.AgainstNotFound(asset, "OperationShiftAsset", assetId);
-
-        _assets.Remove(asset!);
-    }
-
     public void Update(
         string name,
         string? description,
@@ -222,109 +214,17 @@ public class OperationShift : AggregateRoot, IAuditableEntity
         Notes = notes;
     }
 
-    public void ChangePrimaryUser(Guid newPrimaryUserId)
+    public void SetCurrentShiftLog(Guid shiftLogId)
     {
-        DomainGuard.AgainstInvalidForeignKey(newPrimaryUserId, nameof(newPrimaryUserId));
-
-        DomainGuard.AgainstInvalidState(
-            Status == OperationShiftStatus.Completed || Status == OperationShiftStatus.Cancelled,
-            nameof(OperationShift),
-            Status.ToString(),
-            $"Cannot change primary User for shift in {Status} status");
-
-        PrimaryUserId = newPrimaryUserId;
+        CurrentShiftLogId = shiftLogId;
     }
 
-    public void PauseShift(string reason)
+    public void AddReadingSnapshot(Guid assetId, Guid parameterId, decimal value)
     {
-        DomainGuard.AgainstNullOrEmpty(reason, "PauseReason");
+        var snapshot = new OperationShiftReadingSnapshot(
+            Id, assetId, parameterId, value);
 
-        DomainGuard.AgainstInvalidState(
-            Status != OperationShiftStatus.InProgress,
-            nameof(OperationShift),
-            Status.ToString(),
-            $"Cannot pause shift in {Status} status. Shift must be in InProgress status.");
-
-        Status = OperationShiftStatus.Paused;
-        Notes = string.IsNullOrEmpty(Notes)
-            ? $"Paused: {reason}"
-            : $"{Notes}\nPaused: {reason}";
-
-        // Raise domain event
-        Raise(new OperationShiftPausedEvent(Id, reason));
-    }
-
-    public void ResumeShift(string? notes = null)
-    {
-        DomainGuard.AgainstInvalidState(
-            Status != OperationShiftStatus.Paused,
-            nameof(OperationShift),
-            Status.ToString(),
-            $"Cannot resume shift in {Status} status. Shift must be in Paused status.");
-
-        Status = OperationShiftStatus.InProgress;
-        if (!string.IsNullOrEmpty(notes))
-        {
-            Notes = string.IsNullOrEmpty(Notes)
-                ? $"Resumed: {notes}"
-                : $"{Notes}\nResumed: {notes}";
-        }
-
-        // Raise domain event
-        Raise(new OperationShiftResumedEvent(Id, notes));
-    }
-
-    public void Reschedule(
-        DateTime newScheduledStartTime,
-        DateTime newScheduledEndTime,
-        string reason)
-    {
-        DomainGuard.AgainstNullOrEmpty(reason, "RescheduleReason");
-        DomainGuard.AgainstInvalidState(
-            Status != OperationShiftStatus.Scheduled,
-            nameof(OperationShift),
-            Status.ToString(),
-            $"Cannot reschedule shift in {Status} status. Shift must be in Scheduled status.");
-
-        var oldStartTime = ScheduledStartTime;
-        var oldEndTime = ScheduledEndTime;
-
-        ScheduledStartTime = newScheduledStartTime;
-        ScheduledEndTime = newScheduledEndTime;
-        Notes = string.IsNullOrEmpty(Notes)
-            ? $"Rescheduled: {reason}"
-            : $"{Notes}\nRescheduled: {reason}";
-
-        // Raise domain event
-        Raise(new OperationShiftRescheduledEvent(
-            Id, oldStartTime, oldEndTime, newScheduledStartTime, newScheduledEndTime, reason));
-    }
-
-    public void Reactivate(
-        DateTime newScheduledStartTime,
-        DateTime newScheduledEndTime,
-        string reason)
-    {
-        DomainGuard.AgainstNullOrEmpty(reason, "ReactivateReason");
-
-        DomainGuard.AgainstInvalidState(
-            Status != OperationShiftStatus.Cancelled,
-            nameof(OperationShift),
-            Status.ToString(),
-            $"Cannot reactivate shift in {Status} status. Shift must be in Cancelled status.");
-
-        Status = OperationShiftStatus.Scheduled;
-        ScheduledStartTime = newScheduledStartTime;
-        ScheduledEndTime = newScheduledEndTime;
-        ActualStartTime = null;
-        ActualEndTime = null;
-        Notes = string.IsNullOrEmpty(Notes)
-            ? $"Reactivated: {reason}"
-            : $"{Notes}\nReactivated: {reason}";
-
-        // Raise domain event
-        Raise(new OperationShiftReactivatedEvent(
-            Id, newScheduledStartTime, newScheduledEndTime, reason));
+        _readingSnapshots.Add(snapshot);
     }
 
     #region Asset box Management
@@ -406,20 +306,11 @@ public class OperationShift : AggregateRoot, IAuditableEntity
         asset!.AssignToGroup(assetBoxId);
     }
 
-    public IEnumerable<OperationShiftAsset> GetAssetsByBox(Guid assetBoxId)
-    {
-        return _assets.Where(a => a.AssetBoxId == assetBoxId);
-    }
-
-    public IEnumerable<OperationShiftAsset> GetUnboxedAssets()
-    {
-        return _assets.Where(a => !a.AssetBoxId.HasValue);
-    }
-
     #endregion
 
     private OperationShift()
     {
+        _readingSnapshots = [];
         _assets = [];
         _assetBoxes = [];
         Status = OperationShiftStatus.Scheduled;

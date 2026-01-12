@@ -19,8 +19,8 @@ public record UpdateMaintenancePlanBody(
 
     // For Parameter-based maintenance plans
     decimal? TriggerValue,
-    decimal? MinValue,
-    decimal? MaxValue,
+    decimal? MinusTolerance,
+    decimal? PlusTolerance,
     MaintenanceTriggerCondition? TriggerCondition,
 
     // Job steps (common for both types)

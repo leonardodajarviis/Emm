@@ -42,8 +42,13 @@ public class UpdateShiftLogCommandHandler : IRequestHandler<UpdateShiftLogComman
         // Verify task belongs to shift
         if (shiftLog.OperationShiftId != request.OperationShiftId)
         {
-            return Result.Conflict("Shift log does not belong to this shift", "SHIFT_LOG_MISMATCH");
+            return Result.Conflict("Shift log does not belong to this shift", ShiftLogErrorCodes.ShiftLogMissmatch);
         }
+
+        // if (shiftLog.Id != shift.CurrentShiftLogId)
+        // {
+        //     return Result.Conflict("Only current shift log can be updated", ShiftLogErrorCodes.NotCurrentShiftLog);
+        // }
 
         var updateContext = new UpdateShiftLogContext
         {
@@ -58,6 +63,7 @@ public class UpdateShiftLogCommandHandler : IRequestHandler<UpdateShiftLogComman
             return result;
         }
         shiftLog.RaiseReadingEvents();
+
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         return Result.Success();
     }

@@ -2,6 +2,7 @@ using Emm.Application.ErrorCodes;
 using Emm.Application.Features.AppOperationShift.Builder;
 using Emm.Domain.Entities.AssetCatalog;
 using Emm.Domain.Entities.Operations;
+using Microsoft.EntityFrameworkCore;
 
 namespace Emm.Application.Features.AppOperationShift.Commands;
 
@@ -41,22 +42,37 @@ public class CreateShiftLogCommandHandler : IRequestHandler<CreateShiftLogComman
 
         var assetIds = shift.Assets.Select(a => a.AssetId).ToArray();
 
-        var assetParameterDict = _queryContext.Query<AssetParameter>()
+        var assetParameterDict = await _queryContext.Query<AssetParameter>()
             .Where(ap => assetIds.Contains(ap.AssetId))
-            .ToDictionary(ap => (ap.AssetId, ap.ParameterId), ap => ap);
+            .ToDictionaryAsync(ap => (ap.AssetId, ap.ParameterId), ap => ap);
+
+        var logCount = await _queryContext.Query<ShiftLog>()
+            .CountAsync(sl => sl.OperationShiftId == request.OperationShiftId, cancellationToken);
+
+        var prevShiftLog = await _queryContext.Query<ShiftLog>()
+            .Include(sl => sl.Readings)
+            .Where(sl => sl.OperationShiftId == shift.CurrentShiftLogId)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        var logOrder = logCount + 1;
 
         // Create new task aggregate
-        var newShiftLog = new ShiftLog(
+        var shiftLog = new ShiftLog(
+            logOrder,
             request.OperationShiftId,
             data.Name,
             data.StartTime,
             data.EndTime,
             data.AssetId,
-            data.BoxId);
+            data.BoxId,
+            data.LocationId,
+            data.LocationName);
+
+        shift.SetCurrentShiftLog(shiftLog.Id);
 
         var shiftLogCtx = new CreateShiftLogContext
         {
-            ShiftLog = newShiftLog,
+            ShiftLog = shiftLog,
             AssetDict = shift.Assets.ToDictionary(a => a.AssetId, a => a),
             Data = data
         };
@@ -69,13 +85,13 @@ public class CreateShiftLogCommandHandler : IRequestHandler<CreateShiftLogComman
         }
 
         // Add task to repository
-        newShiftLog.RaiseReadingEvents();
-        await _shiftLogRepository.AddAsync(newShiftLog, cancellationToken);
+        shiftLog.RaiseReadingEvents();
+        await _shiftLogRepository.AddAsync(shiftLog, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result.Success(new
         {
-            newShiftLog.Id,
+            shiftLog.Id,
         });
     }
 

@@ -36,6 +36,7 @@ public class AddAssetsCommandHandler : IRequestHandler<AddAssetsCommand, Result>
         }
 
         var assetDict = await _qq.Query<Asset>()
+            .Include(a => a.Parameters)
             .Where(a => data.AssetIds.Contains(a.Id))
             .ToDictionaryAsync(a => a.Id, cancellationToken);
 
@@ -49,6 +50,16 @@ public class AddAssetsCommandHandler : IRequestHandler<AddAssetsCommand, Result>
                     assetName: existingAsset.DisplayName,
                     isPrimary: false,
                     assetBoxId: data.AssetBoxId);
+            }
+        }
+        foreach (var parameters in assetDict.Values.Select(a => a.Parameters))
+        {
+            foreach (var parameter in parameters)
+            {
+                shift.AddReadingSnapshot(
+                    parameter.AssetId,
+                    parameter.ParameterId,
+                    parameter.CurrentValue);
             }
         }
 
