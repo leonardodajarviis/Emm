@@ -9,7 +9,6 @@ public class UpdateShiftLogContext
     public ShiftLog ShiftLog { get; init; } = null!;
     public IReadOnlyDictionary<Guid, OperationShiftAsset> AssetDict { get; init; } = null!;
     public UpdateShiftLogData Data { get; init; } = null!;
-    public IDateTimeProvider Clock = null!;
 }
 
 public interface IUpdateShiftLogBuilderHandler

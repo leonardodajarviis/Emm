@@ -69,11 +69,6 @@ public class ShiftLogParameterReadingConfiguration : IEntityTypeConfiguration<Sh
             .HasForeignKey(x => x.OperationShiftId)
             .OnDelete(DeleteBehavior.NoAction);
 
-        builder.HasOne<ShiftLog>()
-            .WithMany()
-            .HasForeignKey(x => x.ShiftLogId)
-            .OnDelete(DeleteBehavior.Cascade);
-
         // Indexes
         builder.HasIndex(x => x.ShiftLogId);
 

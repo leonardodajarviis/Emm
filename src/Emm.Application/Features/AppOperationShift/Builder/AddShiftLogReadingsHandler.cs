@@ -1,4 +1,5 @@
 using Emm.Application.Services;
+using Emm.Domain.Abstractions;
 using Emm.Domain.Entities;
 using Emm.Domain.Entities.AssetCatalog;
 using Emm.Domain.Entities.Operations;
@@ -10,13 +11,16 @@ public class AddShiftLogReadingsHandler : ICreateShiftLogBuilderHandler
 {
     private readonly IQueryContext _queryContext;
     private readonly IReadingValueValidator _readingValueValidator;
+    private readonly IDateTimeProvider _clock;
 
     public AddShiftLogReadingsHandler(
         IQueryContext queryContext,
-        IReadingValueValidator readingValueValidator)
+        IReadingValueValidator readingValueValidator,
+        IDateTimeProvider clock)
     {
         _queryContext = queryContext;
         _readingValueValidator = readingValueValidator;
+        _clock = clock;
     }
     public async Task<Result> Handle(CreateShiftLogContext context, CancellationToken cancellationToken)
     {
@@ -116,7 +120,7 @@ public class AddShiftLogReadingsHandler : ICreateShiftLogBuilderHandler
                 parameterType: parameter.Type,
                 unitOfMeasureId: parameter.UnitOfMeasureId,
                 value: reading.Value,
-                readingTime: context.Clock.Now,
+                readingTime: _clock.Now,
                 groupNumber: nextNumber++,
                 shiftLogCheckPointLinkedId: reading.CheckpointLinkedId);
         }
