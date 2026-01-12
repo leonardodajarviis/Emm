@@ -16,13 +16,7 @@ public class AssetModelRepository : GenericRepository<AssetModel, Guid>, IAssetM
     {
         var query = DbSet
             .Include(am => am.Parameters)
-            .Include(am => am.Images)
-            .Include(am => am.MaintenancePlanDefinitions)
-            .ThenInclude(am => am.JobSteps)
-            .Include(am => am.MaintenancePlanDefinitions)
-            .ThenInclude(am => am.RequiredItems)
-            .Include(am => am.MaintenancePlanDefinitions)
-            .ThenInclude(am => am.ParameterBasedTrigger);
+            .Include(am => am.Images);
 
         return query.FirstOrDefaultAsync(am => am.Id == id, cancellationToken);
     }
@@ -37,10 +31,6 @@ public class AssetModelRepository : GenericRepository<AssetModel, Guid>, IAssetM
         return await DbSet
             .Include(am => am.Parameters)
             .Include(am => am.Images)
-            .Include(am => am.MaintenancePlanDefinitions)
-            .ThenInclude(am => am.JobSteps)
-            .Include(am => am.MaintenancePlanDefinitions)
-            .ThenInclude(am => am.ParameterBasedTrigger)
             .FirstOrDefaultAsync(am => am.Code.Value == code);
     }
 }

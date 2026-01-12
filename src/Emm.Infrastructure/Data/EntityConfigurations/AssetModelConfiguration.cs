@@ -85,14 +85,6 @@ public class AssetModelConfiguration : IEntityTypeConfiguration<AssetModel>
         builder.Navigation(x => x.Parameters)
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
-        builder.HasMany(x => x.MaintenancePlanDefinitions)
-            .WithOne()
-            .HasForeignKey(x => x.AssetModelId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        builder.Navigation(x => x.MaintenancePlanDefinitions)
-            .UsePropertyAccessMode(PropertyAccessMode.Field);
-
         builder.HasMany(x => x.Images)
             .WithOne()
             .HasForeignKey(x => x.AssetModelId)

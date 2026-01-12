@@ -3,9 +3,8 @@ using Emm.Domain.ValueObjects;
 
 namespace Emm.Domain.Entities.AssetCatalog;
 
-public class MaintenancePlanDefinition : IAuditableEntity
+public class MaintenancePlanDefinition : AggregateRoot, IAuditableEntity
 {
-    public Guid Id { get; private set; } = Guid.CreateVersion7();
     public bool IsActive { get; private set; }
     public Guid AssetModelId { get; private set; }
 
@@ -15,7 +14,7 @@ public class MaintenancePlanDefinition : IAuditableEntity
     public MaintenancePlanType PlanType { get; private set; }
     public string? RRule { get; private set; }
 
-    private ParameterBasedMaintenanceTrigger? _parameterBasedTrigger;
+    private readonly ParameterBasedMaintenanceTrigger? _parameterBasedTrigger;
     public ParameterBasedMaintenanceTrigger? ParameterBasedTrigger => _parameterBasedTrigger;
 
     // Job steps (chung cho cả 2 loại)
@@ -35,44 +34,13 @@ public class MaintenancePlanDefinition : IAuditableEntity
         _requiredItems = [];
     }
 
-    // Static factory method cho Time-based maintenance plan
-    public static MaintenancePlanDefinition CreateTimeBased(
-        Guid assetModelId,
-        string name,
-        string? description,
-        string rrule,
-        IReadOnlyCollection<MaintenancePlanJobStepDefinitionSpec>? jobSteps = null,
-        IReadOnlyCollection<MaintenancePlanRequiredItemDefinitionSpec>? requiredItems = null,
-        bool isActive = true)
-    {
-        return new MaintenancePlanDefinition(assetModelId, name, description, rrule, jobSteps, requiredItems, isActive);
-    }
-
-    // Static factory method cho Parameter-based maintenance plan
-    public static MaintenancePlanDefinition CreateParameterBased(
-        Guid assetModelId,
-        string name,
-        string? description,
-        Guid parameterId,
-        decimal thresholdValue,
-        decimal plusTolerance,
-        decimal minusTolerance,
-        MaintenanceTriggerCondition triggerCondition = MaintenanceTriggerCondition.GreaterThanOrEqual,
-        IReadOnlyCollection<MaintenancePlanJobStepDefinitionSpec>? jobSteps = null,
-        IReadOnlyCollection<MaintenancePlanRequiredItemDefinitionSpec>? requiredItems = null,
-        bool isActive = true)
-    {
-        return new MaintenancePlanDefinition(assetModelId, name, description, parameterId, thresholdValue, plusTolerance, minusTolerance, triggerCondition, jobSteps, requiredItems, isActive);
-    }
 
     // Constructor cho Time-based maintenance plan
-    private MaintenancePlanDefinition(
+    public MaintenancePlanDefinition(
         Guid assetModelId,
         string name,
         string? description,
         string rrule,
-        IReadOnlyCollection<MaintenancePlanJobStepDefinitionSpec>? jobSteps = null,
-        IReadOnlyCollection<MaintenancePlanRequiredItemDefinitionSpec>? requiredItems = null,
         bool isActive = true)
     {
         _jobSteps = [];
@@ -85,40 +53,10 @@ public class MaintenancePlanDefinition : IAuditableEntity
         PlanType = MaintenancePlanType.TimeBased;
         RRule = rrule;
         IsActive = isActive;
-
-
-        // Thêm job steps nếu được cung cấp
-        if (jobSteps != null)
-        {
-            foreach (var step in jobSteps)
-            {
-                AddJobStep(
-                    name: step.Name,
-                    organizationUnitId: step.OrganizationUnitId,
-                    note: step.Note,
-                    order: step.Order
-                );
-            }
-        }
-
-        if (requiredItems != null)
-        {
-            foreach (var item in requiredItems)
-            {
-                AddRequiredItem(
-                    itemGroupId: item.ItemGroupId,
-                    itemId: item.ItemId,
-                    unitOfMeasureId: item.UnitOfMeasureId,
-                    quantity: item.Quantity,
-                    isRequired: item.IsRequired,
-                    note: item.Note
-                );
-            }
-        }
     }
 
     // Constructor cho Parameter-based maintenance plan
-    private MaintenancePlanDefinition(
+    public MaintenancePlanDefinition(
         Guid assetModelId,
         string name,
         string? description,
@@ -126,9 +64,6 @@ public class MaintenancePlanDefinition : IAuditableEntity
         decimal value,
         decimal plusTolerance,
         decimal minusTolerance,
-        MaintenanceTriggerCondition triggerCondition = MaintenanceTriggerCondition.GreaterThanOrEqual,
-        IReadOnlyCollection<MaintenancePlanJobStepDefinitionSpec>? jobSteps = null,
-        IReadOnlyCollection<MaintenancePlanRequiredItemDefinitionSpec>? requiredItems = null,
         bool isActive = true)
     {
         _jobSteps = [];
@@ -146,38 +81,9 @@ public class MaintenancePlanDefinition : IAuditableEntity
             value: value,
             plusTolerance: plusTolerance,
             minusTolerance: minusTolerance,
-            triggerCondition: triggerCondition,
             isActive: isActive
         );
 
-        // Thêm job steps nếu được cung cấp
-        if (jobSteps != null)
-        {
-            foreach (var step in jobSteps)
-            {
-                AddJobStep(
-                    name: step.Name,
-                    organizationUnitId: step.OrganizationUnitId,
-                    note: step.Note,
-                    order: step.Order
-                );
-            }
-        }
-
-        if (requiredItems != null)
-        {
-            foreach (var item in requiredItems)
-            {
-                AddRequiredItem(
-                    itemGroupId: item.ItemGroupId,
-                    itemId: item.ItemId,
-                    unitOfMeasureId: item.UnitOfMeasureId,
-                    quantity: item.Quantity,
-                    isRequired: item.IsRequired,
-                    note: item.Note
-                );
-            }
-        }
     }
 
     public void Update(string name, string? description, bool isActive)
@@ -210,7 +116,6 @@ public class MaintenancePlanDefinition : IAuditableEntity
         decimal thresholdValue,
         decimal plusTolerance,
         decimal minusTolerance,
-        MaintenanceTriggerCondition triggerCondition,
         bool isActive)
     {
         if (PlanType != MaintenancePlanType.ParameterBased)
@@ -227,7 +132,6 @@ public class MaintenancePlanDefinition : IAuditableEntity
             value: thresholdValue,
             plusTolerance: plusTolerance,
             minusTolerance: minusTolerance,
-            triggerCondition: triggerCondition,
             isActive: isActive
         );
     }
@@ -258,50 +162,8 @@ public class MaintenancePlanDefinition : IAuditableEntity
         jobStep.Update(name, note, order);
     }
 
-    public void SyncJobSteps(IReadOnlyCollection<MaintenancePlanJobStepDefinitionSpec> jobStepSpecs)
-    {
-        var incomingIds = jobStepSpecs
-            .Where(spec => spec.Id.HasValue)
-            .Select(spec => spec.Id!.Value)
-            .ToList();
-
-        var stepsToRemove = _jobSteps
-            .Where(step => !incomingIds.Contains(step.Id))
-            .ToList();
-
-        foreach (var step in stepsToRemove)
-        {
-            _jobSteps.Remove(step);
-        }
-
-        // Cập nhật hoặc thêm mới
-        foreach (var spec in jobStepSpecs)
-        {
-            if (spec.Id.HasValue)
-            {
-                // Update existing
-                var existingStep = _jobSteps.FirstOrDefault(js => js.Id == spec.Id.Value);
-                if (existingStep != null)
-                {
-                    existingStep.Update(spec.Name, spec.Note, spec.Order);
-                }
-            }
-            else
-            {
-                // Add new
-                var newStep = new MaintenancePlanJobStepDefinition(
-                    spec.Name,
-                    spec.OrganizationUnitId,
-                    spec.Note,
-                    spec.Order
-                );
-                _jobSteps.Add(newStep);
-            }
-        }
-    }
 
     // Methods cho Required Items (Vật tư phụ tùng)
-
     public void AddRequiredItem(Guid itemGroupId, Guid itemId, Guid unitOfMeasureId, decimal quantity, bool isRequired, string? note = null)
     {
         var requiredItem = new MaintenancePlanRequiredItem(itemGroupId, itemId, unitOfMeasureId, quantity, isRequired, note);
@@ -325,67 +187,4 @@ public class MaintenancePlanDefinition : IAuditableEntity
 
         requiredItem.Update(quantity, isRequired, note);
     }
-
-    public void SyncRequiredItems(IReadOnlyCollection<MaintenancePlanRequiredItemDefinitionSpec> requiredItemSpecs)
-    {
-        // Xóa các vật tư không còn trong danh sách mới
-        var incomingIds = requiredItemSpecs
-            .Where(spec => spec.Id.HasValue)
-            .Select(spec => spec.Id!.Value)
-            .ToList();
-
-        var itemsToRemove = _requiredItems
-            .Where(item => !incomingIds.Contains(item.Id))
-            .ToList();
-
-        foreach (var item in itemsToRemove)
-        {
-            _requiredItems.Remove(item);
-        }
-
-        // Cập nhật hoặc thêm mới
-        foreach (var spec in requiredItemSpecs)
-        {
-            if (spec.Id.HasValue)
-            {
-                // Update existing
-                var existingItem = _requiredItems.FirstOrDefault(ri => ri.Id == spec.Id.Value);
-                if (existingItem != null)
-                {
-                    existingItem.Update(spec.Quantity, spec.IsRequired, spec.Note);
-                }
-            }
-            else
-            {
-                // Add new
-                var newItem = new MaintenancePlanRequiredItem(
-                    spec.ItemGroupId,
-                    spec.ItemId,
-                    spec.UnitOfMeasureId,
-                    spec.Quantity,
-                    spec.IsRequired,
-                    spec.Note
-                );
-                _requiredItems.Add(newItem);
-            }
-        }
-    }
 }
-
-public record MaintenancePlanJobStepDefinitionSpec(
-    Guid? Id,
-    string Name,
-    Guid? OrganizationUnitId,
-    string? Note,
-    int Order
-);
-
-public record MaintenancePlanRequiredItemDefinitionSpec(
-    Guid? Id,
-    Guid ItemGroupId,
-    Guid ItemId,
-    Guid UnitOfMeasureId,
-    decimal Quantity,
-    bool IsRequired,
-    string? Note
-);

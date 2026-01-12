@@ -126,7 +126,6 @@ public class GetAssetModelByIdQueryHandler : IRequestHandler<GetAssetModelByIdQu
                             TriggerValue = mp.ParameterBasedTrigger.Value,
                             PlusTolerance = mp.ParameterBasedTrigger.PlusTolerance,
                             MinusTolerance = mp.ParameterBasedTrigger.MinusTolerance,
-                            TriggerCondition = mp.ParameterBasedTrigger.TriggerCondition,
                             IsActive = mp.ParameterBasedTrigger.IsActive
                         } : null,
 

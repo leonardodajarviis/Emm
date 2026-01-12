@@ -6,7 +6,6 @@ namespace Emm.Domain.Entities.AssetCatalog;
 
 public class AssetModel : AggregateRoot, IAuditableEntity
 {
-    private const int MaxMaintenancePlansPerModel = 100;
     private const int MaxImagesPerModel = 50;
     private const int MaxParametersPerModel = 200;
 
@@ -25,8 +24,6 @@ public class AssetModel : AggregateRoot, IAuditableEntity
     private readonly List<AssetModelParameter> _parameters;
     public IReadOnlyCollection<AssetModelParameter> Parameters => _parameters;
 
-    private readonly List<MaintenancePlanDefinition> _maintenancePlanDefinitions;
-    public IReadOnlyCollection<MaintenancePlanDefinition> MaintenancePlanDefinitions => _maintenancePlanDefinitions;
 
     private readonly List<AssetModelImage> _images;
     public IReadOnlyCollection<AssetModelImage> Images => _images;
@@ -38,7 +35,6 @@ public class AssetModel : AggregateRoot, IAuditableEntity
     private AssetModel()
     {
         _parameters = [];
-        _maintenancePlanDefinitions = [];
         _images = [];
     } // EF Core constructor
 
@@ -58,7 +54,6 @@ public class AssetModel : AggregateRoot, IAuditableEntity
         DomainGuard.AgainstInvalidForeignKey(assetTypeId, nameof(AssetTypeId));
 
         _parameters = [];
-        _maintenancePlanDefinitions = [];
         _images = [];
 
         Code = code;
@@ -207,43 +202,12 @@ public class AssetModel : AggregateRoot, IAuditableEntity
         }
     }
 
-    // Internal methods for Domain Service to use
-    // These methods should ONLY be called by MaintenancePlanManagementService
-
-    /// <summary>
-    /// Internal method for adding a maintenance plan. Should only be called by MaintenancePlanManagementService.
-    /// </summary>
-    public void AddMaintenancePlanInternal(MaintenancePlanDefinition plan)
-    {
-        ValidateMaintenancePlanLimit();
-        DomainGuard.AgainstNull(plan, nameof(plan));
-        _maintenancePlanDefinitions.Add(plan);
-    }
-
-    /// <summary>
-    /// Internal method for removing a maintenance plan. Should only be called by MaintenancePlanManagementService.
-    /// </summary>
-    public void RemoveMaintenancePlanInternal(Guid maintenancePlanId)
-    {
-        var maintenancePlan = _maintenancePlanDefinitions.FirstOrDefault(mp => mp.Id == maintenancePlanId);
-        DomainGuard.AgainstNotFound(maintenancePlan, nameof(MaintenancePlanDefinition), maintenancePlanId);
-        _maintenancePlanDefinitions.Remove(maintenancePlan!);
-    }
-
     /// <summary>
     /// Internal method for finding a parameter. Should only be called by MaintenancePlanManagementService.
     /// </summary>
     public AssetModelParameter? FindParameter(Guid parameterId)
     {
         return _parameters.FirstOrDefault(p => p.ParameterId == parameterId);
-    }
-
-    /// <summary>
-    /// Internal method for getting a maintenance plan. Should only be called by MaintenancePlanManagementService.
-    /// </summary>
-    public MaintenancePlanDefinition? GetMaintenancePlan(Guid maintenancePlanId)
-    {
-        return _maintenancePlanDefinitions.FirstOrDefault(mp => mp.Id == maintenancePlanId);
     }
 
     public void AddImage(Guid fileId, string filePath)
@@ -272,14 +236,6 @@ public class AssetModel : AggregateRoot, IAuditableEntity
         _images.Remove(image!);
 
         // RaiseDomainEvent(new AssetModelImageRemovedEvent(Id, fileId));
-    }
-
-    private void ValidateMaintenancePlanLimit()
-    {
-        DomainGuard.AgainstBusinessRule(
-            _maintenancePlanDefinitions.Count >= MaxMaintenancePlansPerModel,
-            "MaintenancePlanLimit",
-            $"Cannot exceed {MaxMaintenancePlansPerModel} maintenance plans per asset model");
     }
 
     private void ValidateParentId(Guid? parentId)

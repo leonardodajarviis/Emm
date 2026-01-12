@@ -64,53 +64,6 @@ public class AssetModelController : ControllerBase
         return result.ToActionResult();
     }
 
-    [HttpPost("{id}/maintenance-plans")]
-    public async Task<IActionResult> AddMaintenancePlan(
-        [FromRoute] Guid id,
-        [FromBody] AddMaintenancePlanCommandBody addMaintenancePlan)
-    {
-        var command = new AddMaintenancePlanCommand(
-            AssetModelId: id,
-            Body: addMaintenancePlan
-        );
-
-        var result = await _mediator.Send(command);
-
-        return result.ToActionResult();
-    }
-
-
-    [HttpPut("{id}/maintenance-plans/{maintenancePlanId}")]
-    public async Task<IActionResult> UpdateMaintenancePlan(
-        [FromRoute] Guid id,
-        [FromRoute] Guid maintenancePlanId,
-        [FromBody] UpdateMaintenancePlanBody updateMaintenancePlan)
-    {
-        var command = new UpdateMaintenancePlanCommand(
-            AssetModelId: id,
-            MaintenancePlanId: maintenancePlanId,
-            Body: updateMaintenancePlan
-        ) ;
-
-        var result = await _mediator.Send(command);
-
-        return result.ToActionResult();
-    }
-
-    [HttpDelete("{id}/maintenance-plans/{maintenancePlanId}")]
-    public async Task<IActionResult> RemoveMaintenancePlan(
-        [FromRoute] Guid id,
-        [FromRoute] Guid maintenancePlanId)
-    {
-        var command = new RemoveMaintenancePlanCommand(
-            AssetModelId: id,
-            MaintenancePlanId: maintenancePlanId
-        );
-
-        var result = await _mediator.Send(command);
-
-        return result.ToActionResult();
-    }
 
     [HttpPost("{id}/images")]
     public async Task<IActionResult> AddImagesToAssetModel(

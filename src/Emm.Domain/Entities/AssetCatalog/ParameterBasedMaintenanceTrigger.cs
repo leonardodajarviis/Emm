@@ -8,7 +8,6 @@ public class ParameterBasedMaintenanceTrigger
     public decimal Value { get; private set; }
     public decimal PlusTolerance { get; private set; }
     public decimal MinusTolerance { get; private set; }
-    public MaintenanceTriggerCondition TriggerCondition { get; private set; }
     public bool IsActive { get; private set; }
 
     public ParameterBasedMaintenanceTrigger(
@@ -16,14 +15,12 @@ public class ParameterBasedMaintenanceTrigger
         decimal value,
         decimal plusTolerance,
         decimal minusTolerance,
-        MaintenanceTriggerCondition triggerCondition = MaintenanceTriggerCondition.GreaterThanOrEqual,
         bool isActive = true)
     {
         ParameterId = parameterId;
         Value = value;
         PlusTolerance = plusTolerance;
         MinusTolerance = minusTolerance;
-        TriggerCondition = triggerCondition;
         IsActive = isActive;
     }
 
@@ -31,13 +28,11 @@ public class ParameterBasedMaintenanceTrigger
         decimal value,
         decimal plusTolerance,
         decimal minusTolerance,
-        MaintenanceTriggerCondition triggerCondition,
         bool isActive)
     {
         Value = value;
         PlusTolerance = plusTolerance;
         MinusTolerance = minusTolerance;
-        TriggerCondition = triggerCondition;
         IsActive = isActive;
     }
 

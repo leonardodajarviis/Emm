@@ -35,7 +35,7 @@ public class OperationShift : AggregateRoot, IAuditableEntity
     public IReadOnlyCollection<OperationShiftAssetBox> AssetBoxes => _assetBoxes;
 
     private readonly List<OperationShiftReadingSnapshot> _readingSnapshots;
-    public IReadOnlyCollection<OperationShiftReadingSnapshot> GetReadingSnapshots() => _readingSnapshots;
+    public IReadOnlyCollection<OperationShiftReadingSnapshot> ReadingSnapshots => _readingSnapshots;
 
     public OperationShift(
         string code,

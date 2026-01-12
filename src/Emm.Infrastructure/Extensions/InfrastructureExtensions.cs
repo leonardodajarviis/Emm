@@ -49,10 +49,8 @@ public static class InfrastructureExtensions
         services.AddScoped<IOperationShiftRepository, OperationShiftRepository>();
         services.AddScoped<IShiftLogRepository, ShiftLogRepository>();
         services.AddScoped<IAssetRepository, AssetRepository>();
+        services.AddScoped<IMaintenancePlanDefinitionRepository, MaintenancePlanDefinitionRepository>();
         services.AddScoped<ICodeGenerator, SequenceCodeGenerator>();
-
-        // Register Domain Services
-        services.AddScoped<MaintenancePlanManagementService>();
 
         // Authorization repositories
         services.AddScoped<IPermissionRepository, PermissionRepository>();

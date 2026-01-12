@@ -101,7 +101,6 @@ public class GetAssetByIdQueryHandler : IRequestHandler<GetAssetByIdQuery, Resul
                     TriggerValue = mp.ParameterBasedTrigger.Value,
                     PlusTolerance = mp.ParameterBasedTrigger.PlusTolerance,
                     MinusTolerance = mp.ParameterBasedTrigger.MinusTolerance,
-                    TriggerCondition = mp.ParameterBasedTrigger.TriggerCondition,
                     IsActive = mp.ParameterBasedTrigger.IsActive
                 } : null,
                 JobSteps = new List<MaintenancePlanJobStepDefinitionResponse>(),

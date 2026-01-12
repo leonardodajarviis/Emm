@@ -15,7 +15,7 @@ public class CreateAssetModelCommandHandler : IRequestHandler<CreateAssetModelCo
     private readonly IFileStorage _fileStorage;
     private readonly IUserContextService _userContextService;
     private readonly ICodeGenerator _codeGenerator;
-    private readonly MaintenancePlanManagementService _maintenancePlanService;
+    // private readonly MaintenancePlanManagementService _maintenancePlanService;
 
     public CreateAssetModelCommandHandler(
         IUnitOfWork unitOfWork,
@@ -23,8 +23,8 @@ public class CreateAssetModelCommandHandler : IRequestHandler<CreateAssetModelCo
         IQueryContext queryContext,
         IFileStorage fileStorage,
         ICodeGenerator codeGenerator,
-        IUserContextService userContextService,
-        MaintenancePlanManagementService maintenancePlanService)
+        IUserContextService userContextService
+    )
     {
         ArgumentNullException.ThrowIfNull(unitOfWork);
         ArgumentNullException.ThrowIfNull(repository);
@@ -38,7 +38,7 @@ public class CreateAssetModelCommandHandler : IRequestHandler<CreateAssetModelCo
         _qq = queryContext;
         _userContextService = userContextService;
         _codeGenerator = codeGenerator;
-        _maintenancePlanService = maintenancePlanService;
+        // _maintenancePlanService = maintenancePlanService;
     }
 
     public async Task<Result<object>> Handle(CreateAssetModelCommand request, CancellationToken cancellationToken)
@@ -87,12 +87,6 @@ public class CreateAssetModelCommandHandler : IRequestHandler<CreateAssetModelCo
 
             assetModel.AddParameters(assetParameterIds);
 
-            // Add maintenance plan definitions
-            if (request.MaintenancePlanDefinitions?.Count > 0)
-            {
-                AddMaintenancePlanDefinitions(assetModel, request.MaintenancePlanDefinitions, _maintenancePlanService);
-            }
-
             // Add images
             if (request.Images?.Count > 0)
             {
@@ -122,72 +116,6 @@ public class CreateAssetModelCommandHandler : IRequestHandler<CreateAssetModelCo
                 assetModel.Id,
             });
         });
-    }
-
-    private static void AddMaintenancePlanDefinitions(
-        AssetModel assetModel,
-        IReadOnlyCollection<CreateMaintenancePlanDefinitionCommand> maintenancePlanDefinitions,
-        MaintenancePlanManagementService maintenancePlanService)
-    {
-        foreach (var definition in maintenancePlanDefinitions)
-        {
-            var jobSteps = definition.JobSteps?.Select(js => new MaintenancePlanJobStepDefinitionSpec(
-                Id: null,
-                Name: js.Name,
-                OrganizationUnitId: js.OrganizationUnitId,
-                Note: js.Note,
-                Order: js.Order)).ToList() ?? [];
-
-            var requiredItems = definition.RequiredItems?.Select(ri => new MaintenancePlanRequiredItemDefinitionSpec(
-                Id: null,
-                ItemGroupId: ri.ItemGroupId,
-                ItemId: ri.ItemId,
-                UnitOfMeasureId: ri.UnitOfMeasureId,
-                Quantity: ri.Quantity,
-                IsRequired: ri.IsRequired,
-                Note: ri.Note)).ToList() ?? [];
-
-            switch (definition.PlanType)
-            {
-                case MaintenancePlanType.TimeBased:
-                    maintenancePlanService.AddTimeBasedMaintenancePlan(
-                        assetModel: assetModel,
-                        name: definition.Name,
-                        description: definition.Description,
-                        rrule: definition.RRule ?? string.Empty,
-                        jobSteps: jobSteps,
-                        requiredItems: requiredItems,
-                        isActive: definition.IsActive
-                    );
-                    break;
-
-                case MaintenancePlanType.ParameterBased:
-                    if (!definition.ParameterId.HasValue || !definition.TriggerValue.HasValue ||
-                        !definition.PlusTolerance.HasValue || !definition.MinusTolerance.HasValue)
-                    {
-                        throw new ArgumentException("ParameterId, TriggerValue, PlusTolerance, and MinusTolerance are required for parameter-based maintenance plans");
-                    }
-
-                    maintenancePlanService.AddParameterBasedMaintenancePlan(
-                        assetModel: assetModel,
-                        name: definition.Name,
-                        description: definition.Description,
-                        parameterId: definition.ParameterId.Value,
-                        thresholdValue: definition.TriggerValue.Value,
-                        plusTolerance: definition.PlusTolerance.Value,
-                        minusTolerance: definition.MinusTolerance.Value,
-                        triggerCondition: definition.TriggerCondition ?? MaintenanceTriggerCondition.GreaterThanOrEqual,
-                        jobSteps: jobSteps,
-                        requiredItems: requiredItems,
-                        isActive: definition.IsActive
-                    );
-                    break;
-
-                default:
-                    // For general maintenance plans with job steps
-                    break;
-            }
-        }
     }
 
     private async Task AddImages(AssetModel assetModel, IReadOnlyCollection<CreateAssetModelImageCommand> images, CancellationToken cancellationToken)

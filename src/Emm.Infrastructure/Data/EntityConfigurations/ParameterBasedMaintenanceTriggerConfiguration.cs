@@ -35,10 +35,6 @@ public class ParameterBasedMaintenanceTriggerConfiguration : IEntityTypeConfigur
             .IsRequired()
             .HasColumnType("decimal(18,4)");
 
-        builder.Property(x => x.TriggerCondition)
-            .IsRequired()
-            .HasConversion<int>();
-
         builder.Property(x => x.IsActive)
             .IsRequired()
             .HasDefaultValue(true);
@@ -53,7 +49,6 @@ public class ParameterBasedMaintenanceTriggerConfiguration : IEntityTypeConfigur
         builder.HasIndex(x => x.MaintenancePlanDefinitionId);
         builder.HasIndex(x => x.ParameterId);
         builder.HasIndex(x => x.IsActive);
-        builder.HasIndex(x => x.TriggerCondition);
         builder.HasIndex(x => new { x.ParameterId, x.IsActive });
 
         // Composite index for efficient trigger checking
