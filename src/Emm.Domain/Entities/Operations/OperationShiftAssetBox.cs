@@ -23,12 +23,6 @@ public class OperationShiftAssetBox
         int displayOrder = 0,
         string? description = null)
     {
-        if (string.IsNullOrWhiteSpace(boxName))
-            throw new DomainException("Box name cannot be empty");
-
-        if (boxName.Length > 200)
-            throw new DomainException("Box name cannot exceed 200 characters");
-
         OperationShiftId = operationShiftId;
         BoxName = boxName;
         Role = role;
@@ -39,12 +33,6 @@ public class OperationShiftAssetBox
 
     public void Update(string boxName, BoxRole role, int displayOrder, string? description = null)
     {
-        if (string.IsNullOrWhiteSpace(boxName))
-            throw new DomainException("Group name cannot be empty");
-
-        if (boxName.Length > 200)
-            throw new DomainException("Group name cannot exceed 200 characters");
-
         BoxName = boxName;
         Role = role;
         DisplayOrder = displayOrder;

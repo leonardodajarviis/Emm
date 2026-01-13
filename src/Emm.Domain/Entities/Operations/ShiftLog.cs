@@ -1,4 +1,5 @@
 using Emm.Domain.Abstractions;
+using Emm.Domain.Entities.Operations.BusinessRules;
 using Emm.Domain.Events.ShiftLogs;
 using Emm.Domain.Exceptions;
 using Emm.Domain.ValueObjects;
@@ -9,9 +10,10 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
 {
     public int LogOrder { get; private set; }
     public Guid OperationShiftId { get; private set; }
+    public string Batch { get; private set; } = null!;
     public string Name { get; private set; } = null!;
     public string? Description { get; private set; }
-    public DateTime? StartTime { get; private set; }
+    public DateTime StartTime { get; private set; }
     public DateTime? EndTime { get; private set; }
     public string? Notes { get; private set; }
 
@@ -49,6 +51,7 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
 
     public ShiftLog(
         int logOrder,
+        string batch,
         Guid operationShiftId,
         string name,
         DateTime startTime,
@@ -58,20 +61,30 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
         Guid? locationId,
         string? locationName)
     {
-        DomainGuard.AgainstInvalidForeignKey(operationShiftId, nameof(operationShiftId));
+        DomainGuard.AgainstBusinessRule(
+            assetId.HasValue && boxId.HasValue,
+            ShiftLogRules.CannotSetBothAssetAndBox,
+            "Không thể thiết lập cả AssetId và BoxId cùng lúc.");
 
-        if (string.IsNullOrWhiteSpace(name))
-            throw new DomainException("Task name is required");
+        DomainGuard.AgainstBusinessRule(
+            !assetId.HasValue && !boxId.HasValue,
+            ShiftLogRules.BoxOrAssetMustExist,
+            "Phải thiết lập AssetId hoặc BoxId."
+        );
 
-        // Validation: Không được set cả AssetId và GroupId cùng lúc
-        if (assetId.HasValue && boxId.HasValue)
-            throw new DomainException("Cannot set both AssetId and GroupId. Choose either single asset or group.");
+        DomainGuard.AgainstBusinessRule(
+            endTime.HasValue && endTime < startTime,
+            ShiftLogRules.EndTimeCannotBeBeforeStartTime,
+            "Thời gian kết thúc không thể trước thời gian bắt đầu."
+        );
+
 
         _readings = [];
         _checkpoints = [];
         _events = [];
         _items = [];
 
+        Batch = batch;
         LogOrder = logOrder;
         OperationShiftId = operationShiftId;
         Name = name;
@@ -87,22 +100,13 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
         Guid eventId,
         ShiftLogEventType eventType,
         DateTime startTime,
-        DateTime? endTime = null)
+        DateTime endTime)
     {
-        var statusHistory = _events.FirstOrDefault(h => h.Id == eventId);
-        if (statusHistory == null)
-            throw new DomainException($"Event with ID {eventId} not found");
+        var ev = DomainGuard.AgainstNotFound(
+            () => _events.FirstOrDefault(e => e.Id == eventId),
+            $"Sự kiện với ID {eventId} không tồn tại trong nhật ký ca.");
 
-        statusHistory.Update(eventType, startTime, endTime);
-    }
-
-    public void LockReading(Guid readingId)
-    {
-        var reading = _readings.FirstOrDefault(r => r.Id == readingId);
-        if (reading == null)
-            throw new DomainException($"Reading with ID {readingId} not found");
-
-        reading.Locked();
+        ev.Update(eventType, startTime, endTime);
     }
 
     public void LockAllReadings()
@@ -127,10 +131,6 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
         int groupNumber,
         Guid? shiftLogCheckPointLinkedId = null)
     {
-        DomainGuard.AgainstInvalidForeignKey(assetId, nameof(assetId));
-        DomainGuard.AgainstInvalidForeignKey(parameterId, nameof(parameterId));
-
-
         var reading = new ShiftLogParameterReading(
             Id, assetId, assetCode, assetName,
             parameterId, parameterName, parameterCode, parameterType, unitOfMeasureId,
@@ -181,9 +181,6 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
 
     public void AddCheckpoint(Guid linkedId, string name, Guid locationId, string locationName)
     {
-        if (string.IsNullOrWhiteSpace(name))
-            throw new DomainException("Checkpoint name is required");
-
         var checkpoint = new ShiftLogCheckpoint(
             Id,
             linkedId,
@@ -197,23 +194,20 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
 
     public void MakeAttchedMaterialInCheckpoint(Guid checkpointId, Guid itemId, string itemCode, string itemName)
     {
-        var checkpoint = _checkpoints.FirstOrDefault(c => c.Id == checkpointId);
-        if (checkpoint == null)
-            throw new DomainException($"Checkpoint with ID {checkpointId} not found");
+        var checkpoint = DomainGuard.AgainstNotFound(
+            () => _checkpoints.FirstOrDefault(c => c.Id == checkpointId),
+            $"Checkpoint với ID {checkpointId} không tồn tại trong nhật ký ca.");
 
-        if (checkpoint.ItemId == itemId)
-            return; // Already set
-
-        checkpoint.MakeAttachedMaterial(itemId, itemCode, itemName);
+        checkpoint!.MakeAttachedMaterial(itemId, itemCode, itemName);
     }
 
     public void UpdateLocationInCheckpoint(Guid checkpointId, Guid locationId, string locationName)
     {
-        var checkpoint = _checkpoints.FirstOrDefault(c => c.Id == checkpointId);
-        if (checkpoint == null)
-            throw new DomainException($"Checkpoint with ID {checkpointId} not found");
+        var checkpoint = DomainGuard.AgainstNotFound(
+            () => _checkpoints.FirstOrDefault(c => c.Id == checkpointId),
+            $"Checkpoint với ID {checkpointId} không tồn tại trong nhật ký ca.");
 
-        if (checkpoint.LocationId == locationId) return;
+        if (checkpoint!.LocationId == locationId) return;
 
         checkpoint.UpdateLocation(locationId, locationName);
     }
@@ -223,9 +217,9 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
     /// </summary>
     public void RemoveCheckpoint(Guid checkpointId)
     {
-        var checkpoint = _checkpoints.FirstOrDefault(c => c.Id == checkpointId);
-        if (checkpoint == null)
-            throw new DomainException($"Checkpoint with ID {checkpointId} not found");
+        var checkpoint = DomainGuard.AgainstNotFound(
+            () => _checkpoints.FirstOrDefault(c => c.Id == checkpointId),
+            $"Checkpoint với ID {checkpointId} không tồn tại trong nhật ký ca.");
 
         _checkpoints.Remove(checkpoint);
     }
@@ -236,11 +230,11 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
     public void RecordEvent(
         ShiftLogEventType eventType,
         DateTime startTime,
-        DateTime? endTime = null)
+        DateTime endTime)
     {
 
-        var statusHistory = new ShiftLogEvent(Id, eventType, startTime, endTime);
-        _events.Add(statusHistory);
+        var @event = new ShiftLogEvent(Id, eventType, startTime, endTime);
+        _events.Add(@event);
     }
 
     /// <summary>
@@ -248,11 +242,11 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
     /// </summary>
     public void RemoveEvent(Guid eventId)
     {
-        var statusHistory = _events.FirstOrDefault(h => h.Id == eventId);
-        if (statusHistory == null)
-            throw new DomainException($"Event with ID {eventId} not found");
+        var evt = DomainGuard.AgainstNotFound(
+            () => _events.FirstOrDefault(e => e.Id == eventId),
+            $"Sự kiện với ID {eventId} không tồn tại trong nhật ký ca.");
 
-        _events.Remove(statusHistory);
+        _events.Remove(evt);
     }
 
     /// <summary>
@@ -270,11 +264,6 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
         Guid? unitOfMeasureId = null,
         string? unitOfMeasureName = null)
     {
-        DomainGuard.AgainstInvalidForeignKey(itemId, nameof(itemId));
-
-        if (string.IsNullOrWhiteSpace(itemName))
-            throw new DomainException("Item name is required");
-
         var item = new ShiftLogItem(
             Id, warehouseIssueSlipId, itemId, itemName, itemCode, quantity,
             assetId, assetCode, assetName,
@@ -289,18 +278,19 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
     /// </summary>
     public void RemoveItem(Guid itemId)
     {
-        var item = _items.FirstOrDefault(i => i.Id == itemId);
-        if (item == null)
-            throw new DomainException($"Item with ID {itemId} not found");
+        var item = DomainGuard.AgainstNotFound(
+            () => _items.FirstOrDefault(i => i.Id == itemId),
+            $"Item với ID {itemId} không tồn tại trong nhật ký ca.");
 
-        _items.Remove(item);
+        _items.Remove(item!);
     }
 
     public void UpdateItemQuantity(Guid itemId, decimal newQuantity)
     {
-        var item = _items.FirstOrDefault(i => i.Id == itemId);
-        if (item == null)
-            throw new DomainException($"Item with ID {itemId} not found");
+        var item = DomainGuard.AgainstNotFound(
+            () => _items.FirstOrDefault(i => i.Id == itemId),
+            $"Item với ID {itemId} không tồn tại trong nhật ký ca."
+        );
 
         item.UpdateQuantity(newQuantity);
     }

@@ -5,12 +5,12 @@ namespace Emm.Application.ErrorCodes;
 /// </summary>
 public static class GeneralErrorCodes
 {
-    public const string InternalServerError = "INTERNAL_SERVER_ERROR";
-    public const string UnknownError = "UNKNOWN_ERROR";
-    public const string InvalidRequest = "INVALID_REQUEST";
-    public const string ValidationFailed = "VALIDATION_FAILED";
-    public const string NotFound = "NOT_FOUND";
-    public const string Conflict = "CONFLICT";
-    public const string Unauthorized = "UNAUTHORIZED";
-    public const string Forbidden = "FORBIDDEN";
+    public const string InternalServerError = "InternalServerError";
+    public const string UnknownError = "UnknownError";
+    public const string InvalidRequest = "InvalidRequest";
+    public const string ValidationFailed = "ValidationFailed";
+    public const string NotFound = "NotFound";
+    public const string Conflict = "Conflict";
+    public const string Unauthorized = "Unauthorized";
+    public const string Forbidden = "Forbidden";
 }

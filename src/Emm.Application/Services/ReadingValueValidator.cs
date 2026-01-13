@@ -1,4 +1,6 @@
+using Emm.Application.ErrorCodes;
 using Emm.Domain.Entities;
+using Emm.Domain.Entities.Operations;
 
 namespace Emm.Application.Services;
 
@@ -55,9 +57,10 @@ public class ReadingValueValidator : IReadingValueValidator
         // Nếu có giá trị trước đó và giá trị mới nhỏ hơn => validation error
         if (previousValue.HasValue && newValue < previousValue.Value)
         {
-            return Result.Validation(
-                $"Reading value for Asset {assetCode} - Parameter {parameterCode} must be greater than or equal to previous value. " +
-                $"Previous: {previousValue.Value}, New: {newValue}");
+            var errorMessage = $"Giá trị ghi lại cho Tài sản {assetCode} - Tham số {parameterCode} phải lớn hơn hoặc bằng giá trị trước đó. " +
+                               $"Giá trị trước: {previousValue.Value}, Giá trị mới: {newValue}";
+
+            return Result.Validation(errorMessage, ShiftLogErrorCodes.ReadingOutOfRange);
         }
 
         return Result.Success();

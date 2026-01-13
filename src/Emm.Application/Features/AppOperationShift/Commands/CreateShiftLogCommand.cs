@@ -66,7 +66,7 @@ public sealed record LogEventRequest
     public ShiftLogEventType EventType { get; init; }
     public Guid? IncidentId { get; init; }
     public DateTime StartTime { get; init; }
-    public DateTime? EndTime { get; init; }
+    public DateTime EndTime { get; init; }
 }
 
 /// <summary>

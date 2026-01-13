@@ -1,6 +1,5 @@
 using Emm.Application.ErrorCodes;
 using Emm.Application.Features.AppOperationShift.Builder;
-using Emm.Domain.Entities.AssetCatalog;
 using Emm.Domain.Entities.Operations;
 using Microsoft.EntityFrameworkCore;
 
@@ -34,31 +33,51 @@ public class CreateShiftLogCommandHandler : IRequestHandler<CreateShiftLogComman
         var data = request.Data;
         // Verify shift exists
         var shift = await _shiftRepository.GetByIdAsync(request.OperationShiftId, cancellationToken);
+        var assetsVerified = new List<OperationShiftAsset>();
 
         if (shift == null)
         {
-            return Result.NotFound("Operation shift not found", ShiftErrorCodes.NotFound);
+            return Result.NotFound("Không tìm thấy ca vận hành");
         }
 
-        var assetIds = shift.Assets.Select(a => a.AssetId).ToArray();
+        var logBatch = string.Empty;
+        if (data.AssetId.HasValue)
+        {
+            var asset = shift.Assets.FirstOrDefault(a => a.AssetId == data.AssetId.Value);
+            if (asset == null)
+            {
+                return Result.Validation("Tài sản không thuộc ca vận hành này", ShiftLogErrorCodes.AssetNotInOperationShift);
+            }
+            assetsVerified.Add(asset);
+            logBatch = $"{shift.Code}|ASSET:{asset.AssetId}";
+        }
 
-        var assetParameterDict = await _queryContext.Query<AssetParameter>()
-            .Where(ap => assetIds.Contains(ap.AssetId))
-            .ToDictionaryAsync(ap => (ap.AssetId, ap.ParameterId), ap => ap);
+        if (data.BoxId.HasValue)
+        {
+            var box = shift.AssetBoxes.FirstOrDefault(a => a.Id == data.BoxId.Value);
+            if (box == null)
+            {
+                return Result.Validation("Nhóm thiết bị cùng vận hành không thuộc ca vận hành này", ShiftLogErrorCodes.AssetBoxNotInOperationShift);
+            }
+            assetsVerified.AddRange(shift.Assets.Where(a => a.AssetBoxId == box.Id));
+            logBatch = $"{shift.Code}|Box:{box.Id}";
+        }
 
-        var logCount = await _queryContext.Query<ShiftLog>()
-            .CountAsync(sl => sl.OperationShiftId == request.OperationShiftId, cancellationToken);
+        var lastLog = await _queryContext.Query<ShiftLog>()
+            .OrderByDescending(sl => sl.LogOrder)
+            .FirstOrDefaultAsync(sl => sl.OperationShiftId == request.OperationShiftId && sl.Batch == logBatch, cancellationToken);
 
-        var prevShiftLog = await _queryContext.Query<ShiftLog>()
-            .Include(sl => sl.Readings)
-            .Where(sl => sl.OperationShiftId == shift.CurrentShiftLogId)
-            .FirstOrDefaultAsync(cancellationToken);
+        if (lastLog != null && data.StartTime < lastLog?.EndTime)
+        {
+            return Result.Validation("Thời gian bắt đầu nhật ký ca vận hành không được trước thời gian kết thúc của nhật ký trước đó", ShiftLogErrorCodes.InvalidTime);
+        }
 
-        var logOrder = logCount + 1;
+        var logOrder = lastLog?.LogOrder ?? 0 + 1;
 
         // Create new task aggregate
         var shiftLog = new ShiftLog(
             logOrder,
+            logBatch,
             request.OperationShiftId,
             data.Name,
             data.StartTime,
@@ -73,12 +92,11 @@ public class CreateShiftLogCommandHandler : IRequestHandler<CreateShiftLogComman
         var shiftLogCtx = new CreateShiftLogContext
         {
             ShiftLog = shiftLog,
-            AssetDict = shift.Assets.ToDictionary(a => a.AssetId, a => a),
+            AssetDict = assetsVerified.ToDictionary(a => a.AssetId, a => a),
             Data = data
         };
 
         var result = await ExecuteChainAsync(shiftLogCtx, cancellationToken);
-
         if (!result.IsSuccess)
         {
             return result;

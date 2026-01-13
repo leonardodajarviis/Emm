@@ -50,10 +50,6 @@ public class MaterialIssue : AggregateRoot, IAuditableEntity
         string? remarks = null)
     {
         ValidateCode(code);
-        DomainGuard.AgainstInvalidForeignKey(warehouseId, nameof(WarehouseId));
-        DomainGuard.AgainstInvalidForeignKey(organizationUnitId, nameof(OrganizationUnitId));
-        DomainGuard.AgainstInvalidForeignKey(issuedByUserId, nameof(IssuedByUserId));
-        DomainGuard.AgainstInvalidForeignKey(receivedByUserId, nameof(ReceivedByUserId));
 
         _lines = [];
 
@@ -168,8 +164,6 @@ public class MaterialIssue : AggregateRoot, IAuditableEntity
         if (Status != MaterialIssueStatus.Pending)
             throw new DomainException("Only pending issues can be confirmed");
 
-        DomainGuard.AgainstInvalidForeignKey(confirmedByUserId, nameof(confirmedByUserId));
-
         Status = MaterialIssueStatus.Confirmed;
         ConfirmedByUserId = confirmedByUserId;
         ConfirmedAt = DateTime.UtcNow;
@@ -277,8 +271,6 @@ public class MaterialIssueLine
         Guid? locationId = null,
         string? remarks = null)
     {
-        DomainGuard.AgainstInvalidForeignKey(itemId, nameof(ItemId));
-
         if (string.IsNullOrWhiteSpace(itemCode))
             throw new DomainException("Item code cannot be empty");
 

@@ -1,3 +1,5 @@
+using Emm.Application.ErrorCodes;
+
 namespace Emm.Application.Common;
 
 public class Result
@@ -7,14 +9,14 @@ public class Result
 
     public object? Value { get; set; }
 
-    protected Result(bool isSuccess, object? value = null, ErrorResult? error = null)
+    protected Result(bool isSuccess, ErrorResult? error = null, object? value = null)
     {
         IsSuccess = isSuccess;
         Error = error;
         Value = value;
     }
 
-    public static Result Success(object? value = null) => new(true, value);
+    public static Result Success(object? value = null) => new(true, null, value);
 
     public static Result Failure(ErrorType errorType, string? errorMessage = null, string? errorCode = null) =>
         new(false, new ErrorResult(errorType, errorCode, errorMessage));
@@ -100,12 +102,13 @@ public class ErrorResult
     {
         return errorType switch
         {
-            ErrorType.NotFound => "NOT_FOUND",
-            ErrorType.Validation => "VALIDATION_ERROR",
-            ErrorType.Conflict => "CONFLICT",
-            ErrorType.Unauthorized => "UNAUTHORIZED",
-            ErrorType.Forbidden => "FORBIDDEN",
-            ErrorType.Internal => "INTERNAL_SERVER_ERROR",
+            ErrorType.NotFound => GeneralErrorCodes.NotFound,
+            ErrorType.Validation => GeneralErrorCodes.ValidationFailed,
+            ErrorType.Conflict => GeneralErrorCodes.Conflict,
+            ErrorType.Unauthorized => GeneralErrorCodes.Unauthorized,
+            ErrorType.Forbidden => GeneralErrorCodes.Forbidden,
+            ErrorType.Internal => GeneralErrorCodes.InternalServerError,
+            ErrorType.Invalid => GeneralErrorCodes.InvalidRequest,
             _ => "UNKNOWN_ERROR"
         };
     }

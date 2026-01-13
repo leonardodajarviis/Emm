@@ -25,7 +25,7 @@ public class StartOperationShiftCommandHandler : IRequestHandler<StartOperationS
         var operationShift = await _repository.GetByIdAsync(request.ShiftId, cancellationToken);
         if (operationShift == null)
         {
-            return Result<object>.NotFound("Operation shift not found", ShiftErrorCodes.NotFound);
+            return Result<object>.NotFound("Operation shift not found");
         }
 
         operationShift.StartShift(actualStartTime: _clock.Now);

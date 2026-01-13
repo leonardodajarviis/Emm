@@ -21,6 +21,10 @@ public class ShiftLogConfiguration : IEntityTypeConfiguration<ShiftLog>
         builder.Property(x => x.OperationShiftId)
             .IsRequired();
 
+        builder.Property(x => x.Batch)
+            .IsRequired()
+            .HasMaxLength(200);
+
         builder.Property(x => x.Name)
             .IsRequired()
             .HasMaxLength(200);
@@ -28,7 +32,8 @@ public class ShiftLogConfiguration : IEntityTypeConfiguration<ShiftLog>
         builder.Property(x => x.Description)
             .HasMaxLength(500);
 
-        builder.Property(x => x.StartTime);
+        builder.Property(x => x.StartTime)
+            .IsRequired();
 
         builder.Property(x => x.EndTime);
 
@@ -59,6 +64,7 @@ public class ShiftLogConfiguration : IEntityTypeConfiguration<ShiftLog>
         // Indexes for AssetId and GroupId
         builder.HasIndex(x => x.AssetId);
         builder.HasIndex(x => x.BoxId);
+        builder.HasIndex(x => x.Batch);
 
         // Collections - using backing field pattern
 

@@ -55,8 +55,6 @@ public class MaterialReturnRequest : AggregateRoot, IAuditableEntity
     {
         ValidateCode(code);
         ValidateTitle(title);
-        DomainGuard.AgainstInvalidForeignKey(requestedByUserId, nameof(RequestedByUserId));
-        DomainGuard.AgainstInvalidForeignKey(organizationUnitId, nameof(OrganizationUnitId));
 
         _lines = [];
 
@@ -185,7 +183,6 @@ public class MaterialReturnRequest : AggregateRoot, IAuditableEntity
         if (Status != MaterialReturnRequestStatus.Pending)
             throw new DomainException("Only pending requests can be approved");
 
-        DomainGuard.AgainstInvalidForeignKey(approvedByUserId, nameof(approvedByUserId));
 
         Status = MaterialReturnRequestStatus.Approved;
         ApprovedByUserId = approvedByUserId;
@@ -205,8 +202,6 @@ public class MaterialReturnRequest : AggregateRoot, IAuditableEntity
     {
         if (Status != MaterialReturnRequestStatus.Pending)
             throw new DomainException("Only pending requests can be approved");
-
-        DomainGuard.AgainstInvalidForeignKey(approvedByUserId, nameof(approvedByUserId));
 
         Status = MaterialReturnRequestStatus.Approved;
         ApprovedByUserId = approvedByUserId;

@@ -1,4 +1,4 @@
-namespace Emm.Application.Common;
+namespace Emm.Application.Helpers;
 
 public static class CollectionHelper
 {

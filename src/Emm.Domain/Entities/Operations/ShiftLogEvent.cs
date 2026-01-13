@@ -9,60 +9,44 @@ public class ShiftLogEvent
 {
     public Guid Id { get; private set; } = Guid.CreateVersion7();
     public Guid ShiftLogId { get; private set; }
+    public int EventOrder { get; private set; }
     public ShiftLogEventType EventType { get; private set; }
     public DateTime StartTime { get; private set; }
-    public DateTime? EndTime { get; private set; }
+    public DateTime EndTime { get; private set; }
     public TimeSpan? Duration { get; private set; }
 
     public ShiftLogEvent(
         Guid operationTaskId,
         ShiftLogEventType eventType,
         DateTime startTime,
-        DateTime? endTime = null)
+        DateTime endTime)
     {
-        DomainGuard.AgainstInvalidForeignKey(operationTaskId, nameof(operationTaskId));
+        DomainGuard.AgainstBusinessRule(
+            endTime < startTime,
+            "ShiftLogEvent.EndTimeBeforeStartTime",
+            "Thời gian kết thúc không thể trước thời gian bắt đầu.");
 
         ShiftLogId = operationTaskId;
         StartTime = startTime;
         EventType = eventType;
-        if (endTime.HasValue)
-        {
-            EndEvent(endTime.Value);
-        }
+        EndTime = endTime;
+        Duration = EndTime - StartTime;
     }
 
     public void Update(
         ShiftLogEventType eventType,
         DateTime startTime,
-        DateTime? endTime = null)
+        DateTime endTime)
     {
+        DomainGuard.AgainstBusinessRule(
+            endTime < startTime,
+            "ShiftLogEvent.EndTimeBeforeStartTime",
+            "Thời gian kết thúc không thể trước thời gian bắt đầu.");
+
         EventType = eventType;
         StartTime = startTime;
-
-        if (endTime.HasValue)
-        {
-            EndEvent(endTime.Value);
-        }
-        else
-        {
-            EndTime = null;
-            Duration = null;
-        }
-    }
-
-    /// <summary>
-    /// Kết thúc sự kiện (ví dụ: kết thúc nghỉ ca, kết thúc sự cố)
-    /// </summary>
-    public void EndEvent(DateTime endTime)
-    {
-        if (EndTime.HasValue)
-            throw new DomainException("Event already ended");
-
-        if (endTime < StartTime)
-            throw new DomainException("End time cannot be before start time");
-
         EndTime = endTime;
-        Duration = endTime - StartTime;
+        Duration = EndTime - StartTime;
     }
 
     private ShiftLogEvent()

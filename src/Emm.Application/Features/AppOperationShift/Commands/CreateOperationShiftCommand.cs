@@ -2,13 +2,6 @@ using Emm.Domain.Entities.Operations;
 
 namespace Emm.Application.Features.AppOperationShift.Commands;
 
-// public record CreateOperationShiftCommand(
-//     string Name,
-//     string? Notes,
-//     IReadOnlyCollection<AssetAssignmentRequest>? Assets,
-//     IReadOnlyCollection<AssetBoxRequest>? AssetBoxes
-// ) : IRequest<Result<object>>;
-
 public record CreateOperationShiftCommand : IRequest<Result>
 {
     public string Name {get; init; } = null!;

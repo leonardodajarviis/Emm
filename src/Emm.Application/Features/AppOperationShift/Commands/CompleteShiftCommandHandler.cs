@@ -1,33 +1,32 @@
-using Emm.Application.Abstractions;
-using Emm.Application.ErrorCodes;
+using Emm.Domain.Abstractions;
 
 namespace Emm.Application.Features.AppOperationShift.Commands;
 
-public class CompleteShiftCommandHandler : IRequestHandler<CompleteShiftCommand, Result<object>>
+public class CompleteShiftCommandHandler : IRequestHandler<CompleteShiftCommand, Result>
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IOperationShiftRepository _repository;
     private readonly IShiftLogRepository _shiftLogRepository;
-    private readonly IUserContextService _userContextService;
+    private readonly IDateTimeProvider _clock;
 
     public CompleteShiftCommandHandler(
         IUnitOfWork unitOfWork,
         IOperationShiftRepository repository,
-        IUserContextService userContextService,
-        IShiftLogRepository shiftLogRepository)
+        IShiftLogRepository shiftLogRepository,
+        IDateTimeProvider clock)
     {
         _unitOfWork = unitOfWork;
         _repository = repository;
-        _userContextService = userContextService;
         _shiftLogRepository = shiftLogRepository;
+        _clock = clock;
     }
 
-    public async Task<Result<object>> Handle(CompleteShiftCommand request, CancellationToken cancellationToken)
+    public async Task<Result> Handle(CompleteShiftCommand request, CancellationToken cancellationToken)
     {
         var shift = await _repository.GetByIdAsync(request.ShiftId, cancellationToken);
         if (shift == null)
         {
-            return Result<object>.NotFound("Operation shift not found", ShiftErrorCodes.NotFound);
+            return Result.NotFound("Operation shift not found");
         }
 
         var shiftLogs = await _shiftLogRepository.GetByShiftIdAsync(request.ShiftId, cancellationToken);
@@ -37,17 +36,9 @@ public class CompleteShiftCommandHandler : IRequestHandler<CompleteShiftCommand,
             log.LockAllReadings();
         }
 
-        shift.CompleteShift(DateTime.UtcNow, "noProplem");
+        shift.CompleteShift(_clock.Now, "noProplem");
 
-        // Add log with current user info
-        var currentUser = _userContextService.GetCurrentUsername() ?? "System";
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-        return Result<object>.Success(new {
-            ShiftId = shift.Id,
-            Status = shift.Status.ToString(),
-            ActualEndTime = shift.ActualEndTime,
-            CompletedBy = currentUser
-        });
+        return Result.Success();
     }
 }

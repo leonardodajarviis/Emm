@@ -1,9 +1,7 @@
-using System.Data.Common;
 using Emm.Application.Features.AppOperationShift.Dtos;
 using Emm.Domain.Entities;
 using Emm.Domain.Entities.AssetCatalog;
 using Emm.Domain.Entities.Operations;
-using Emm.Domain.Entities.Organization;
 using Microsoft.EntityFrameworkCore;
 
 namespace Emm.Application.Features.AppOperationShift.Queries;
@@ -80,7 +78,7 @@ public class GetOperationShiftByIdQueryHandler : IRequestHandler<GetOperationShi
 
         if (operationShift == null)
         {
-            return Result<OperationShiftResponse>.Failure(ErrorType.NotFound, "Operation shift not found.");
+            return Result<OperationShiftResponse>.NotFound("Operation shift not found.");
         }
 
         // Query tasks separately (they are now a separate aggregate)

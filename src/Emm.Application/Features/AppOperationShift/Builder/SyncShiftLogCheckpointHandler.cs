@@ -1,3 +1,4 @@
+using Emm.Application.Helpers;
 using Emm.Domain.Entities.Inventory;
 using Emm.Domain.Entities.Organization;
 using Microsoft.EntityFrameworkCore;

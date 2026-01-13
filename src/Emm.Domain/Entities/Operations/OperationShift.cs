@@ -1,5 +1,6 @@
 using Emm.Domain.Abstractions;
-using Emm.Domain.Entities.Operations.CreationData;
+using Emm.Domain.Entities.AssetCatalog;
+using Emm.Domain.Entities.Operations.BusinessRules;
 using Emm.Domain.Events.Operations;
 using Emm.Domain.Exceptions;
 using Emm.Domain.ValueObjects;
@@ -44,21 +45,9 @@ public class OperationShift : AggregateRoot, IAuditableEntity
         Guid organizationUnitId,
         DateTime scheduledStartTime,
         DateTime scheduledEndTime,
-        IEnumerable<AssignAssetData> assets,
         string? description = null,
         string? notes = null)
     {
-        DomainGuard.AgainstNullOrEmpty(code, nameof(Code));
-        DomainGuard.AgainstTooLong(code, 50, nameof(Code));
-
-        DomainGuard.AgainstNullOrEmpty(name, nameof(Name));
-        DomainGuard.AgainstTooLong(name, 200, nameof(Name));
-
-        if (assets == null || !assets.Any())
-        {
-            throw new DomainException("At least one asset must be assigned to the operation shift");
-        }
-
         _assets = [];
         _assetBoxes = [];
         _readingSnapshots = [];
@@ -73,25 +62,10 @@ public class OperationShift : AggregateRoot, IAuditableEntity
         Description = description;
         Notes = notes;
         Status = OperationShiftStatus.Scheduled;
-
-        foreach (var asset in assets)
-        {
-            AddAsset(
-                assetId: asset.AssetId,
-                assetCode: asset.AssetCode,
-                assetName: asset.AssetName,
-                isPrimary: asset.IsPrimary);
-        }
     }
 
     public void StartShift(DateTime actualStartTime, string? notes = null)
     {
-        DomainGuard.AgainstInvalidState(
-            Status != OperationShiftStatus.Scheduled,
-            nameof(OperationShift),
-            Status.ToString(),
-            $"Cannot start shift in {Status} status. Shift must be in Scheduled status.");
-
         ActualStartTime = actualStartTime;
         Status = OperationShiftStatus.InProgress;
         Notes = notes;
@@ -106,8 +80,8 @@ public class OperationShift : AggregateRoot, IAuditableEntity
     {
         DomainGuard.AgainstBusinessRule(
             ActualStartTime.HasValue && actualEndTime < ActualStartTime.Value,
-            "ShiftEndTimeBeforeStartTime",
-            "Shift end time cannot be before start time");
+            OperationShiftRules.EndTimeAfterStartTime,
+            "Thời gian kết thúc phải sau thời gian bắt đầu");
 
         ActualEndTime = actualEndTime;
         Status = OperationShiftStatus.Completed;
@@ -122,14 +96,6 @@ public class OperationShift : AggregateRoot, IAuditableEntity
 
     public void CancelShift(string reason)
     {
-        DomainGuard.AgainstNullOrEmpty(reason, "CancelReason");
-
-        DomainGuard.AgainstInvalidState(
-            Status == OperationShiftStatus.Completed || Status == OperationShiftStatus.Cancelled,
-            nameof(OperationShift),
-            Status.ToString(),
-            $"Cannot cancel shift in {Status} status");
-
         Status = OperationShiftStatus.Cancelled;
         Notes = reason;
 
@@ -144,32 +110,11 @@ public class OperationShift : AggregateRoot, IAuditableEntity
         bool isPrimary = false,
         Guid? assetBoxId = null)
     {
-        DomainGuard.AgainstInvalidForeignKey(assetId, nameof(assetId));
-        DomainGuard.AgainstNullOrEmpty(assetCode, nameof(assetCode));
-        DomainGuard.AgainstNullOrEmpty(assetName, nameof(assetName));
-
-        // Check for duplicate asset
-        DomainGuard.AgainstDuplicate(
-            _assets.Any(a => a.AssetId == assetId),
-            "OperationShiftAsset",
-            nameof(assetId),
-            assetId);
-
-        // Validate primary asset rule - only one primary asset allowed
-        DomainGuard.AgainstBusinessRule(
-            isPrimary && _assets.Any(a => a.IsPrimary),
-            "OnlyOnePrimaryAssetAllowed",
-            "Only one primary asset is allowed per shift");
-
         // Validate asset box exists if specified
-        if (assetBoxId.HasValue)
-        {
-            var box = _assetBoxes.FirstOrDefault(g => g.Id == assetBoxId.Value);
-            DomainGuard.AgainstNotFound(
-                box,
-                "OperationShiftAssetBox",
-                assetBoxId.Value);
-        }
+        DomainGuard.AgainstNotFound(
+            assetBoxId.HasValue && !_assetBoxes.Any(b => b.Id == assetBoxId.Value),
+            $"Không tìm thấy nhóm tài sản vận hành với ID {assetBoxId}"
+        );
 
         var asset = new OperationShiftAsset(
             Id, assetId, assetCode, assetName, isPrimary, assetBoxId);
@@ -183,25 +128,15 @@ public class OperationShift : AggregateRoot, IAuditableEntity
     public void Update(
         string name,
         string? description,
-        Guid locationId,
         DateTime scheduledStartTime,
         DateTime scheduledEndTime)
     {
-        // Prevent updates to completed or cancelled shifts
-        DomainGuard.AgainstInvalidState(
-            Status == OperationShiftStatus.Completed || Status == OperationShiftStatus.Cancelled,
-            nameof(OperationShift),
-            Status.ToString(),
-            $"Cannot update shift in {Status} status");
-
         // Prevent schedule changes if shift is in progress
         DomainGuard.AgainstBusinessRule(
             Status == OperationShiftStatus.InProgress &&
             (scheduledStartTime != ScheduledStartTime || scheduledEndTime != ScheduledEndTime),
-            "CannotChangeScheduleInProgress",
-            "Cannot change schedule times for shift in progress");
-
-        DomainGuard.AgainstInvalidForeignKey(locationId, nameof(locationId));
+            OperationShiftRules.CannotChangeScheduleInProgress,
+            "Không thể thay đổi lịch trình của ca đang tiến hành");
 
         Name = name;
         Description = description;
@@ -236,13 +171,6 @@ public class OperationShift : AggregateRoot, IAuditableEntity
         int displayOrder = 0,
         string? description = null)
     {
-        // Validate unique box name within this shift
-        DomainGuard.AgainstDuplicate(
-            _assetBoxes.Any(b => b.BoxName.Equals(boxName, StringComparison.OrdinalIgnoreCase)),
-            "OperationShiftAssetBox",
-            nameof(boxName),
-            boxName);
-
         var box = new OperationShiftAssetBox(
             Id, boxName, role, displayOrder, description);
 
@@ -257,53 +185,18 @@ public class OperationShift : AggregateRoot, IAuditableEntity
         }
     }
 
-    public void UpdateAssetBox(
-        Guid assetBoxId,
-        string boxName,
-        BoxRole role,
-        int displayOrder,
-        string? description = null)
+    public void AssignAssetToBox(Guid assetId, Guid assetBoxId)
     {
-        var box = _assetBoxes.FirstOrDefault(g => g.Id == assetBoxId);
-        DomainGuard.AgainstNotFound(box, "OperationShiftAssetBox", assetBoxId);
+        var asset = DomainGuard.AgainstNotFound(
+            () => _assets.FirstOrDefault(a => a.AssetId == assetId),
+            $"Không tìm thấy tài sản với ID {assetId} trong ca vận hành.");
 
-        // Validate unique box name within this shift (excluding current box)
-        DomainGuard.AgainstDuplicate(
-            _assetBoxes.Any(b => b.Id != assetBoxId && b.BoxName.Equals(boxName, StringComparison.OrdinalIgnoreCase)),
-            "OperationShiftAssetBox",
-            nameof(boxName),
-            boxName);
 
-        box!.Update(boxName, role, displayOrder, description);
-    }
+        var box = DomainGuard.AgainstNotFound(
+            () => _assetBoxes.FirstOrDefault(b => b.Id == assetBoxId),
+            $"Không tìm thấy nhóm tài sản vận hành với ID {assetBoxId}");
 
-    public void RemoveAssetBox(Guid assetBoxId)
-    {
-        var box = _assetBoxes.FirstOrDefault(g => g.Id == assetBoxId);
-        DomainGuard.AgainstNotFound(box, "OperationShiftAssetBox", assetBoxId);
-
-        // Check if any assets are still assigned to this box
-        DomainGuard.AgainstBusinessRule(
-            _assets.Any(a => a.AssetBoxId == assetBoxId),
-            "CannotRemoveboxWithAssets",
-            $"Cannot remove asset box {assetBoxId} because it still has assets assigned to it");
-
-        _assetBoxes.Remove(box!);
-    }
-
-    public void AssignAssetToBox(Guid assetId, Guid? assetBoxId)
-    {
-        var asset = _assets.FirstOrDefault(a => a.AssetId == assetId);
-        DomainGuard.AgainstNotFound(asset, "OperationShiftAsset", assetId);
-
-        // Validate asset box exists if specified
-        if (assetBoxId.HasValue)
-        {
-            var box = _assetBoxes.FirstOrDefault(g => g.Id == assetBoxId.Value);
-            DomainGuard.AgainstNotFound(box, "OperationShiftAssetBox", assetBoxId.Value);
-        }
-
-        asset!.AssignToGroup(assetBoxId);
+        asset.AssignToGroup(assetBoxId);
     }
 
     #endregion

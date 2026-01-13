@@ -54,10 +54,6 @@ public class MaterialReturn : AggregateRoot, IAuditableEntity
         string? remarks = null)
     {
         ValidateCode(code);
-        DomainGuard.AgainstInvalidForeignKey(warehouseId, nameof(WarehouseId));
-        DomainGuard.AgainstInvalidForeignKey(organizationUnitId, nameof(OrganizationUnitId));
-        DomainGuard.AgainstInvalidForeignKey(returnedByUserId, nameof(ReturnedByUserId));
-        DomainGuard.AgainstInvalidForeignKey(receivedByUserId, nameof(ReceivedByUserId));
 
         _lines = [];
 
@@ -185,8 +181,6 @@ public class MaterialReturn : AggregateRoot, IAuditableEntity
         if (Status != MaterialReturnStatus.PendingInspection)
             throw new DomainException("Only pending inspection returns can be inspected");
 
-        DomainGuard.AgainstInvalidForeignKey(inspectedByUserId, nameof(inspectedByUserId));
-
         Status = MaterialReturnStatus.Inspected;
         InspectedByUserId = inspectedByUserId;
         InspectedAt = DateTime.UtcNow;
@@ -213,8 +207,6 @@ public class MaterialReturn : AggregateRoot, IAuditableEntity
         if (Status != MaterialReturnStatus.PendingInspection)
             throw new DomainException("Only pending inspection returns can be inspected");
 
-        DomainGuard.AgainstInvalidForeignKey(inspectedByUserId, nameof(inspectedByUserId));
-
         Status = MaterialReturnStatus.Inspected;
         InspectedByUserId = inspectedByUserId;
         InspectedAt = DateTime.UtcNow;
@@ -236,8 +228,6 @@ public class MaterialReturn : AggregateRoot, IAuditableEntity
     {
         if (Status != MaterialReturnStatus.Inspected)
             throw new DomainException("Only inspected returns can be confirmed");
-
-        DomainGuard.AgainstInvalidForeignKey(confirmedByUserId, nameof(confirmedByUserId));
 
         Status = MaterialReturnStatus.Confirmed;
         ConfirmedByUserId = confirmedByUserId;
@@ -366,8 +356,6 @@ public class MaterialReturnLine
         MaterialCondition condition = MaterialCondition.Good,
         string? remarks = null)
     {
-        DomainGuard.AgainstInvalidForeignKey(itemId, nameof(ItemId));
-
         if (string.IsNullOrWhiteSpace(itemCode))
             throw new DomainException("Item code cannot be empty");
 

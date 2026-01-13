@@ -32,7 +32,6 @@ public class IncidentReport : AggregateRoot, IAuditableEntity
         if (string.IsNullOrWhiteSpace(code)) throw new DomainException("Code is required");
         if (string.IsNullOrWhiteSpace(title)) throw new DomainException("Title is required");
         if (string.IsNullOrWhiteSpace(description)) throw new DomainException("Description is required");
-        DomainGuard.AgainstInvalidForeignKey(assetId, nameof(AssetId));
 
         Code = code;
         Title = title;

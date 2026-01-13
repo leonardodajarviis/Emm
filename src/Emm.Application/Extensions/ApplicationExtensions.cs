@@ -16,8 +16,6 @@ public static class ApplicationExtensions
             .AddPipelineBehavior(typeof(ApplicationExceptionHandlerBehavior<,>))
             .AddPipelineBehavior(typeof(AuthorizationBehavior<,>)); // Authorization at Application layer
 
-        // Register validation services
-        services.AddScoped<IForeignKeyValidator, ForeignKeyValidator>();
         services.AddScoped<IReadingValueValidator, ReadingValueValidator>();
 
         services.AddShiftLogBuilderHandlers();

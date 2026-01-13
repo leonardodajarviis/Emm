@@ -1,46 +1,31 @@
-using Emm.Application.Abstractions;
-using Emm.Application.ErrorCodes;
-using Emm.Domain.Entities.Operations;
-
 namespace Emm.Application.Features.AppOperationShift.Commands;
 
-public class CancelShiftCommandHandler : IRequestHandler<CancelShiftCommand, Result<object>>
+public class CancelShiftCommandHandler : IRequestHandler<CancelShiftCommand, Result>
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IRepository<OperationShift, Guid> _repository;
-    private readonly IUserContextService _userContextService;
+    private readonly IOperationShiftRepository _repository;
 
     public CancelShiftCommandHandler(
         IUnitOfWork unitOfWork,
-        IRepository<OperationShift, Guid> repository,
-        IUserContextService userContextService)
+        IOperationShiftRepository repository
+        )
     {
         _unitOfWork = unitOfWork;
         _repository = repository;
-        _userContextService = userContextService;
     }
 
-    public async Task<Result<object>> Handle(CancelShiftCommand request, CancellationToken cancellationToken)
+    public async Task<Result> Handle(CancelShiftCommand request, CancellationToken cancellationToken)
     {
         var shift = await _repository.GetByIdAsync(request.ShiftId, cancellationToken);
         if (shift == null)
         {
-            return Result<object>.NotFound("Operation shift not found", ShiftErrorCodes.NotFound);
+            return Result.NotFound("Không tìm thấy ca vận hành");
         }
 
-        var currentUser = _userContextService.GetCurrentUsername() ?? "System";
-        var reasonWithUser = $"{request.Reason} (Cancelled by: {currentUser})";
-
-        shift.CancelShift(reasonWithUser);
+        shift.CancelShift(request.Reason);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return Result<object>.Success(new {
-            ShiftId = shift.Id,
-            Status = shift.Status.ToString(),
-            Reason = reasonWithUser,
-            CancelledBy = currentUser,
-            CancelledAt = DateTime.UtcNow
-        });
+        return Result.Success();
     }
 }

@@ -100,7 +100,7 @@ public class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavior<TReq
         var method = resultType.GetMethod("Unauthorized", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
         if (method != null)
         {
-            var result = method.Invoke(null, new object?[] { "User is not authenticated", "AUTHORIZATION_UNAUTHENTICATED" });
+            var result = method.Invoke(null, ["User is not authenticated", "AUTHORIZATION_UNAUTHENTICATED"]);
             return (TResponse)result!;
         }
 

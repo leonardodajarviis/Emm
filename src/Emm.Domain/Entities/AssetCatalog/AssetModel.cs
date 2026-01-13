@@ -49,10 +49,6 @@ public class AssetModel : AggregateRoot, IAuditableEntity
         Guid? parentId = null,
         bool isActive = true)
     {
-
-        DomainGuard.AgainstInvalidForeignKey(assetCategoryId, nameof(AssetCategoryId));
-        DomainGuard.AgainstInvalidForeignKey(assetTypeId, nameof(AssetTypeId));
-
         _parameters = [];
         _images = [];
 
@@ -105,8 +101,6 @@ public class AssetModel : AggregateRoot, IAuditableEntity
         bool isActive)
     {
         ValidateParentId(parentId);
-        DomainGuard.AgainstInvalidForeignKey(assetCategoryId, nameof(AssetCategoryId));
-        DomainGuard.AgainstInvalidForeignKey(assetTypeId, nameof(AssetTypeId));
 
         Name = name;
         Description = description;
@@ -121,16 +115,10 @@ public class AssetModel : AggregateRoot, IAuditableEntity
 
     public void AddParameter(Guid parameterId)
     {
-        DomainGuard.AgainstInvalidForeignKey(parameterId, nameof(parameterId));
         DomainGuard.AgainstBusinessRule(
             _parameters.Count >= MaxParametersPerModel,
             "MaxParametersLimit",
             $"Cannot exceed {MaxParametersPerModel} parameters per asset model");
-        DomainGuard.AgainstDuplicate(
-            _parameters.Any(p => p.ParameterId == parameterId),
-            nameof(AssetModelParameter),
-            nameof(parameterId),
-            parameterId);
 
         var parameter = new AssetModelParameter(parameterId);
         _parameters.Add(parameter);
@@ -144,12 +132,6 @@ public class AssetModel : AggregateRoot, IAuditableEntity
             return;
 
         var distinctIds = parameterIds.Distinct().ToArray();
-
-        // Validate all IDs first
-        foreach (var id in distinctIds)
-        {
-            DomainGuard.AgainstInvalidForeignKey(id, "ParameterId");
-        }
 
         // Check limit
         var newParametersCount = distinctIds.Count(id => !_parameters.Any(p => p.ParameterId == id));
@@ -168,40 +150,6 @@ public class AssetModel : AggregateRoot, IAuditableEntity
         }
     }
 
-    public void RemoveParameter(Guid parameterId)
-    {
-        DomainGuard.AgainstInvalidForeignKey(parameterId, nameof(parameterId));
-
-        var parameter = _parameters.FirstOrDefault(x => x.ParameterId == parameterId);
-        DomainGuard.AgainstNotFound(parameter, nameof(AssetModelParameter), parameterId);
-
-        _parameters.Remove(parameter!);
-
-        // RaiseDomainEvent(new AssetModelParameterRemovedEvent(Id, parameterId));
-    }
-
-    public void RemoveParameters(IReadOnlyCollection<Guid> parameterIds, bool throwIfNotFound = false)
-    {
-        if (parameterIds == null || parameterIds.Count == 0)
-            return;
-
-        foreach (var parameterId in parameterIds)
-        {
-            DomainGuard.AgainstInvalidForeignKey(parameterId, nameof(parameterId));
-
-            var parameter = _parameters.FirstOrDefault(x => x.ParameterId == parameterId);
-
-            if (parameter == null)
-            {
-                if (throwIfNotFound)
-                    DomainGuard.AgainstNotFound(parameter, nameof(AssetModelParameter), parameterId);
-                continue;
-            }
-
-            _parameters.Remove(parameter);
-        }
-    }
-
     /// <summary>
     /// Internal method for finding a parameter. Should only be called by MaintenancePlanManagementService.
     /// </summary>
@@ -216,11 +164,6 @@ public class AssetModel : AggregateRoot, IAuditableEntity
             _images.Count >= MaxImagesPerModel,
             "MaxImagesLimit",
             $"Cannot exceed {MaxImagesPerModel} images per asset model");
-        DomainGuard.AgainstDuplicate(
-            _images.Any(img => img.FileId == fileId),
-            nameof(AssetModelImage),
-            nameof(fileId),
-            fileId);
 
         var image = new AssetModelImage(fileId, filePath);
         _images.Add(image);
@@ -231,8 +174,6 @@ public class AssetModel : AggregateRoot, IAuditableEntity
     public void RemoveImage(Guid fileId)
     {
         var image = _images.FirstOrDefault(img => img.FileId == fileId);
-        DomainGuard.AgainstNotFound(image, nameof(AssetModelImage), fileId);
-
         _images.Remove(image!);
 
         // RaiseDomainEvent(new AssetModelImageRemovedEvent(Id, fileId));
@@ -242,13 +183,6 @@ public class AssetModel : AggregateRoot, IAuditableEntity
     {
         if (!parentId.HasValue)
             return;
-
-        DomainGuard.AgainstInvalidForeignKey(parentId.Value, nameof(ParentId));
-        DomainGuard.AgainstInvalidState(
-            parentId.Value == Id,
-            nameof(AssetModel),
-            $"ParentId={parentId.Value}",
-            "Asset model cannot be its own parent");
     }
 }
 

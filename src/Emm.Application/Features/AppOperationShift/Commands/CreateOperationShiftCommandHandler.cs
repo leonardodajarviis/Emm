@@ -1,9 +1,10 @@
 using Emm.Application.Abstractions;
 using Emm.Application.ErrorCodes;
 using Emm.Domain.Abstractions;
+using Emm.Domain.Entities;
 using Emm.Domain.Entities.AssetCatalog;
 using Emm.Domain.Entities.Operations;
-using Emm.Domain.Entities.Operations.CreationData;
+using Emm.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 
 namespace Emm.Application.Features.AppOperationShift.Commands;
@@ -15,7 +16,7 @@ public class CreateOperationShiftCommandHandler : IRequestHandler<CreateOperatio
     private readonly IQueryContext _queryContext;
     private readonly IUserContextService _userContextService;
     private readonly ICodeGenerator _codeGenerator;
-    private readonly IDateTimeProvider _dateTimeProvider;
+    private readonly IDateTimeProvider _clock;
     private readonly IMediator _mediator;
 
     public CreateOperationShiftCommandHandler(
@@ -32,7 +33,7 @@ public class CreateOperationShiftCommandHandler : IRequestHandler<CreateOperatio
         _queryContext = queryContext;
         _userContextService = userContextService;
         _codeGenerator = codeGenerator;
-        _dateTimeProvider = dateTimeProvider;
+        _clock = dateTimeProvider;
         _mediator = mediator;
     }
 
@@ -42,23 +43,26 @@ public class CreateOperationShiftCommandHandler : IRequestHandler<CreateOperatio
         {
             var code = await _codeGenerator.GenerateNextCodeAsync<OperationShift>("NKVH", 8, cancellationToken);
 
-            var organizationUnitId = _userContextService.GetCurrentOrganizationUnitId();
-            if (organizationUnitId == null)
-            {
-                return Result.Validation(
-                    "Organization unit is required",
-                    ValidationErrorCodes.FieldRequired);
-            }
-
             var userId = _userContextService.GetCurrentUserId();
             if (userId == null)
             {
-                return Result.Unauthorized(
-                    "User information not found",
-                    AuthErrorCodes.SessionInvalid);
+                return Result.Internal("Không thể xác định người dùng hiện tại");
             }
 
-            var assignAssets = new List<AssignAssetData>();
+            var user = await _queryContext.Query<User>()
+                .FirstOrDefaultAsync(u => u.Id == userId.Value, cancellationToken);
+
+            if (user == null)
+            {
+                return Result.Unauthorized("Thông tin người dùng không tồn tại");
+            }
+
+            var organizationUnitId = user.OrganizationUnitId;
+            if (organizationUnitId == null)
+            {
+                return Result.Invalid("Người dùng không thuộc đơn vị tổ chức nào");
+            }
+
 
             var assetIds = request.Assets.Select(a => a.AssetId).ToList();
 
@@ -67,23 +71,11 @@ public class CreateOperationShiftCommandHandler : IRequestHandler<CreateOperatio
                 .Where(a => assetIds.Contains(a.Id))
                 .ToDictionaryAsync(a => a.Id, cancellationToken);
 
-            foreach (var assetRequest in request.Assets)
+            if (existingAssets.Any(a => a.Value.Status != AssetStatus.Idle))
             {
-                existingAssets.TryGetValue(assetRequest.AssetId, out var asset);
-
-                if (asset == null)
-                {
-                    return Result.Invalid($"Asset with ID {assetRequest.AssetId} does not exist.");
-                }
-
-                assignAssets.Add(new AssignAssetData
-                {
-                    AssetId = asset.Id,
-                    AssetCode = asset.Code.Value,
-                    AssetName = asset.DisplayName,
-                    IsPrimary = assetRequest.IsPrimary
-                });
+                return Result.Validation("Có một tài sản đang không ở trạng thái rảnh rỗi", ShiftLogErrorCodes.AssetNotInIdleStatus);
             }
+
 
             // Create operation shift
             var operationShift = new OperationShift(
@@ -91,21 +83,29 @@ public class CreateOperationShiftCommandHandler : IRequestHandler<CreateOperatio
                 name: request.Name,
                 primaryUserId: userId.Value,
                 organizationUnitId: organizationUnitId.Value,
-                scheduledStartTime: _dateTimeProvider.Now,
-                scheduledEndTime: _dateTimeProvider.Now.AddHours(24),
-                assets: assignAssets,
+                scheduledStartTime: _clock.Now,
+                scheduledEndTime: _clock.Now.AddHours(24),
                 description: request.Description,
                 notes: request.Notes
             );
 
-            foreach(var parameters in existingAssets.Values.Select(a => a.Parameters))
+            foreach (var assetRequest in request.Assets)
             {
-                foreach(var parameter in parameters)
+                existingAssets.TryGetValue(assetRequest.AssetId, out var asset);
+
+                if (asset == null)
                 {
-                    operationShift.AddReadingSnapshot(
-                        parameter.AssetId,
-                        parameter.ParameterId,
-                        parameter.CurrentValue);
+                    return Result.Invalid($"Không tìm thấy tài sản với ID {assetRequest.AssetId}");
+                }
+
+                operationShift.AddAsset( asset.Id, asset.Code.Value, asset.DisplayName);
+            }
+
+            foreach (var parameters in existingAssets.Values.Select(a => a.Parameters))
+            {
+                foreach (var parameter in parameters)
+                {
+                    operationShift.AddReadingSnapshot(parameter.AssetId, parameter.ParameterId, parameter.CurrentValue);
                 }
             }
 
@@ -124,7 +124,7 @@ public class CreateOperationShiftCommandHandler : IRequestHandler<CreateOperatio
             }
 
 
-            operationShift.StartShift(_dateTimeProvider.Now);
+            operationShift.StartShift(_clock.Now);
             await _repository.AddAsync(operationShift, cancellationToken);
             foreach (var evt in operationShift.ImmediateEvents)
             {

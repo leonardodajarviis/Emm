@@ -58,10 +58,7 @@ namespace Emm.Application.Behaviors
                 throw new InvalidOperationException($"Could not find Failure method on {resultType.Name}");
             }
 
-            // Sử dụng DomainErrorCodeMapper để map exception sang error code
-            var (errorCode, errorType) = DomainErrorCodeMapper.Map(ex);
-
-            var result = failureMethod.Invoke(null, new object[] { errorType, ex.Message, errorCode });
+            var result = failureMethod.Invoke(null, [ErrorType.Validation, ex.Message, ex.Rule]);
             return (TResponse)result!;
         }
 

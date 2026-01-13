@@ -1,5 +1,4 @@
 using Emm.Application.Features.AppOperationShift.Commands;
-using Emm.Domain.Abstractions;
 using Emm.Domain.Entities.Operations;
 
 namespace Emm.Application.Features.AppOperationShift.Builder;

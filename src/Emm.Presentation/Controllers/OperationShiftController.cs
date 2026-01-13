@@ -27,32 +27,6 @@ public class OperationShiftController : ControllerBase
         return result.ToActionResult();
     }
 
-    [HttpPut("{id}")]
-    public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateOperationShiftCommand updateOperationShift)
-    {
-        var command = new UpdateOperationShiftCommand(
-            Id: id,
-            Name: updateOperationShift.Name,
-            Description: updateOperationShift.Description,
-            LocationId: updateOperationShift.LocationId,
-
-            ScheduledStartTime: updateOperationShift.ScheduledStartTime,
-            ScheduledEndTime: updateOperationShift.ScheduledEndTime,
-            Notes: updateOperationShift.Notes
-        );
-
-        var result = await _mediator.Send(command);
-        return result.ToActionResult();
-    }
-
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete([FromRoute] Guid id)
-    {
-        var command = new DeleteOperationShiftCommand(id);
-        var result = await _mediator.Send(command);
-        return result.ToActionResult();
-    }
-
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById([FromRoute] Guid id)
     {
@@ -110,18 +84,6 @@ public class OperationShiftController : ControllerBase
             OperationShiftId = id,
             ShiftLogId = shiftLogId,
             Data = data
-        };
-        var result = await _mediator.Send(command);
-        return result.ToActionResult();
-    }
-
-    [HttpDelete("{id}/shift-logs/{shiftLogId}")]
-    public async Task<IActionResult> RemoveShiftLog([FromRoute] Guid id, [FromRoute] Guid shiftLogId)
-    {
-        var command = new RemoveShiftLogCommand
-        {
-            OperationShiftId = id,
-            ShiftLogId = shiftLogId
         };
         var result = await _mediator.Send(command);
         return result.ToActionResult();

@@ -1,3 +1,4 @@
+using Emm.Application.Helpers;
 using Emm.Application.Services;
 using Emm.Domain.Abstractions;
 using Emm.Domain.Entities;
@@ -180,14 +181,14 @@ public class SyncShiftLogReadingsHandler : IUpdateShiftLogBuilderHandler
                 var asset = context.AssetDict.GetValueOrDefault(reading.AssetId);
                 if (asset == null)
                 {
-                    return Result.Validation($"Asset with ID {reading.AssetId} does not exist");
+                    return Result.Invalid($"Asset with ID {reading.AssetId} does not exist");
                 }
 
                 var parameter = assetParameterDict.GetValueOrDefault((reading.AssetId, reading.ParameterId));
 
                 if (parameter == null)
                 {
-                    return Result.Validation($"Parameter with ID {reading.ParameterId} is not associated with Asset ID {reading.AssetId}");
+                    return Result.Invalid($"Parameter with ID {reading.ParameterId} is not associated with Asset ID {reading.AssetId}");
                 }
 
                 shiftLog.AddReading(

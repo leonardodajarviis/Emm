@@ -34,7 +34,7 @@ public class OperationShiftAsset
         AssetBoxId = assetBoxId;
     }
 
-    public void AssignToGroup(Guid? assetBoxId)
+    public void AssignToGroup(Guid assetBoxId)
     {
         AssetBoxId = assetBoxId;
     }

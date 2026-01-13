@@ -1,3 +1,5 @@
+using Emm.Application.Helpers;
+
 namespace Emm.Application.Features.AppOperationShift.Builder;
 
 public class SyncShiftLogEventsHandler : IUpdateShiftLogBuilderHandler
@@ -13,6 +15,18 @@ public class SyncShiftLogEventsHandler : IUpdateShiftLogBuilderHandler
             .ToHashSet();
 
         var shiftLog = context.ShiftLog;
+
+        // Validate all events form a valid timeline
+        var validationResult = ShiftLogEventValidator.ValidateEventsTimeline(
+            shiftLog,
+            context.Data.Events,
+            e => e.StartTime,
+            e => e.EndTime);
+
+        if (!validationResult.IsSuccess)
+        {
+            return Task.FromResult(validationResult);
+        }
 
         CollectionHelper.RemoveItemsNotInRequest(
             context.ShiftLog.Events,

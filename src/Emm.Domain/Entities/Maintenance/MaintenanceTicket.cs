@@ -68,7 +68,6 @@ public class MaintenanceTicket : AggregateRoot, IAuditableEntity
     {
         ValidateCode(code);
         ValidateTitle(title);
-        DomainGuard.AgainstInvalidForeignKey(assetId, nameof(AssetId));
         ValidateScheduledDates(scheduledStartDate, scheduledEndDate);
 
         _tasks = [];
@@ -202,8 +201,6 @@ public class MaintenanceTicket : AggregateRoot, IAuditableEntity
 
     public void AssignToUser(Guid userId)
     {
-        DomainGuard.AgainstInvalidForeignKey(userId, nameof(userId));
-
         if (Status == MaintenanceTicketStatus.Completed || Status == MaintenanceTicketStatus.Cancelled)
             throw new DomainException("Cannot assign a completed or cancelled ticket");
 
@@ -217,8 +214,6 @@ public class MaintenanceTicket : AggregateRoot, IAuditableEntity
 
     public void AssignToTeam(Guid teamId)
     {
-        DomainGuard.AgainstInvalidForeignKey(teamId, nameof(teamId));
-
         if (Status == MaintenanceTicketStatus.Completed || Status == MaintenanceTicketStatus.Cancelled)
             throw new DomainException("Cannot assign a completed or cancelled ticket");
 
@@ -584,8 +579,6 @@ public class MaintenancePart
         decimal unitCost,
         string? unit = null)
     {
-        DomainGuard.AgainstInvalidForeignKey(itemId, nameof(ItemId));
-
         if (string.IsNullOrWhiteSpace(itemCode))
             throw new DomainException("Item code cannot be empty");
 

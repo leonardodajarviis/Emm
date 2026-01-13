@@ -27,12 +27,12 @@ public class AddAssetsCommandHandler : IRequestHandler<AddAssetsCommand, Result>
 
         if (shift == null)
         {
-            return Result.NotFound("Operation shift not found", ShiftErrorCodes.NotFound);
+            return Result.NotFound("Không tìm thấy ca vận hành");
         }
 
         if (data.AssetIds.Count == 0)
         {
-            return Result.Validation("No assets provided", ValidationErrorCodes.FieldRequired);
+            return Result.Validation("Không có tài sản để thêm");
         }
 
         var assetDict = await _qq.Query<Asset>()
@@ -65,6 +65,6 @@ public class AddAssetsCommandHandler : IRequestHandler<AddAssetsCommand, Result>
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return Result.Success("Assets added successfully");
+        return Result.Success();
     }
 }

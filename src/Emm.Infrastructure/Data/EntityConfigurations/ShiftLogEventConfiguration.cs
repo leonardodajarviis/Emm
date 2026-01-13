@@ -26,9 +26,9 @@ public class ShiftLogEventConfiguration : IEntityTypeConfiguration<ShiftLogEvent
         builder.Property(x => x.StartTime)
             .IsRequired();
 
-        builder.Property(x => x.EndTime);
+        builder.Property(x => x.EndTime).IsRequired();
 
-        builder.Property(x => x.Duration);
+        builder.Property(x => x.Duration).IsRequired();
 
         // Indexes
         builder.HasIndex(x => x.ShiftLogId);

@@ -54,8 +54,6 @@ public class MaterialRequest : AggregateRoot, IAuditableEntity
     {
         ValidateCode(code);
         ValidateTitle(title);
-        DomainGuard.AgainstInvalidForeignKey(requestedByUserId, nameof(RequestedByUserId));
-        DomainGuard.AgainstInvalidForeignKey(organizationUnitId, nameof(OrganizationUnitId));
 
         _lines = [];
 
@@ -158,8 +156,6 @@ public class MaterialRequest : AggregateRoot, IAuditableEntity
     {
         if (Status != MaterialRequestStatus.Pending)
             throw new DomainException("Only pending requests can be approved");
-
-        DomainGuard.AgainstInvalidForeignKey(approvedByUserId, nameof(approvedByUserId));
 
         Status = MaterialRequestStatus.Approved;
         ApprovedByUserId = approvedByUserId;
@@ -359,8 +355,6 @@ public class MaterialRequestLine
         string? unit = null,
         string? remarks = null)
     {
-        DomainGuard.AgainstInvalidForeignKey(itemId, nameof(ItemId));
-
         if (string.IsNullOrWhiteSpace(itemCode))
             throw new DomainException("Item code cannot be empty");
 
