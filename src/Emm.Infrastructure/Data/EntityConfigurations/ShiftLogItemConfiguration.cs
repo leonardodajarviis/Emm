@@ -1,3 +1,6 @@
+using Emm.Domain.Entities;
+using Emm.Domain.Entities.AssetCatalog;
+using Emm.Domain.Entities.Inventory;
 using Emm.Domain.Entities.Operations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -36,16 +39,49 @@ public class ShiftLogItemConfiguration : IEntityTypeConfiguration<ShiftLogItem>
 
         builder.Property(x => x.AssetId);
 
+        builder.Property(x => x.GoodsIssueId)
+            .IsRequired(false);
+
+        builder.Property(x => x.GoodsIssueLineId);
+
         builder.Property(x => x.AssetCode)
-            .HasMaxLength(100);
+            .HasMaxLength(50);
 
         builder.Property(x => x.AssetName)
             .HasMaxLength(200);
 
         builder.Property(x => x.UnitOfMeasureId);
 
+        builder.Property(x => x.UnitOfMeasureCode)
+            .HasMaxLength(20);
+
         builder.Property(x => x.UnitOfMeasureName)
             .HasMaxLength(100);
+
+        builder.HasOne<UnitOfMeasure>()
+            .WithMany()
+            .HasForeignKey(x => x.UnitOfMeasureId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne<Item>()
+            .WithMany()
+            .HasForeignKey(x => x.ItemId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne<Asset>()
+            .WithMany()
+            .HasForeignKey(x => x.AssetId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne<GoodsIssue>()
+            .WithMany()
+            .HasForeignKey(x => x.GoodsIssueId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne<GoodsIssueLine>()
+            .WithMany()
+            .HasForeignKey(x => x.GoodsIssueLineId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         // Indexes
         builder.HasIndex(x => x.ShiftLogId);

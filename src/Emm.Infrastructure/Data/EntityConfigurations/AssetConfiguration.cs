@@ -1,6 +1,5 @@
 using Emm.Domain.Entities.AssetCatalog;
 using Emm.Domain.Entities.AssetTransaction;
-using Emm.Domain.Entities.Operations;
 using Emm.Domain.Entities.Organization;
 using Emm.Domain.ValueObjects;
 using Emm.Infrastructure.Data.Converters;

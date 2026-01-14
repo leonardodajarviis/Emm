@@ -1,5 +1,6 @@
 using Emm.Application.Abstractions;
 using Emm.Application.Authorization;
+using Emm.Application.ErrorCodes;
 using LazyNet.Symphony.Core;
 
 namespace Emm.Application.Behaviors;
@@ -92,7 +93,7 @@ public class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavior<TReq
         // Check if TResponse is Result or Result<T>
         if (typeof(TResponse) == typeof(Result))
         {
-            return (TResponse)(object)Result.Unauthorized("User is not authenticated", "AUTHORIZATION_UNAUTHENTICATED");
+            return (TResponse)(object)Result.Unauthorized("User is not authenticated", GeneralErrorCodes.Unauthenticated);
         }
 
         // For Result<T>, use reflection to call static Unauthorized method
@@ -100,7 +101,7 @@ public class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavior<TReq
         var method = resultType.GetMethod("Unauthorized", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
         if (method != null)
         {
-            var result = method.Invoke(null, ["User is not authenticated", "AUTHORIZATION_UNAUTHENTICATED"]);
+            var result = method.Invoke(null, ["User is not authenticated", GeneralErrorCodes.Unauthenticated]);
             return (TResponse)result!;
         }
 
@@ -112,7 +113,7 @@ public class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavior<TReq
         // Check if TResponse is Result or Result<T>
         if (typeof(TResponse) == typeof(Result))
         {
-            return (TResponse)(object)Result.Forbidden(message, "AUTHORIZATION_FORBIDDEN");
+            return (TResponse)(object)Result.Forbidden(message, GeneralErrorCodes.Forbidden);
         }
 
         // For Result<T>, use reflection to call static Forbidden method
@@ -120,7 +121,7 @@ public class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavior<TReq
         var method = resultType.GetMethod("Forbidden", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
         if (method != null)
         {
-            var result = method.Invoke(null, new object?[] { message, "AUTHORIZATION_FORBIDDEN" });
+            var result = method.Invoke(null, [message, GeneralErrorCodes.Forbidden]);
             return (TResponse)result!;
         }
 

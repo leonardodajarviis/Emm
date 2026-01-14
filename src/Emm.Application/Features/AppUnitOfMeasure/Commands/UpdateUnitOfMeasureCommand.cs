@@ -7,7 +7,6 @@ public record UpdateUnitOfMeasureCommand(
     Guid Id,
     string Name,
     string Symbol,
-    UnitType UnitType,
     string? Description = null,
     Guid? BaseUnitId = null,
     decimal? ConversionFactor = null

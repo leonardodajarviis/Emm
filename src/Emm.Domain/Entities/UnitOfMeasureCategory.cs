@@ -13,6 +13,9 @@ public class UnitOfMeasureCategory : AggregateRoot, IAuditableEntity
     public AuditMetadata Audit { get; private set; } = null!;
     public void SetAudit(AuditMetadata audit) => Audit = audit;
 
+    private readonly List<UnitOfMeasureCategoryLine> _lines = [];
+    public IReadOnlyCollection<UnitOfMeasureCategoryLine> Lines => _lines.AsReadOnly();
+
 
     public UnitOfMeasureCategory(string code, string name)
     {

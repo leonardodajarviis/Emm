@@ -1,10 +1,8 @@
-using Emm.Application.Abstractions;
-using Emm.Application.ErrorCodes;
 using Emm.Domain.Abstractions;
 
 namespace  Emm.Application.Features.AppOperationShift.Commands;
 
-public class StartOperationShiftCommandHandler : IRequestHandler<StartOperationShiftCommand, Result<object>>
+public class StartOperationShiftCommandHandler : IRequestHandler<StartOperationShiftCommand, Result>
 {
     private readonly IOperationShiftRepository _repository;
     private readonly IUnitOfWork _unitOfWork;
@@ -20,12 +18,12 @@ public class StartOperationShiftCommandHandler : IRequestHandler<StartOperationS
         _clock = clock;
     }
 
-    public async Task<Result<object>> Handle(StartOperationShiftCommand request, CancellationToken cancellationToken)
+    public async Task<Result> Handle(StartOperationShiftCommand request, CancellationToken cancellationToken)
     {
         var operationShift = await _repository.GetByIdAsync(request.ShiftId, cancellationToken);
         if (operationShift == null)
         {
-            return Result<object>.NotFound("Operation shift not found");
+            return Result.NotFound("Không tìm thấy ca vận hành");
         }
 
         operationShift.StartShift(actualStartTime: _clock.Now);
@@ -33,11 +31,6 @@ public class StartOperationShiftCommandHandler : IRequestHandler<StartOperationS
         _repository.Update(operationShift);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return Result<object>.Success(new
-        {
-            ShiftId = operationShift.Id,
-            Status = operationShift.Status.ToString(),
-            operationShift.ActualStartTime
-        });
+        return Result.Success();
     }
 }

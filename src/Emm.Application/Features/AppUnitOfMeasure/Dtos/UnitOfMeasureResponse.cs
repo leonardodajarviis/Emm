@@ -1,5 +1,3 @@
-using Emm.Domain.Entities;
-
 namespace Emm.Application.Features.AppUnitOfMeasure.Dtos;
 
 public record UnitOfMeasureResponse(
@@ -8,7 +6,6 @@ public record UnitOfMeasureResponse(
     string Name,
     string Symbol,
     string? Description,
-    UnitType UnitType,
     string UnitTypeName,
     Guid? BaseUnitId,
     string? BaseUnitName,

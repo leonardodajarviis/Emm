@@ -15,21 +15,34 @@ public class GetItemsQueryHandler : IRequestHandler<GetItemsQuery, Result<PagedR
 
     public async Task<Result<PagedResult>> Handle(GetItemsQuery request, CancellationToken cancellationToken)
     {
-        var query = _qq.Query<Item>()
-            .AsQueryable();
+        var query = _qq.Query<Item>().AsQueryable();
 
         var total = await query.CountAsync(cancellationToken);
-        var items = await query.Select(i => new ItemSummaryDto
-        {
-            Id = i.Id,
-            Code = i.Code,
-            Name = i.Name,
-            UnitOfMeasureId = i.UnitOfMeasureId,
-            UnitOfMeasureName = _qq.Query<UnitOfMeasure>()
-                    .Where(u => u.Id == i.UnitOfMeasureId)
-                    .Select(u => u.Name)
-                    .FirstOrDefault() ?? string.Empty
-        }).ToListAsync(cancellationToken: cancellationToken);
+
+        var items = await (
+            from i in query
+            join uom in _qq.Query<UnitOfMeasure>() on i.UnitOfMeasureId equals uom.Id into uomGroup
+            from uom in uomGroup.DefaultIfEmpty()
+            select new ItemSummaryDto
+            {
+                Id = i.Id,
+                Code = i.Code,
+                Name = i.Name,
+                UnitOfMeasureId = i.UnitOfMeasureId,
+                UnitOfMeasureName = uom != null ? uom.Name : string.Empty,
+
+                UnitOfMeasureCategoryLines = (
+                    from umcl in _qq.Query<UnitOfMeasureCategoryLine>()
+                    join u in _qq.Query<UnitOfMeasure>() on umcl.UnitOfMeasureId equals u.Id
+                    where umcl.UnitOfMeasureCategoryId == i.UnitOfMeasureCategoryId
+                    select new UnitOfMeasureCategoryLineResponseDto
+                    {
+                        UnitOfMeasureId = umcl.UnitOfMeasureId,
+                        UnitOfMeasureCode = u.Code,
+                        UnitOfMeasureName = u.Name,
+                    }).ToList()
+            }
+        ).ToListAsync(cancellationToken: cancellationToken);
 
         return Result<PagedResult>.Success(new PagedResult(
             page: request.QueryRequest.Page,

@@ -31,10 +31,6 @@ public class UnitOfMeasureConfiguration : IEntityTypeConfiguration<UnitOfMeasure
         builder.Property(x => x.Description)
             .HasMaxLength(500);
 
-        builder.Property(x => x.UnitType)
-            .IsRequired()
-            .HasConversion<int>();
-
         builder.Property(x => x.BaseUnitId)
             .IsRequired(false);
 
@@ -51,10 +47,6 @@ public class UnitOfMeasureConfiguration : IEntityTypeConfiguration<UnitOfMeasure
             .IsUnique();
 
         builder.HasIndex(x => x.Symbol);
-
-        builder.HasIndex(x => x.UnitType);
-
-        builder.HasIndex(x => new { x.IsActive, x.UnitType });
 
         builder.HasMany(x => x.DerivedUnits)
             .WithOne()

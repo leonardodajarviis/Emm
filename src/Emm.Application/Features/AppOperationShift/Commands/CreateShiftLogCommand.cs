@@ -76,6 +76,7 @@ public sealed record ShiftLogItemRequest
 {
     public Guid? Id { get; init; }
     public Guid ItemId { get; init; }
+    public Guid? UnitOfMeasureId { get; init; }
     public Guid? WarehouseIssueSlipId { get; init; }
     public decimal Quantity { get; init; }
     public Guid AssetId { get; init; }

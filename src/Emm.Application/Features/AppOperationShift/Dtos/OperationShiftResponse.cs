@@ -56,6 +56,7 @@ public record OperationShiftAssetParameterResponse
     public required Guid UnitOfMeasureId { get; set; }
     public required string UnitOfMeasureName { get; set; }
     public required string UnitOfMeasureSymbol { get; set; }
+    public required decimal CurrentValue {get; set;}
 }
 
 public record OperationShiftAssetResponse

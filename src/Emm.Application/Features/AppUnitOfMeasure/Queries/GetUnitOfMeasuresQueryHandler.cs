@@ -21,8 +21,7 @@ public class GetUnitOfMeasuresQueryHandler : IRequestHandler<GetUnitOfMeasuresQu
 
         var query = _queryContext.Query<UnitOfMeasure>()
             .ApplyFiltering(queryRequest)
-            .OrderBy(u => u.UnitType)
-            .ThenBy(u => u.Name).AsQueryable();
+            .AsQueryable();
 
         var totalCount = await query.CountAsync(cancellationToken);
 
@@ -34,8 +33,6 @@ public class GetUnitOfMeasuresQueryHandler : IRequestHandler<GetUnitOfMeasuresQu
                 u.Name,
                 u.Symbol,
                 u.Description,
-                u.UnitType,
-                u.UnitType.ToString(),
                 u.IsActive
             ))
             .ToListAsync(cancellationToken);

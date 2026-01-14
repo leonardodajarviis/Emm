@@ -24,8 +24,6 @@ public class GetUnitOfMeasureByIdQueryHandler : IRequestHandler<GetUnitOfMeasure
                 u.Name,
                 u.Symbol,
                 u.Description,
-                u.UnitType,
-                u.UnitType.ToString(),
                 u.IsActive
             ))
             .FirstOrDefaultAsync(cancellationToken);

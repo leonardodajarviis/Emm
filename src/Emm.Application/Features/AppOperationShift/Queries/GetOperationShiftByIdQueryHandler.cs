@@ -189,7 +189,8 @@ public class GetOperationShiftByIdQueryHandler : IRequestHandler<GetOperationShi
                 ParameterName = ap.ParameterName,
                 UnitOfMeasureId = ap.UnitOfMeasureId,
                 UnitOfMeasureName = u.Name,
-                UnitOfMeasureSymbol = u.Symbol
+                UnitOfMeasureSymbol = u.Symbol,
+                CurrentValue = ap.CurrentValue
             }
         ).ToListAsync(cancellationToken);
 

@@ -21,25 +21,11 @@ namespace Emm.Application.Behaviors
             }
             catch (DbUpdateException ex)
             {
-                // Kiểm tra xem TResponse có phải là Result<T> không
-                if (IsResultType(typeof(TResponse)))
-                {
-                    return HandleDbUpdateExceptionForResult(ex);
-                }
-
-                // Nếu không phải Result type thì re-throw để middleware xử lý
-                throw;
+                return HandleDbUpdateExceptionForResult(ex);
             }
             catch (DomainException ex)
             {
-                // Kiểm tra xem TResponse có phải là Result<T> không
-                if (IsResultType(typeof(TResponse)))
-                {
-                    return HandleDomainExceptionForResult(ex);
-                }
-
-                // Nếu không phải Result type thì re-throw để middleware xử lý
-                throw;
+                return HandleDomainExceptionForResult(ex);
             }
         }
 
@@ -51,12 +37,7 @@ namespace Emm.Application.Behaviors
         private static TResponse HandleDomainExceptionForResult(DomainException ex)
         {
             var resultType = typeof(TResponse);
-            var failureMethod = resultType.GetMethod("Failure", BindingFlags.Public | BindingFlags.Static);
-
-            if (failureMethod == null)
-            {
-                throw new InvalidOperationException($"Could not find Failure method on {resultType.Name}");
-            }
+            var failureMethod = resultType.GetMethod("Failure", BindingFlags.Public | BindingFlags.Static) ?? throw new InvalidOperationException($"Could not find Failure method on {resultType.Name}");
 
             var result = failureMethod.Invoke(null, [ErrorType.Validation, ex.Message, ex.Rule]);
             return (TResponse)result!;
@@ -72,7 +53,6 @@ namespace Emm.Application.Behaviors
                 throw new InvalidOperationException($"Could not find Failure method on {resultType.Name}");
             }
 
-            // Xác định ErrorType dựa trên database exception
             var errorType = DetermineDbErrorType(ex);
             var errorMessage = GetDbUpdateErrorMessage(ex);
             var errorCode = GetDbUpdateErrorCode(ex);

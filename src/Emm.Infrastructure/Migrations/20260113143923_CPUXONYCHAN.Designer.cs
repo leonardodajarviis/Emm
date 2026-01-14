@@ -4,6 +4,7 @@ using Emm.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Emm.Infrastructure.Migrations
 {
     [DbContext(typeof(XDbContext))]
-    partial class XDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260113143923_CPUXONYCHAN")]
+    partial class CPUXONYCHAN
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -852,73 +855,6 @@ namespace Emm.Infrastructure.Migrations
                     b.ToTable("UserRoles", (string)null);
                 });
 
-            modelBuilder.Entity("Emm.Domain.Entities.Inventory.GoodsIssue", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("Notes")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<Guid>("WarehouseId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("GoodsIssues", (string)null);
-                });
-
-            modelBuilder.Entity("Emm.Domain.Entities.Inventory.GoodsIssueLine", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("GoodsIssueId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("ItemCode")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("ItemId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("ItemName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("Quantity")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("UnitOfMeasureCode")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("UnitOfMeasureId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("UnitOfMeasureName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("GoodsIssueId");
-
-                    b.ToTable("GoodsIssueLine");
-                });
-
             modelBuilder.Entity("Emm.Domain.Entities.Inventory.Item", b =>
                 {
                     b.Property<Guid>("Id")
@@ -938,7 +874,7 @@ namespace Emm.Infrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<Guid?>("UnitOfMeasureCategoryId")
+                    b.Property<Guid>("UnitOfMeasureCategoryId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("UnitOfMeasureId")
@@ -1133,9 +1069,6 @@ namespace Emm.Infrastructure.Migrations
 
                     b.Property<DateTime?>("CompletedAt")
                         .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsCheckpointLogEnabled")
-                        .HasColumnType("bit");
 
                     b.Property<bool>("IsPrimary")
                         .HasColumnType("bit");
@@ -1355,9 +1288,6 @@ namespace Emm.Infrastructure.Migrations
                     b.Property<int>("EventType")
                         .HasColumnType("int");
 
-                    b.Property<Guid?>("IncidentId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<Guid>("ShiftLogId")
                         .HasColumnType("uniqueidentifier");
 
@@ -1367,8 +1297,6 @@ namespace Emm.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("EventType");
-
-                    b.HasIndex("IncidentId");
 
                     b.HasIndex("ShiftLogId");
 
@@ -1394,12 +1322,6 @@ namespace Emm.Infrastructure.Migrations
                     b.Property<string>("AssetName")
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
-
-                    b.Property<Guid?>("GoodsIssueId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("GoodsIssueLineId")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ItemCode")
                         .IsRequired()
@@ -1432,13 +1354,12 @@ namespace Emm.Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<Guid?>("WarehouseIssueSlipId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AssetId");
-
-                    b.HasIndex("GoodsIssueId");
-
-                    b.HasIndex("GoodsIssueLineId");
 
                     b.HasIndex("ItemId");
 
@@ -1745,6 +1666,9 @@ namespace Emm.Infrastructure.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
+                    b.Property<int>("UnitType")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("BaseUnitId");
@@ -1753,6 +1677,10 @@ namespace Emm.Infrastructure.Migrations
                         .IsUnique();
 
                     b.HasIndex("Symbol");
+
+                    b.HasIndex("UnitType");
+
+                    b.HasIndex("IsActive", "UnitType");
 
                     b.ToTable("UnitOfMeasures", (string)null);
                 });
@@ -2737,46 +2665,6 @@ namespace Emm.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Emm.Domain.Entities.Inventory.GoodsIssue", b =>
-                {
-                    b.OwnsOne("Emm.Domain.ValueObjects.AuditMetadata", "Audit", b1 =>
-                        {
-                            b1.Property<Guid>("GoodsIssueId")
-                                .HasColumnType("uniqueidentifier");
-
-                            b1.Property<DateTime>("CreatedAt")
-                                .HasColumnType("datetime2");
-
-                            b1.Property<Guid>("CreatedByUserId")
-                                .HasColumnType("uniqueidentifier");
-
-                            b1.Property<DateTime?>("ModifiedAt")
-                                .HasColumnType("datetime2");
-
-                            b1.Property<Guid?>("ModifiedByUserId")
-                                .HasColumnType("uniqueidentifier");
-
-                            b1.HasKey("GoodsIssueId");
-
-                            b1.ToTable("GoodsIssues");
-
-                            b1.WithOwner()
-                                .HasForeignKey("GoodsIssueId");
-                        });
-
-                    b.Navigation("Audit")
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Emm.Domain.Entities.Inventory.GoodsIssueLine", b =>
-                {
-                    b.HasOne("Emm.Domain.Entities.Inventory.GoodsIssue", null)
-                        .WithMany("Lines")
-                        .HasForeignKey("GoodsIssueId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("Emm.Domain.Entities.Inventory.Item", b =>
                 {
                     b.HasOne("Emm.Domain.Entities.Inventory.ItemGroup", null)
@@ -2788,7 +2676,8 @@ namespace Emm.Infrastructure.Migrations
                     b.HasOne("Emm.Domain.Entities.UnitOfMeasureCategory", null)
                         .WithMany()
                         .HasForeignKey("UnitOfMeasureCategoryId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
 
                     b.HasOne("Emm.Domain.Entities.UnitOfMeasure", null)
                         .WithMany()
@@ -3093,11 +2982,6 @@ namespace Emm.Infrastructure.Migrations
 
             modelBuilder.Entity("Emm.Domain.Entities.Operations.ShiftLogEvent", b =>
                 {
-                    b.HasOne("Emm.Domain.Entities.Maintenance.IncidentReport", null)
-                        .WithMany()
-                        .HasForeignKey("IncidentId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
                     b.HasOne("Emm.Domain.Entities.Operations.ShiftLog", null)
                         .WithMany("Events")
                         .HasForeignKey("ShiftLogId")
@@ -3110,16 +2994,6 @@ namespace Emm.Infrastructure.Migrations
                     b.HasOne("Emm.Domain.Entities.AssetCatalog.Asset", null)
                         .WithMany()
                         .HasForeignKey("AssetId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("Emm.Domain.Entities.Inventory.GoodsIssue", null)
-                        .WithMany()
-                        .HasForeignKey("GoodsIssueId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("Emm.Domain.Entities.Inventory.GoodsIssueLine", null)
-                        .WithMany()
-                        .HasForeignKey("GoodsIssueLineId")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Emm.Domain.Entities.Inventory.Item", null)
@@ -3386,11 +3260,6 @@ namespace Emm.Infrastructure.Migrations
                     b.Navigation("RolePermissions");
 
                     b.Navigation("UserRoles");
-                });
-
-            modelBuilder.Entity("Emm.Domain.Entities.Inventory.GoodsIssue", b =>
-                {
-                    b.Navigation("Lines");
                 });
 
             modelBuilder.Entity("Emm.Domain.Entities.Operations.OperationShift", b =>

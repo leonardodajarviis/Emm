@@ -1,5 +1,3 @@
-using Emm.Domain.Exceptions;
-
 namespace Emm.Domain.Entities.Operations;
 
 /// <summary>
@@ -13,6 +11,7 @@ public class OperationShiftAsset
     public string AssetCode { get; private set; } = null!;
     public string AssetName { get; private set; } = null!;
     public bool IsPrimary { get; private set; }
+    public bool IsCheckpointLogEnabled {get; private set; }
     public Guid? AssetBoxId { get; private set; }
     public DateTime? StartedAt { get; private set; }
     public DateTime? CompletedAt { get; private set; }

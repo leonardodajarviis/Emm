@@ -29,7 +29,6 @@ public class UnitOfMeasureController : ControllerBase
         var command = new CreateUnitOfMeasureCommand(
             Name: createUnitOfMeasure.Name,
             Symbol: createUnitOfMeasure.Symbol,
-            UnitType: createUnitOfMeasure.UnitType,
             Description: createUnitOfMeasure.Description,
             BaseUnitId: createUnitOfMeasure.BaseUnitId,
             ConversionFactor: createUnitOfMeasure.ConversionFactor
@@ -50,7 +49,6 @@ public class UnitOfMeasureController : ControllerBase
             Id: id,
             Name: updateUnitOfMeasure.Name,
             Symbol: updateUnitOfMeasure.Symbol,
-            UnitType: updateUnitOfMeasure.UnitType,
             Description: updateUnitOfMeasure.Description,
             BaseUnitId: updateUnitOfMeasure.BaseUnitId,
             ConversionFactor: updateUnitOfMeasure.ConversionFactor

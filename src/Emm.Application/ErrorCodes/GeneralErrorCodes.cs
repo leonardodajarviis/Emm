@@ -12,5 +12,6 @@ public static class GeneralErrorCodes
     public const string NotFound = "NotFound";
     public const string Conflict = "Conflict";
     public const string Unauthorized = "Unauthorized";
+    public const string Unauthenticated = "Unauthenticated";
     public const string Forbidden = "Forbidden";
 }

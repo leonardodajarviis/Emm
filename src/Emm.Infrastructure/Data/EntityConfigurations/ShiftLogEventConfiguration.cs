@@ -1,3 +1,4 @@
+using Emm.Domain.Entities.Maintenance;
 using Emm.Domain.Entities.Operations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -23,6 +24,9 @@ public class ShiftLogEventConfiguration : IEntityTypeConfiguration<ShiftLogEvent
             .IsRequired()
             .HasConversion<int>();
 
+        builder.Property(x => x.IncidentId)
+            .IsRequired(false);
+
         builder.Property(x => x.StartTime)
             .IsRequired();
 
@@ -30,11 +34,15 @@ public class ShiftLogEventConfiguration : IEntityTypeConfiguration<ShiftLogEvent
 
         builder.Property(x => x.Duration).IsRequired();
 
+        builder.HasOne<IncidentReport>()
+            .WithMany()
+            .HasForeignKey(x => x.IncidentId)
+            .OnDelete(DeleteBehavior.NoAction);
+
         // Indexes
         builder.HasIndex(x => x.ShiftLogId);
 
         builder.HasIndex(x => x.EventType);
-
 
         builder.HasIndex(x => x.StartTime);
 

@@ -25,6 +25,9 @@ public class ItemConfiguration : IEntityTypeConfiguration<Item>
         builder.Property(i => i.UnitOfMeasureId)
             .IsRequired();
 
+        builder.Property(i => i.UnitOfMeasureCategoryId)
+            .IsRequired(false);
+
         builder.Property(i => i.GroupId)
             .IsRequired();
 
@@ -42,6 +45,11 @@ public class ItemConfiguration : IEntityTypeConfiguration<Item>
         builder.HasOne<ItemGroup>()
             .WithMany()
             .HasForeignKey(i => i.GroupId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        builder.HasOne<UnitOfMeasureCategory>()
+            .WithMany()
+            .HasForeignKey(i => i.UnitOfMeasureCategoryId)
             .OnDelete(DeleteBehavior.NoAction);
     }
 }

@@ -147,7 +147,10 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
 
     public void UpdateReadingValue(Guid readingId, decimal newValue)
     {
-        var reading = _readings.FirstOrDefault(r => r.Id == readingId) ?? throw new DomainException($"Reading with ID {readingId} not found");
+        var reading = DomainGuard.AgainstNotFound(
+            () => _readings.FirstOrDefault(r => r.Id == readingId),
+            $"Reading với ID {readingId} không tồn tại trong nhật ký ca.");
+
         var change = reading.UpdateValue(newValue);
         if (change)
         {
@@ -258,16 +261,17 @@ public class ShiftLog : AggregateRoot, IAuditableEntity
         string itemCode,
         string itemName,
         decimal quantity,
-        Guid? assetId = null,
-        string? assetCode = null,
-        string? assetName = null,
-        Guid? unitOfMeasureId = null,
-        string? unitOfMeasureName = null)
+        Guid? assetId,
+        string? assetCode,
+        string? assetName,
+        Guid? unitOfMeasureId,
+        string? unitOfMeasureCode,
+        string? unitOfMeasureName)
     {
         var item = new ShiftLogItem(
-            Id, warehouseIssueSlipId, itemId, itemName, itemCode, quantity,
+            Id, warehouseIssueSlipId, itemId, itemCode, itemName, quantity,
             assetId, assetCode, assetName,
-            unitOfMeasureId, unitOfMeasureName);
+            unitOfMeasureId, unitOfMeasureCode, unitOfMeasureName);
 
         _items.Add(item);
     }

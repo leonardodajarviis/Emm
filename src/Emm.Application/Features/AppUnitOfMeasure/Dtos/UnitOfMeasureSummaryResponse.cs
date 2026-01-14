@@ -8,7 +8,5 @@ public record UnitOfMeasureSummaryResponse(
     string Name,
     string Symbol,
     string? Description,
-    UnitType UnitType,
-    string UnitTypeName,
     bool IsActive
 );

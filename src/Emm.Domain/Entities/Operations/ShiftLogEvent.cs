@@ -14,6 +14,7 @@ public class ShiftLogEvent
     public DateTime StartTime { get; private set; }
     public DateTime EndTime { get; private set; }
     public TimeSpan? Duration { get; private set; }
+    public Guid? IncidentId { get; private set; }
 
     public ShiftLogEvent(
         Guid operationTaskId,

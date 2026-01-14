@@ -28,11 +28,6 @@ public class CreateUnitOfMeasureCommandHandler : IRequestHandler<CreateUnitOfMea
                 {
                     return Result<object>.Failure(ErrorType.NotFound, "Base unit not found");
                 }
-
-                if (baseUnit.UnitType != request.UnitType)
-                {
-                    return Result<object>.Failure(ErrorType.Validation, "Base unit must have the same unit type");
-                }
             }
 
             // Generate unique code for unit of measure
@@ -42,7 +37,6 @@ public class CreateUnitOfMeasureCommandHandler : IRequestHandler<CreateUnitOfMea
                 code,
                 request.Name,
                 request.Symbol,
-                request.UnitType,
                 request.Description,
                 request.BaseUnitId,
                 request.ConversionFactor);

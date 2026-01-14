@@ -4,8 +4,8 @@ public class ShiftLogItem
 {
     public Guid Id { get; private set; } = Guid.CreateVersion7();
     public Guid ShiftLogId { get; private set; }
-    public Guid? WarehouseIssueSlipId { get; private set; }
-
+    public Guid? GoodsIssueId { get; private set; }
+    public Guid? GoodsIssueLineId { get; private set; }
     public Guid? AssetId { get; private set; }
     public string? AssetCode { get; private set; }
     public string? AssetName { get; private set; }
@@ -16,6 +16,7 @@ public class ShiftLogItem
     public decimal Quantity { get; private set; }
     public Guid? UnitOfMeasureId { get; private set; }
     public string? UnitOfMeasureName { get; private set; }
+    public string? UnitOfMeasureCode { get; private set; }
 
     public ShiftLogItem(
         Guid shiftLogId,
@@ -28,6 +29,7 @@ public class ShiftLogItem
         string? assetCode = null,
         string? assetName = null,
         Guid? unitOfMeasureId = null,
+        string? unitOfMeasureCode = null,
         string? unitOfMeasureName = null)
     {
         ShiftLogId = shiftLogId;
@@ -40,7 +42,8 @@ public class ShiftLogItem
         AssetName = assetName;
         UnitOfMeasureId = unitOfMeasureId;
         UnitOfMeasureName = unitOfMeasureName;
-        WarehouseIssueSlipId = warehouseIssueSlipId;
+        GoodsIssueId = warehouseIssueSlipId;
+        UnitOfMeasureCode = unitOfMeasureCode;
     }
 
     public void UpdateQuantity(decimal quantity)
